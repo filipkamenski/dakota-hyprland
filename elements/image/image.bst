@@ -7,6 +7,7 @@ depends:
   - compositor/hyprpaper.bst
   - compositor/hyprlock.bst
   - compositor/hypridle.bst
+  - shell/quickshell.bst
   - shell/waybar.bst
   - shell/greetd.bst
   - shell/tuigreet.bst
