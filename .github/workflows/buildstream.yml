@@ -49,16 +49,16 @@ jobs:
             buildstream/buildstream:latest \
             bash -c "
               echo 'Validating project dependency tree...'
-              bst show elements/image/image.bst || { echo 'Project validation failed'; exit 1; }
+              bst show image/image.bst || { echo 'Project validation failed'; exit 1; }
               
               echo 'Tracking element sources...'
-              bst source track --deps all elements/image/image.bst || true
+              bst source track --deps all image/image.bst || true
               
               echo 'Building OS image with upstream artifact cache...'
-              bst build elements/image/image.bst
+              bst build image/image.bst
               
               echo 'Checking out compiled rootfs...'
-              bst artifact checkout elements/image/image.bst --directory /workspace/rootfs
+              bst artifact checkout image/image.bst --directory /workspace/rootfs
             "
 
       - name: Package & Push Bootable OCI Image
