@@ -46,8 +46,11 @@ jobs:
           docker run --privileged --rm \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
-            registry.gitlab.com/buildstream/buildstream:2.4.0 \
+            buildstream/buildstream:latest \
             bash -c "
+              echo 'Validating project dependency tree...'
+              bst show elements/image/image.bst || { echo 'Project validation failed'; exit 1; }
+              
               echo 'Tracking element sources...'
               bst source track --deps all elements/image/image.bst || true
               
