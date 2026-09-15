@@ -8,4 +8,4 @@ sources:
 
 config:
   options:
-    target_arch: '%{arch}'
+    target_arch: x86_64
