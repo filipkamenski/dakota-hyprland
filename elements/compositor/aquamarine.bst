@@ -9,6 +9,7 @@ depends:
   - freedesktop-sdk.bst:components/libinput.bst
   - freedesktop-sdk.bst:extensions/mesa/mesa.bst
   - freedesktop-sdk.bst:components/mesa-headers.bst
+  - freedesktop-sdk.bst:components/dummy-gbm.bst
   - freedesktop-sdk.bst:components/wayland.bst
   - freedesktop-sdk.bst:components/wayland-protocols.bst
   - freedesktop-sdk.bst:components/hwdata.bst
