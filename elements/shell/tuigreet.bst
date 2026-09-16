@@ -1,4 +1,4 @@
-kind: cargo
+kind: manual
 
 depends:
   - freedesktop-sdk.bst:bootstrap/bash.bst
@@ -10,5 +10,14 @@ depends:
 sources:
   - kind: git
     url: https://github.com/tuigreet/tuigreet.git
-    track: master
+    track: main
     ref: 0.11.1
+  - kind: cargo
+    cargo-lock: Cargo.lock
+
+config:
+  build-commands: |
+    cargo build --release --frozen --package tuigreet
+
+  install-commands: |
+    install -Dm755 target/release/tuigreet %{install-root}%{bindir}/tuigreet

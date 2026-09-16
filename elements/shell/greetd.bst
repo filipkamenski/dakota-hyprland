@@ -1,4 +1,4 @@
-kind: cargo
+kind: manual
 
 depends:
   - freedesktop-sdk.bst:bootstrap/bash.bst
@@ -13,3 +13,14 @@ sources:
     url: https://git.sr.ht/~kennylevinsen/greetd
     track: master
     ref: 0.9.0
+  - kind: cargo
+    cargo-lock: Cargo.lock
+
+config:
+  build-commands: |
+    cargo build --release --frozen
+
+  install-commands: |
+    install -Dm755 target/release/greetd %{install-root}%{bindir}/greetd
+    install -Dm755 target/release/agreety %{install-root}%{bindir}/agreety
+    install -Dm644 greetd.service %{install-root}%{libdir}/systemd/system/greetd.service
