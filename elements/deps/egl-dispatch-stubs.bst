@@ -4,6 +4,9 @@ kind: manual
 # mesa backend libs so FindOpenGL (libEGL/libGLESv2) succeeds at build time.
 depends:
   - freedesktop-sdk.bst:bootstrap/coreutils.bst
+  - freedesktop-sdk.bst:bootstrap/bash.bst
+  - freedesktop-sdk.bst:bootstrap/coreutils.bst
+  - freedesktop-sdk.bst:bootstrap/symlinks.bst
   - freedesktop-sdk.bst:components/gcc-libs.bst
   - freedesktop-sdk.bst:extensions/mesa/mesa.bst
 
