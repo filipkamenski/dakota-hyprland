@@ -5,6 +5,7 @@ depends:
   - freedesktop-sdk.bst:public-stacks/buildsystem-cmake.bst
   - freedesktop-sdk.bst:components/gcc.bst
   - freedesktop-sdk.bst:components/pkg-config.bst
+  - deps/abseil-cpp.bst
 
 sources:
   - kind: git
