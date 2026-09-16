@@ -1,0 +1,20 @@
+# Version lockfile — CI fails on unpinned drift (see docs/build-spec.md)
+hyprland:
+  repo: https://github.com/hyprwm/Hyprland
+  tag: v0.56.2
+  release: "2026-08-05"
+noctalia:
+  repo: https://github.com/noctalia-dev/noctalia
+  tag: v5.1.0
+  release: "2026-09-10"
+noctalia-greeter:
+  repo: https://github.com/noctalia-dev/noctalia-greeter
+  # pinned commit resolved at build time from the v5 release branch
+  branch: main
+freedesktop-sdk:
+  tag: freedesktop-sdk-26.08.1
+scroll_layout:
+  plan: A   # A = native scroller (Hyprland >= 0.53), B = cpiber/hyprscroller fallback
+hyprscroller_plan_b:
+  repo: https://github.com/cpiber/hyprscroller
+  pin: null  # only pinned if plan B activates
