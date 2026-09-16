@@ -5,6 +5,7 @@ depends:
   - freedesktop-sdk.bst:components/gcc.bst
   - freedesktop-sdk.bst:components/glib.bst
   - freedesktop-sdk.bst:components/icu.bst
+  - freedesktop-sdk.bst:components/gmp.bst
   - freedesktop-sdk.bst:components/libxml2.bst
   - freedesktop-sdk.bst:components/libtool.bst
 
