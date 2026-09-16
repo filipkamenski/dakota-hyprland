@@ -32,13 +32,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cache BuildStream Local Artifacts
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/buildstream/artifacts
-          key: bst-artifacts-${{ runner.os }}-${{ hashFiles('elements/**', 'project.conf') }}
-          restore-keys: |
-            bst-artifacts-${{ runner.os }}-
+      # NOTE: cache disabled — stale artifacts caused subtle breakage; upstream
+      # FDS CAS pull cache makes rebuilds cheap enough.
 
       - name: Build OS Rootfs via BuildStream
         run: |
