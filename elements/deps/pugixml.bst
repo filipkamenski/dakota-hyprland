@@ -14,3 +14,8 @@ variables:
   cmake-local: >-
     -DBUILD_TESTS=OFF
     -DPUGIXML_BUILD_TESTS=OFF
+
+config:
+  install-commands:
+    - |
+      install -Dm644 _builddir/pugixml.pc %{install-root}%{libdir}/pkgconfig/pugixml.pc
