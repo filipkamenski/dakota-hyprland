@@ -15,4 +15,4 @@ sources:
   - kind: git
     url: https://codeberg.org/dnkl/foot.git
     track: master
-    ref: 1.19.0
+    ref: 1.9.2

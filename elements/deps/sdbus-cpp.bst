@@ -7,9 +7,9 @@ depends:
 
 sources:
   - kind: git
-    url: https://github.com/sdbus-cpp/sdbus-cpp.git
+    url: https://github.com/Kistler-Group/sdbus-cpp.git
     track: master
-    ref: v2.1.0
+    ref: v2.3.1
 
 variables:
   cmake-local: >-

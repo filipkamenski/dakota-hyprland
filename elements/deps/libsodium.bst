@@ -8,4 +8,4 @@ sources:
   - kind: git
     url: https://github.com/jedisct1/libsodium.git
     track: master
-    ref: 1.0.20
+    ref: 1.0.20-RELEASE

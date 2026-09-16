@@ -8,7 +8,7 @@ sources:
   - kind: git
     url: https://github.com/mity/md4c.git
     track: master
-    ref: 0.5.2
+    ref: release-0.5.2
 
 variables:
   cmake-local: >-

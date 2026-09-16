@@ -8,4 +8,4 @@ sources:
   - kind: git
     url: https://github.com/tuigreet/tuigreet.git
     track: master
-    ref: 0.9.1
+    ref: 0.11.1
