@@ -17,9 +17,7 @@ sources:
 
 config:
   build-commands:
-    - |
-    cargo build --release --frozen --package tuigreet
+    - cargo build --release --frozen --package tuigreet
 
   install-commands:
-    - |
-    install -Dm755 target/release/tuigreet %{install-root}%{bindir}/tuigreet
+    - install -Dm755 target/release/tuigreet %{install-root}%{bindir}/tuigreet

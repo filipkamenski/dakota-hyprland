@@ -18,11 +18,9 @@ sources:
 
 config:
   build-commands:
-    - |
-    cargo build --release --frozen
+    - cargo build --release --frozen
 
   install-commands:
-    - |
-    install -Dm755 target/release/greetd %{install-root}%{bindir}/greetd
-    install -Dm755 target/release/agreety %{install-root}%{bindir}/agreety
-    install -Dm644 greetd.service %{install-root}%{libdir}/systemd/system/greetd.service
+    - install -Dm755 target/release/greetd %{install-root}%{bindir}/greetd
+    - install -Dm755 target/release/agreety %{install-root}%{bindir}/agreety
+    - install -Dm644 greetd.service %{install-root}%{libdir}/systemd/system/greetd.service
