@@ -19,5 +19,7 @@ config:
     - ls /usr/lib | grep -iE "EGL|GLES" || echo NOGL
     - ls /usr/lib/GL/default/lib 2>/dev/null | grep -iE "EGL|GLES" || echo NOGLPROFILE
     - ls /usr/include | grep -iE "EGL|GLES" || echo NOHDR
-    - pkg-config --variable=pc_path pkg-config || true
+    - find /usr -name "libEGL*" | head -5 || true
+    - find /usr -name "libGLESv2*" | head -5 || true
+    - ls /usr/lib/*/GL/default/lib 2>/dev/null | head -20 || true
     - "false"
