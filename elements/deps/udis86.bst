@@ -1,8 +1,9 @@
-kind: cmake
+kind: autotools
 
 depends:
-  - freedesktop-sdk.bst:public-stacks/buildsystem-cmake.bst
+  - freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
   - freedesktop-sdk.bst:components/gcc.bst
+  - freedesktop-sdk.bst:components/python3.bst
 
 sources:
   - kind: git
@@ -10,5 +11,6 @@ sources:
     track: master
 
 variables:
-  cmake-local: >-
-    -DPYTHON_API=OFF
+  autotools-local: >-
+    --disable-static
+    --enable-shared
