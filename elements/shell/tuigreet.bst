@@ -1,12 +1,11 @@
 kind: cargo
 
 depends:
-- freedesktop-sdk.bst:components/rust.bst
-- freedesktop-sdk.bst:components/rust.bst
-- freedesktop-sdk.bst:components/pkg-config.bst
+  - freedesktop-sdk.bst:components/rust.bst
+  - freedesktop-sdk.bst:components/pkg-config.bst
 
 sources:
-- kind: git
-url: https://github.com/apognu/tuigreet.git
-track: master
-ref: 0.9.1
+  - kind: git
+    url: https://github.com/apognu/tuigreet.git
+    track: master
+    ref: 0.9.1

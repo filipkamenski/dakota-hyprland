@@ -19,11 +19,3 @@ sources:
     url: https://github.com/Alexays/Waybar.git
     track: master
     ref: 0.11.0
-
-variables:
-  meson-local: >-
-    -Dnetwork=enabled
-    -Dpipewire=enabled
-    -Dpulseaudio=enabled
-    -Dtray=enabled
-    -Dsystemd=enabled
