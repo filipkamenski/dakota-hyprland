@@ -19,7 +19,7 @@ sources:
 
 config:
   build-commands:
-    - CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=gcc cargo build --release --frozen
+    - CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc cargo build --release --frozen
 
   install-commands:
     - install -Dm755 target/release/greetd %{install-root}%{bindir}/greetd
