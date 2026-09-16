@@ -17,10 +17,12 @@ sources:
     cargo-lock: Cargo.lock
 
 config:
-  build-commands: |
+  build-commands:
+    - |
     cargo build --release --frozen
 
-  install-commands: |
+  install-commands:
+    - |
     install -Dm755 target/release/greetd %{install-root}%{bindir}/greetd
     install -Dm755 target/release/agreety %{install-root}%{bindir}/agreety
     install -Dm644 greetd.service %{install-root}%{libdir}/systemd/system/greetd.service

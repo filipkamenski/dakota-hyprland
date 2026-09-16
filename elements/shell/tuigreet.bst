@@ -16,8 +16,10 @@ sources:
     cargo-lock: Cargo.lock
 
 config:
-  build-commands: |
+  build-commands:
+    - |
     cargo build --release --frozen --package tuigreet
 
-  install-commands: |
+  install-commands:
+    - |
     install -Dm755 target/release/tuigreet %{install-root}%{bindir}/tuigreet
