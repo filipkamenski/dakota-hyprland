@@ -1,7 +1,7 @@
-kind: meson
+kind: cmake
 
 depends:
-  - freedesktop-sdk.bst:public-stacks/buildsystem-meson.bst
+  - freedesktop-sdk.bst:public-stacks/buildsystem-cmake.bst
   - freedesktop-sdk.bst:components/gcc.bst
 
 sources:
@@ -9,3 +9,8 @@ sources:
     url: https://github.com/zeux/pugixml.git
     track: master
     ref: v1.15
+
+variables:
+  cmake-local: >-
+    -DBUILD_TESTS=OFF
+    -DPUGIXML_BUILD_TESTS=OFF
