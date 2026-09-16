@@ -8,16 +8,14 @@ depends:
   - freedesktop-sdk.bst:components/wayland.bst
   - freedesktop-sdk.bst:components/wayland-protocols.bst
   - freedesktop-sdk.bst:components/pipewire.bst
-  - freedesktop-sdk.bst:components/pulseaudio.bst
+  - freedesktop-sdk.bst:components/libpulse.bst
   - freedesktop-sdk.bst:components/libnl.bst
   - freedesktop-sdk.bst:components/libinput.bst
   - freedesktop-sdk.bst:components/systemd.bst
-  - freedesktop-sdk.bst:components/jsoncpp.bst
-  - freedesktop-sdk.bst:components/fmt.bst
-  - freedesktop-sdk.bst:components/spdlog.bst
+  - freedesktop-sdk.bst:components/fmtlib.bst
 
 sources:
-  - kind: git_repo
+  - kind: git
     url: https://github.com/Alexays/Waybar.git
     track: master
     ref: 0.11.0
