@@ -57,3 +57,11 @@ variables:
     -DOPENGL_gles3_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0
     -DOPENGL_EGL_INCLUDE_DIR=/usr/include
     -DOpenGL_GL_PREFERENCE=GLVND
+
+config:
+  build-commands:
+    - |
+      set -x
+      cmake --build _builddir -- ${JOBS} --verbose || true
+      ninja -C _builddir -t regen 2>&1 | tail -60
+      exit 1
