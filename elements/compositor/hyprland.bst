@@ -27,6 +27,9 @@ depends:
   - freedesktop-sdk.bst:components/pipewire.bst
   - deps/udis86.bst
   - deps/glaze.bst
+  - deps/re2.bst
+  - deps/muparser.bst
+  - deps/libcanberra.bst
   - deps/hyprwayland-scanner.bst
   - compositor/hyprutils.bst
   - compositor/hyprlang.bst
