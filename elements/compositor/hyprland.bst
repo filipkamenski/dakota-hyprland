@@ -16,6 +16,7 @@ depends:
   - freedesktop-sdk.bst:components/libdisplay-info.bst
   - freedesktop-sdk.bst:components/xorg-lib-xcursor.bst
   - freedesktop-sdk.bst:extensions/mesa/mesa.bst
+  - freedesktop-sdk.bst:components/mesa-headers.bst
   - freedesktop-sdk.bst:components/glib.bst
   - freedesktop-sdk.bst:components/libseat.bst
   - freedesktop-sdk.bst:components/systemd.bst
