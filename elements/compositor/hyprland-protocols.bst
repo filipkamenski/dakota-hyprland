@@ -1,8 +1,9 @@
-kind: meson
+kind: cmake
 
 depends:
-  - freedesktop-sdk.bst:public-stacks/buildsystem-meson.bst
-  - freedesktop-sdk.bst:components/wayland.bst
+  - freedesktop-sdk.bst:public-stacks/buildsystem-cmake.bst
+  - freedesktop-sdk.bst:components/gcc.bst
+  - freedesktop-sdk.bst:components/pkg-config.bst
 
 sources:
   - kind: git
