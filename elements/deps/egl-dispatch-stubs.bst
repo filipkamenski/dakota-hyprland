@@ -9,7 +9,7 @@ depends:
 
 sources:
   - kind: local
-    path: files
+    path: elements/deps/egl-dispatch-stubs/files
 
 config:
   build-commands: []
