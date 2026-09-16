@@ -15,6 +15,8 @@ depends:
   - freedesktop-sdk.bst:extensions/mesa/mesa.bst
   - freedesktop-sdk.bst:components/libpng.bst
   - deps/libzip.bst
+  - freedesktop-sdk.bst:components/file.bst
+  - freedesktop-sdk.bst:components/librsvg.bst
   - compositor/hyprutils.bst
 
 variables:
