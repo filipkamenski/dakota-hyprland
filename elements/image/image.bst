@@ -13,6 +13,10 @@ depends:
     type: build
   - filename: compositor/hypridle.bst
     type: build
+  - filename: shell/noctalia.bst
+    type: build
+  - filename: shell/noctalia-greeter.bst
+    type: build
   - filename: shell/waybar.bst
     type: build
   - filename: shell/greetd.bst

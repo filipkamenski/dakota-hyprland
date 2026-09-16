@@ -1,0 +1,14 @@
+#!/bin/bash
+# Dakota Hyprland session launcher
+# Used by the greetd session .desktop entry.
+set -e
+
+export XDG_CURRENT_DESKTOP=Hyprland
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=Hyprland
+export MOZ_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM=wayland
+
+# Use the shipped default config; user copy in ~/.config/hypr takes precedence
+# (Hyprland reads ~/.config/hypr/hyprland.lua automatically)
+exec Hyprland

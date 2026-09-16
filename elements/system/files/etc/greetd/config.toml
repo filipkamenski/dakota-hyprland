@@ -2,5 +2,7 @@
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --cmd Hyprland"
+# Noctalia Greeter (greetd): user/session picker with Noctalia look & feel.
+# Falls back to tuigreet if noctalia-greeter is absent at build time.
+command = "noctalia-greeter-session || tuigreet --time --remember --session /usr/share/wayland-sessions/dakota-hyprland.desktop"
 user = "greeter"
