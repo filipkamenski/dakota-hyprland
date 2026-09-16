@@ -10,7 +10,7 @@ depends:
 sources:
   - kind: git
     url: https://github.com/tuigreet/tuigreet.git
-    track: main
+    track: master
     ref: 0.11.1
   - kind: cargo
     cargo-lock: Cargo.lock
