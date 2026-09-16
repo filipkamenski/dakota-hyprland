@@ -15,6 +15,7 @@ depends:
   - freedesktop-sdk.bst:components/hwdata.bst
   - freedesktop-sdk.bst:components/libseat.bst
   - freedesktop-sdk.bst:components/libglvnd.bst
+  - deps/egl-dispatch-stubs.bst
   - deps/hyprwayland-scanner.bst
   - compositor/hyprutils.bst
 

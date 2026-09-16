@@ -27,6 +27,7 @@ depends:
   - freedesktop-sdk.bst:components/xcb-util-cursor.bst
   - freedesktop-sdk.bst:components/pipewire.bst
   - deps/udis86.bst
+  - deps/egl-dispatch-stubs.bst
   - deps/glaze.bst
   - deps/sdbus-cpp.bst
   - deps/hyprwire.bst
@@ -58,10 +59,3 @@ variables:
     -DOPENGL_EGL_INCLUDE_DIR=/usr/include
     -DOpenGL_GL_PREFERENCE=GLVND
 
-config:
-  build-commands:
-    - |
-      set -x
-      cmake --build _builddir -- ${JOBS} --verbose || true
-      ninja -C _builddir -t regen 2>&1 | tail -60
-      exit 1
