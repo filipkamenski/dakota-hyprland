@@ -6,6 +6,7 @@ depends:
   - freedesktop-sdk.bst:bootstrap/symlinks.bst
   - freedesktop-sdk.bst:components/rust.bst
   - freedesktop-sdk.bst:components/llvm.bst
+  - freedesktop-sdk.bst:components/binutils.bst
   - freedesktop-sdk.bst:components/pkg-config.bst
   - freedesktop-sdk.bst:components/linux-pam.bst
 
