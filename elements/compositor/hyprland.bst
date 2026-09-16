@@ -62,5 +62,5 @@ variables:
 config:
   build-commands:
     - |
-      cmake --build _builddir -- ${JOBS} 2>&1 | tail -n 120
+      cmake --build _builddir -- ${JOBS} 2>&1 | grep -iE "error|failed|fatal" | head -50
       exit 1
