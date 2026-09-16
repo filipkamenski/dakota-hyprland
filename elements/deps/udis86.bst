@@ -6,7 +6,7 @@ depends:
 
 sources:
   - kind: git
-    url: https://github.com/udis86/udis86.git
+    url: https://github.com/canihavesomecoffee/udis86.git
     track: master
 
 variables:
