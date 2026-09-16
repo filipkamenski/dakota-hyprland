@@ -6,20 +6,11 @@ depends:
   - freedesktop-sdk.bst:components/gcc.bst
   - deps/pugixml.bst
 
-config:
-  build-commands: |
-    echo "=== pkg-config debug ==="
-    pkg-config --version
-    echo "PKC: $(pkg-config --variable=pc_path pkg-config)"
-    ls -la /usr/lib/pkgconfig/ | head
-    ls -la /usr/share/pkgconfig/ | head -30
-    find /usr -name "pugixml*" 
-    pkg-config --list-all 2>/dev/null | grep -i pugi
-    pkg-config --cflags pugixml || true
-    true
-
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprwayland-scanner.git
     track: main
     ref: v0.4.6
+
+environment:
+  PKG_CONFIG_PATH: /usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib64/pkgconfig
