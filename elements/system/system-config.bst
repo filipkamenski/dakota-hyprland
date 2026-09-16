@@ -5,4 +5,4 @@ depends:
 
 sources:
   - kind: local
-    path: files
+    path: elements/system/files
