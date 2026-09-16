@@ -20,6 +20,8 @@ sources:
 
 config:
   build-commands:
+    - ls /usr/bin | grep -iE "^(gcc|cc|clang|ld|rustc)" || echo "none found"
+    - ls /usr/bin | head -50
     - CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc cargo build --release --frozen
 
   install-commands:
