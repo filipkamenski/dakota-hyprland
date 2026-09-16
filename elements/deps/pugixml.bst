@@ -19,3 +19,7 @@ config:
   install-commands:
     - |
       install -Dm644 _builddir/pugixml.pc %{install-root}%{libdir}/pkgconfig/pugixml.pc
+      install -Dm644 src/pugixml.hpp %{install-root}%{includedir}/pugixml.hpp
+      install -Dm644 src/pugiconfig.hpp %{install-root}%{includedir}/pugiconfig.hpp
+      install -Dm755 _builddir/libpugixml.a %{install-root}%{libdir}/libpugixml.a || true
+      install -Dm755 _builddir/libpugixml.so* %{install-root}%{libdir}/ || true
