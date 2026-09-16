@@ -22,4 +22,5 @@ config:
     - find /usr -name "libEGL*" | head -5 || true
     - find /usr -name "libGLESv2*" | head -5 || true
     - ls /usr/lib/*/GL/default/lib 2>/dev/null | head -20 || true
+    - ls /usr/lib | head -60 || true
     - "false"
