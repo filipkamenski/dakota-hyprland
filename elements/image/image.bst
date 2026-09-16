@@ -1,14 +1,25 @@
 kind: compose
 
 depends:
-  - system/system-base.bst
-  - compositor/hyprland.bst
-  - compositor/xdg-desktop-portal-hyprland.bst
-  - compositor/hyprpaper.bst
-  - compositor/hyprlock.bst
-  - compositor/hypridle.bst
-  - shell/waybar.bst
-  - shell/greetd.bst
-  - shell/tuigreet.bst
-  - shell/foot.bst
-  - shell/rofi-wayland.bst
+  - filename: system/system-base.bst
+    type: build
+  - filename: compositor/hyprland.bst
+    type: build
+  - filename: compositor/xdg-desktop-portal-hyprland.bst
+    type: build
+  - filename: compositor/hyprpaper.bst
+    type: build
+  - filename: compositor/hyprlock.bst
+    type: build
+  - filename: compositor/hypridle.bst
+    type: build
+  - filename: shell/waybar.bst
+    type: build
+  - filename: shell/greetd.bst
+    type: build
+  - filename: shell/tuigreet.bst
+    type: build
+  - filename: shell/foot.bst
+    type: build
+  - filename: shell/rofi-wayland.bst
+    type: build
