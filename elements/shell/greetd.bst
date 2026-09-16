@@ -1,13 +1,15 @@
 kind: manual
 
 depends:
+  - freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+  - freedesktop-sdk.bst:components/gcc.bst
+  - freedesktop-sdk.bst:components/ninja.bst
+  - freedesktop-sdk.bst:components/pkg-config.bst
+  - freedesktop-sdk.bst:components/stripper.bst
+  - freedesktop-sdk.bst:components/rust.bst
   - freedesktop-sdk.bst:bootstrap/bash.bst
   - freedesktop-sdk.bst:bootstrap/coreutils.bst
   - freedesktop-sdk.bst:bootstrap/symlinks.bst
-  - freedesktop-sdk.bst:components/rust.bst
-  - freedesktop-sdk.bst:components/llvm.bst
-  - freedesktop-sdk.bst:components/binutils.bst
-  - freedesktop-sdk.bst:components/pkg-config.bst
   - freedesktop-sdk.bst:components/linux-pam.bst
 
 sources:
@@ -20,9 +22,7 @@ sources:
 
 config:
   build-commands:
-    - ls /usr/bin | grep -iE "^(gcc|cc|clang|ld|rustc)" || echo "none found"
-    - ls /usr/bin | head -50
-    - CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc cargo build --release --frozen
+    - CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc cargo build --release --frozen 
 
   install-commands:
     - install -Dm755 target/release/greetd %{install-root}%{bindir}/greetd
