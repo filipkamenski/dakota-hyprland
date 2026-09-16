@@ -42,7 +42,7 @@ sources:
     checkout-submodules: true
 
 variables:
-  cmake-local: -DCMAKE_PREFIX_PATH=/usr
   cmake-local: >-
+    -DCMAKE_PREFIX_PATH=/usr
     -DNO_XWAYLAND=OFF
     -DNO_SYSTEMD=OFF
