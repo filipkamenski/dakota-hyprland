@@ -2,6 +2,8 @@ kind: autotools
 
 depends:
   - freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
+  - freedesktop-sdk.bst:components/gettext.bst
+  - freedesktop-sdk.bst:components/libtool.bst
   - freedesktop-sdk.bst:components/gcc.bst
   - freedesktop-sdk.bst:components/autoconf-archive.bst
 

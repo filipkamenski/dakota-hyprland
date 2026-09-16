@@ -36,7 +36,6 @@ depends:
   - deps/md4c.bst
   - freedesktop-sdk.bst:components/tomlplusplus.bst
   - deps/nlohmann-json.bst
-  - deps/jemalloc.bst
 
 sources:
   - kind: git
@@ -48,7 +47,6 @@ variables:
   # Release build per upstream docs: just configure release == meson setup build-release --buildtype=release
   meson-local: >-
     --buildtype=release
-    -Djemalloc=enabled
 
 config:
   install-commands:
