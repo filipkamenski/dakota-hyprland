@@ -13,11 +13,13 @@ depends:
   - freedesktop-sdk.bst:components/inih.bst
   - compositor/hyprutils.bst
   - compositor/hyprlang.bst
+  - deps/sdbus-cpp.bst
   - compositor/hyprland-protocols.bst
+  - deps/hyprwayland-scanner.bst
 
 sources:
   - kind: git
     url: https://github.com/hyprwm/xdg-desktop-portal-hyprland.git
     track: master
-    ref: v1.3.9
+    ref: v1.4.1
     checkout-submodules: true

@@ -13,10 +13,11 @@ depends:
   - freedesktop-sdk.bst:components/hwdata.bst
   - freedesktop-sdk.bst:components/libseat.bst
   - freedesktop-sdk.bst:components/libglvnd.bst
+  - deps/hyprwayland-scanner.bst
   - compositor/hyprutils.bst
 
 sources:
   - kind: git
     url: https://github.com/hyprwm/aquamarine.git
     track: main
-    ref: v0.4.5
+    ref: v0.15.0

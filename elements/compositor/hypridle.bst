@@ -15,4 +15,4 @@ sources:
   - kind: git
     url: https://github.com/hyprwm/hypridle.git
     track: main
-    ref: v0.1.5
+    ref: v0.1.8

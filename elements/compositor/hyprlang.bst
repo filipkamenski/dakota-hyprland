@@ -10,4 +10,4 @@ sources:
   - kind: git
     url: https://github.com/hyprwm/hyprlang.git
     track: main
-    ref: v0.6.0
+    ref: v0.6.8

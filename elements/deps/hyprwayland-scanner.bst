@@ -1,13 +1,12 @@
 kind: cmake
 
+# Host build tool: hyprwayland-scanner (protocol code generator)
 depends:
   - freedesktop-sdk.bst:public-stacks/buildsystem-cmake.bst
   - freedesktop-sdk.bst:components/gcc.bst
-  - freedesktop-sdk.bst:components/pkg-config.bst
-  - freedesktop-sdk.bst:components/pixman.bst
 
 sources:
   - kind: git
-    url: https://github.com/hyprwm/hyprutils.git
+    url: https://github.com/hyprwm/hyprwayland-scanner.git
     track: main
-    ref: v0.14.2
+    ref: v0.4.6

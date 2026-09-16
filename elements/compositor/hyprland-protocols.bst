@@ -8,4 +8,4 @@ sources:
   - kind: git
     url: https://github.com/hyprwm/hyprland-protocols.git
     track: main
-    ref: v0.4.0
+    ref: v0.7.1
