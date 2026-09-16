@@ -27,6 +27,7 @@ depends:
   - freedesktop-sdk.bst:components/pipewire.bst
   - deps/udis86.bst
   - deps/glaze.bst
+  - deps/sdbus-cpp.bst
   - deps/re2.bst
   - deps/muparser.bst
   - deps/libcanberra.bst
@@ -48,5 +49,5 @@ sources:
 variables:
   cmake-local: >-
     -DCMAKE_PREFIX_PATH=/usr
-    -DNO_XWAYLAND=OFF
+    -DNO_XWAYLAND=ON
     -DNO_SYSTEMD=OFF
