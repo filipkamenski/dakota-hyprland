@@ -9,7 +9,7 @@ depends:
 
 sources:
   - kind: local
-    path: files
+    path: elements/debug/files
 
 config:
   build-commands:
