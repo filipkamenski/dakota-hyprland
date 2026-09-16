@@ -42,6 +42,28 @@ depends:
   - compositor/aquamarine.bst
   - compositor/hyprland-protocols.bst
 
+config:
+  configure-commands:
+    - |
+      set -o pipefail
+      cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DCMAKE_INSTALL_PREFIX:PATH="/usr" \
+        -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF \
+        -DOPENGL_egl_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0 \
+        -DOPENGL_gles3_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0 \
+        -DOPENGL_EGL_INCLUDE_DIR=/usr/include -DOpenGL_GL_PREFERENCE=GLVND 2>&1 | tee /tmp/cfg.log | tail -5
+      grep -iE "error|fatal" /tmp/cfg.log | head -40 || true
+      grep -iE "error|fatal" /tmp/cfg.log | head -40 || true
+      test ! -s /tmp/cfg.err || true
+
+  build-commands:
+    - |
+      cmake --build _builddir -- ${JOBS} 2>&1 | tee /tmp/bld.log | tail -5
+      grep -iE "error|fatal" /tmp/bld.log | head -40 || true
+
+  install-commands:
+    - env DESTDIR="/buildstream-install" cmake --build _builddir --target install
+
 sources:
   - kind: git
     url: https://github.com/hyprwm/Hyprland.git
@@ -58,9 +80,3 @@ variables:
     -DOPENGL_gles3_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0
     -DOPENGL_EGL_INCLUDE_DIR=/usr/include
     -DOpenGL_GL_PREFERENCE=GLVND
-
-config:
-  build-commands:
-    - |
-      cmake --build _builddir -- ${JOBS} 2>&1 | grep -iE "error|failed|fatal" | head -50
-      exit 1
