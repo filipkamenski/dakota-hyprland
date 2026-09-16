@@ -28,6 +28,7 @@ depends:
   - deps/udis86.bst
   - deps/glaze.bst
   - deps/sdbus-cpp.bst
+  - deps/hyprwire.bst
   - deps/re2.bst
   - deps/muparser.bst
   - deps/libcanberra.bst
