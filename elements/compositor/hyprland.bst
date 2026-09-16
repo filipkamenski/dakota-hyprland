@@ -26,6 +26,7 @@ depends:
   - freedesktop-sdk.bst:components/xcb-util-cursor.bst
   - freedesktop-sdk.bst:components/pipewire.bst
   - deps/udis86.bst
+  - deps/glaze.bst
   - deps/hyprwayland-scanner.bst
   - compositor/hyprutils.bst
   - compositor/hyprlang.bst
