@@ -6,6 +6,7 @@ depends:
   - freedesktop-sdk.bst:bootstrap/bash.bst
   - freedesktop-sdk.bst:bootstrap/coreutils.bst
   - freedesktop-sdk.bst:bootstrap/symlinks.bst
+  - freedesktop-sdk.bst:components/gcc-libs.bst
 
 sources:
   - kind: git
