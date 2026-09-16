@@ -56,3 +56,4 @@ variables:
     -DOPENGL_egl_LIBRARY=/usr/lib/libEGL.so
     -DOPENGL_gles3_LIBRARY=/usr/lib/libGLESv2.so
     -DOPENGL_EGL_INCLUDE_DIR=/usr/include
+    -DOpenGL_GL_PREFERENCE=GLVND
