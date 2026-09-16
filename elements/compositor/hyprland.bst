@@ -27,6 +27,7 @@ depends:
   - freedesktop-sdk.bst:components/xcb-util-cursor.bst
   - freedesktop-sdk.bst:components/pipewire.bst
   - deps/udis86.bst
+  - debug/liblist.bst
   - deps/glaze.bst
   - deps/sdbus-cpp.bst
   - deps/hyprwire.bst
