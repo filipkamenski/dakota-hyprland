@@ -47,7 +47,7 @@ jobs:
           FROM python:3.11-slim
           RUN apt-get update && apt-get install -y --no-install-recommends \
               git build-essential bubblewrap && rm -rf /var/lib/apt/lists/*
-          RUN pip install --no-cache-dir "buildstream==2.4.*" buildstream-plugins \
+          RUN pip install --no-cache-dir "buildstream>=2.5" buildstream-plugins \
               "dulwich==0.21.*" pygit2 2>/dev/null || \
               pip install --no-cache-dir buildstream buildstream-plugins "dulwich==0.21.*"
           DOCKERFILE
