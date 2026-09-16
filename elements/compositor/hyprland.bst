@@ -53,3 +53,6 @@ variables:
     -DCMAKE_PREFIX_PATH=/usr
     -DNO_XWAYLAND=ON
     -DNO_SYSTEMD=OFF
+    -DOPENGL_egl_LIBRARY=/usr/lib/libEGL.so
+    -DOPENGL_gles3_LIBRARY=/usr/lib/libGLESv2.so
+    -DOPENGL_EGL_INCLUDE_DIR=/usr/include
