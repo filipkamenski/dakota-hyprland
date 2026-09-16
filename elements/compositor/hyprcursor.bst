@@ -11,6 +11,9 @@ depends:
   - compositor/hyprutils.bst
   - compositor/hyprlang.bst
 
+variables:
+  cmake-local: -DCMAKE_PREFIX_PATH=/usr
+
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprcursor.git

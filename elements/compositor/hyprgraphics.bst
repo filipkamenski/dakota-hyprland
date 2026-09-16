@@ -11,9 +11,14 @@ depends:
   - freedesktop-sdk.bst:components/jpeg.bst
   - freedesktop-sdk.bst:components/libwebp.bst
   - freedesktop-sdk.bst:components/libjxl.bst
+  - freedesktop-sdk.bst:components/mesa-headers.bst
+  - freedesktop-sdk.bst:extensions/mesa/mesa.bst
   - freedesktop-sdk.bst:components/libpng.bst
   - deps/libzip.bst
   - compositor/hyprutils.bst
+
+variables:
+  cmake-local: -DCMAKE_PREFIX_PATH=/usr
 
 sources:
   - kind: git

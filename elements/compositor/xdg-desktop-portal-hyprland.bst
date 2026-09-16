@@ -17,6 +17,9 @@ depends:
   - compositor/hyprland-protocols.bst
   - deps/hyprwayland-scanner.bst
 
+variables:
+  cmake-local: -DCMAKE_PREFIX_PATH=/usr
+
 sources:
   - kind: git
     url: https://github.com/hyprwm/xdg-desktop-portal-hyprland.git

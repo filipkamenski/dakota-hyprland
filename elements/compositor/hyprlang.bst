@@ -6,6 +6,9 @@ depends:
   - freedesktop-sdk.bst:components/pkg-config.bst
   - compositor/hyprutils.bst
 
+variables:
+  cmake-local: -DCMAKE_PREFIX_PATH=/usr
+
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprlang.git

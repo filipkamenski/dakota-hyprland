@@ -16,6 +16,9 @@ depends:
   - deps/hyprwayland-scanner.bst
   - compositor/hyprutils.bst
 
+variables:
+  cmake-local: -DCMAKE_PREFIX_PATH=/usr
+
 sources:
   - kind: git
     url: https://github.com/hyprwm/aquamarine.git
