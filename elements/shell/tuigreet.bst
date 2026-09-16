@@ -6,6 +6,6 @@ depends:
 
 sources:
   - kind: git
-    url: https://github.com/apognu/tuigreet.git
+    url: https://github.com/tuigreet/tuigreet.git
     track: master
     ref: 0.9.1

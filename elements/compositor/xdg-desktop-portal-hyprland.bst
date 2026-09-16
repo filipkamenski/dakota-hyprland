@@ -18,6 +18,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/hyprwm/xdg-desktop-portal-hyprland.git
-    track: main
+    track: master
     ref: v1.3.9
     checkout-submodules: true
