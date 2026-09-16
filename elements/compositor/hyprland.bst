@@ -59,3 +59,8 @@ variables:
     -DOPENGL_EGL_INCLUDE_DIR=/usr/include
     -DOpenGL_GL_PREFERENCE=GLVND
 
+config:
+  build-commands:
+    - |
+      cmake --build _builddir -- ${JOBS} 2>&1 | tail -n 120
+      exit 1
