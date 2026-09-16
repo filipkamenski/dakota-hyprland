@@ -23,7 +23,7 @@ config:
     - find /usr -name "libGLESv2*" | head -5 || true
     - ls /usr/lib/*/GL/default/lib 2>/dev/null | head -20 || true
     - ls /usr/lib | head -60 || true
-    - ls /usr/lib/x86_64-linux-gnu | grep -iE "EGL|GLES|libGL" | head -20 || true
+    - ls /usr/lib/x86_64-linux-gnu | head -100 || true
     - ls /usr/lib/x86_64-linux-gnu/GL/default/lib 2>/dev/null | grep -iE "EGL|GLES" | head -10 || true
     - pkg-config --variable=pc_path pkg-config 2>/dev/null || echo NOPKGCONF
     - "false"
