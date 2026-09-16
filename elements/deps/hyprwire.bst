@@ -7,6 +7,7 @@ depends:
   - freedesktop-sdk.bst:components/pkg-config.bst
   - compositor/hyprutils.bst
   - freedesktop-sdk.bst:components/libffi.bst
+  - deps/pugixml.bst
 
 sources:
   - kind: git
