@@ -3,7 +3,9 @@ kind: manual
 # glaze is header-only; install include/ directly (upstream cmake pulls
 # test deps via FetchContent which cannot run in the build sandbox)
 depends:
+  - freedesktop-sdk.bst:bootstrap/bash.bst
   - freedesktop-sdk.bst:bootstrap/coreutils.bst
+  - freedesktop-sdk.bst:bootstrap/symlinks.bst
 
 sources:
   - kind: git
