@@ -6,6 +6,7 @@ depends:
   - freedesktop-sdk.bst:components/pkg-config.bst
   - freedesktop-sdk.bst:components/wayland.bst
   - freedesktop-sdk.bst:components/wayland-protocols.bst
+  - deps/hyprwayland-scanner.bst
   - freedesktop-sdk.bst:components/systemd.bst
   - compositor/hyprutils.bst
   - compositor/hyprlang.bst
