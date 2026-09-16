@@ -10,6 +10,7 @@ depends:
   - freedesktop-sdk.bst:components/gmp.bst
   - freedesktop-sdk.bst:components/mpfr.bst
   - freedesktop-sdk.bst:components/libxml2.bst
+  - freedesktop-sdk.bst:components/curl.bst
   - freedesktop-sdk.bst:components/libtool.bst
 
 sources:
