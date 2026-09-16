@@ -11,3 +11,7 @@ sources:
     url: https://github.com/hyprwm/hyprutils.git
     track: main
     ref: v0.14.2
+config:
+  install-commands:
+    - |
+      install -Dm644 _builddir/hyprutils.pc %{install-root}%{libdir}/pkgconfig/hyprutils.pc
