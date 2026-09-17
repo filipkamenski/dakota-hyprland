@@ -10,6 +10,7 @@ depends:
   - freedesktop-sdk.bst:components/freetype.bst
   - freedesktop-sdk.bst:components/pixman.bst
   - freedesktop-sdk.bst:components/libxkbcommon.bst
+  - freedesktop-sdk.bst:bootstrap/sed.bst
   - deps/tllist.bst
   - deps/fcft.bst
 
