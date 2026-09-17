@@ -7,6 +7,7 @@ depends:
   - freedesktop-sdk.bst:components/wayland.bst
   - freedesktop-sdk.bst:components/wayland-protocols.bst
   - deps/hyprwayland-scanner.bst
+  - deps/egl-dispatch-stubs.bst
   - freedesktop-sdk.bst:components/cairo.bst
   - freedesktop-sdk.bst:components/pango.bst
   - freedesktop-sdk.bst:components/libdrm.bst

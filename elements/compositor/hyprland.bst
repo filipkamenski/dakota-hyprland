@@ -72,6 +72,21 @@ variables:
     -DNO_XWAYLAND=ON
     -DNO_SYSTEMD=OFF
 
+
 config:
+  configure-commands:
+    - |
+      (cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DCMAKE_INSTALL_PREFIX:PATH="/usr" \
+        -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF 2>&1 | tee /tmp/cfg.log) || true
+      echo "===ERRORS==="
+      grep -iE "error|fatal|Generate step failed" /tmp/cfg.log | head -40 || true
+      echo "===TAIL==="
+      tail -n 30 /tmp/cfg.log || true
+      exit 1
+
+  build-commands:
+    - cmake --build _builddir -- ${JOBS}
+
   install-commands:
     - env DESTDIR="/buildstream-install" cmake --build _builddir --target install
