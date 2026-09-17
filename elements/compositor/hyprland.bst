@@ -93,6 +93,7 @@ config:
       Cflags: -I${includedir}
       EOT
       export PKG_CONFIG_PATH=/tmp/pc:${PKG_CONFIG_PATH}
+    - cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX:PATH="/usr" -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF
 
   install-commands:
     - env DESTDIR="/buildstream-install" cmake --build _builddir --target install
