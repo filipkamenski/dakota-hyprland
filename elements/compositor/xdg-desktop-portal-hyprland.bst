@@ -9,6 +9,7 @@ depends:
   - freedesktop-sdk.bst:components/pipewire.bst
   - freedesktop-sdk.bst:components/libdrm.bst
   - freedesktop-sdk.bst:components/git.bst
+  - freedesktop-sdk.bst:bootstrap/sed.bst
   - freedesktop-sdk.bst:extensions/mesa/mesa.bst
   - freedesktop-sdk.bst:components/systemd.bst
   - freedesktop-sdk.bst:components/inih.bst

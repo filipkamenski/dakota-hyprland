@@ -10,9 +10,14 @@ depends:
   - freedesktop-sdk.bst:components/freetype.bst
   - freedesktop-sdk.bst:components/pixman.bst
   - freedesktop-sdk.bst:components/libxkbcommon.bst
+  - deps/tllist.bst
+  - deps/fcft.bst
 
 sources:
   - kind: git
     url: https://codeberg.org/dnkl/foot.git
     track: master
     ref: 1.9.2
+
+variables:
+  meson-local: -Dgrapheme-clustering=disabled -Dterminfo=disabled
