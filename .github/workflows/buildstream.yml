@@ -59,16 +59,14 @@ jobs:
             -w /workspace \
             bst-runner \
             bash -c "
-              mkdir -p /root/.config
-              printf 'log:\n  element:\n    maximum-lines: 400\n' > /root/.config/buildstream.conf
               echo 'Validating project dependency tree...'
-              bst show image/image.bst || { echo 'Project validation failed'; exit 1; }
+              bst --max-log-lines 500 show image/image.bst || { echo 'Project validation failed'; exit 1; }
 
               echo 'Tracking element sources...'
-              bst source track --deps all image/image.bst || true
+              bst --max-log-lines 500 source track --deps all image/image.bst || true
 
               echo 'Building OS image with upstream artifact cache...'
-              bst build image/image.bst
+              bst --max-log-lines 500 build image/image.bst
 
               echo 'Checking out compiled rootfs...'
               bst artifact checkout image/image.bst --directory /workspace/rootfs
