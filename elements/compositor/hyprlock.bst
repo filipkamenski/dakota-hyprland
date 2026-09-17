@@ -18,6 +18,8 @@ depends:
   - freedesktop-sdk.bst:components/linux-pam.bst
   - compositor/hyprutils.bst
   - compositor/hyprlang.bst
+  - compositor/hyprgraphics.bst
+  - deps/sdbus-cpp.bst
   - compositor/hyprland-protocols.bst
 
 sources:
