@@ -44,42 +44,22 @@ depends:
 
 config:
   configure-commands:
-    - test ! -s /tmp/cfg.err || true
     - |
-    (cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON \
-      -DCMAKE_INSTALL_PREFIX:PATH="/usr" \
-      -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF \
-      -DOPENGL_egl_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0 \
-      -DOPENGL_gles3_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0 \
-      -DOPENGL_EGL_INCLUDE_DIR=/usr/include -DOpenGL_GL_PREFERENCE=GLVND 2>&1 | tee /tmp/cfg.log) || true
-    echo "===ERRORS==="
-    grep -iE "error|fatal" /tmp/cfg.log | head -60 || true
-    echo "===TAIL==="
-    tail -n 15 /tmp/cfg.log || true
-    exit 1
+      (cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DCMAKE_INSTALL_PREFIX:PATH="/usr" \
+        -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF \
+        -DOPENGL_egl_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0 \
+        -DOPENGL_gles3_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0 \
+        -DOPENGL_EGL_INCLUDE_DIR=/usr/include -DOpenGL_GL_PREFERENCE=GLVND 2>&1 | tee /tmp/cfg.log) || true
+      echo "===ERRORS==="
+      grep -iE "error|fatal" /tmp/cfg.log | head -60 || true
+      echo "===TAIL==="
+      tail -n 15 /tmp/cfg.log || true
+      exit 1
 
   build-commands:
-    - |
-      cmake --build _builddir -- ${JOBS} 2>&1 | tee /tmp/bld.log | tail -5
-      grep -iE "error|fatal" /tmp/bld.log | head -40 || true
+    - cmake --build _builddir -- ${JOBS}
 
   install-commands:
     - env DESTDIR="/buildstream-install" cmake --build _builddir --target install
 
-
-sources:
-  - kind: git
-    url: https://github.com/hyprwm/Hyprland.git
-    track: main
-    ref: v0.56.2
-    checkout-submodules: true
-
-variables:
-  cmake-local: >-
-    -DCMAKE_PREFIX_PATH=/usr
-    -DNO_XWAYLAND=ON
-    -DNO_SYSTEMD=OFF
-    -DOPENGL_egl_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0
-    -DOPENGL_gles3_LIBRARY=/usr/lib/x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0
-    -DOPENGL_EGL_INCLUDE_DIR=/usr/include
-    -DOpenGL_GL_PREFERENCE=GLVND
