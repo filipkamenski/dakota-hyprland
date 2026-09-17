@@ -77,8 +77,20 @@ variables:
 config:
   configure-commands:
     - |
-      # FDS lua.pc leaks /buildstream-install into Cflags; fix it up
-      find /usr -name "*.pc" -exec grep -l "buildstream-install" {} \; 2>/dev/null | while read f; do sed -i "s|/buildstream-install||g" "$f"; done || true
+      # FDS lua.pc leaks /buildstream-install into Cflags; replace with our own clean pc
+      find /usr -name "lua*.pc" -path "*pkgconfig*" 2>/dev/null | head -3
+      install -d /usr/lib/pkgconfig
+      cat > /usr/lib/pkgconfig/lua.pc <<'EOT'
+      prefix=/usr
+      libdir=/usr/lib/x86_64-linux-gnu
+      includedir=/usr/include
+
+      Name: lua
+      Version: 5.5
+      Description: Lua scripting language
+      Libs: -L${libdir} -llua
+      Cflags: -I${includedir}
+      EOT
       (cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON \
         -DCMAKE_INSTALL_PREFIX:PATH="/usr" \
         -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF 2>&1 | tee /tmp/cfg.log) || true
