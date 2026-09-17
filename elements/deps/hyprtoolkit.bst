@@ -12,7 +12,7 @@ depends:
   - freedesktop-sdk.bst:components/libxkbcommon.bst
   - freedesktop-sdk.bst:components/pango.bst
   - freedesktop-sdk.bst:components/cairo.bst
-  - freedesktop-sdk.bst:components/iniparser.bst
+  - deps/iniparser.bst
   - freedesktop-sdk.bst:components/abseil-cpp.bst
   - deps/egl-dispatch-stubs.bst
   - deps/hyprwayland-scanner.bst
