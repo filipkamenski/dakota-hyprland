@@ -30,12 +30,3 @@ sources:
 variables:
   meson-local: >-
     --buildtype=release
-
-config:
-  configure-commands:
-    - |
-      echo "===DEBUG==="
-      find /usr -name "wlroots*" | head -10
-      pkg-config --list-all 2>/dev/null | grep -i wlroots || echo "pkg-config: no wlroots"
-      ls /usr/lib/pkgconfig | head -50
-      echo "===END==="
