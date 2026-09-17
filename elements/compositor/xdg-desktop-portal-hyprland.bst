@@ -26,3 +26,10 @@ sources:
     track: master
     ref: v1.4.1
     checkout-submodules: true
+config:
+  configure-commands:
+    - |
+      # Qt6 (share-picker) not available in FDS; remove the optional picker subproject
+      sed -i '/add_subdirectory(hyprland-share-picker)/d; /install(TARGETS hyprland-share-picker)/d' CMakeLists.txt
+      cmake -B_builddir -H"." -G"Ninja" -DCMAKE_INSTALL_PREFIX:PATH="/usr" -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr
+
