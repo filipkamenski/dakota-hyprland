@@ -20,6 +20,7 @@ depends:
   - freedesktop-sdk.bst:components/librsvg.bst
   - freedesktop-sdk.bst:components/libxml2.bst
   - freedesktop-sdk.bst:components/libepoxy.bst
+  - deps/stb.bst
   - deps/wlroots.bst
   - shell/greetd.bst
 
