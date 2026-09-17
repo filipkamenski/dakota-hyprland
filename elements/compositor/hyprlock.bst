@@ -8,6 +8,9 @@ depends:
   - freedesktop-sdk.bst:components/wayland-protocols.bst
   - deps/hyprwayland-scanner.bst
   - deps/egl-dispatch-stubs.bst
+  - freedesktop-sdk.bst:extensions/mesa/mesa.bst
+  - freedesktop-sdk.bst:components/mesa-headers.bst
+  - freedesktop-sdk.bst:components/libglvnd.bst
   - freedesktop-sdk.bst:components/cairo.bst
   - freedesktop-sdk.bst:components/pango.bst
   - freedesktop-sdk.bst:components/libdrm.bst
