@@ -20,6 +20,7 @@ depends:
   - compositor/hyprlang.bst
   - compositor/hyprgraphics.bst
   - deps/sdbus-cpp.bst
+  - freedesktop-sdk.bst:components/dummy-gbm.bst
   - compositor/hyprland-protocols.bst
 
 sources:
