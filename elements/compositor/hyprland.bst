@@ -78,8 +78,7 @@ config:
   configure-commands:
     - |
       # FDS lua.pc leaks /buildstream-install into Cflags; fix it up
-      sed -i 's|/buildstream-install||g' /usr/lib/x86_64-linux-gnu/pkgconfig/lua*.pc 2>/dev/null || true
-      find /usr/lib/pkgconfig /usr/share/pkgconfig /usr/lib/x86_64-linux-gnu/pkgconfig -name "lua*.pc" -exec sed -i 's|/buildstream-install||g' {} \; 2>/dev/null || true
+      find /usr -name "*.pc" -exec grep -l "buildstream-install" {} \; 2>/dev/null | while read f; do sed -i "s|/buildstream-install||g" "$f"; done || true
       (cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON \
         -DCMAKE_INSTALL_PREFIX:PATH="/usr" \
         -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF 2>&1 | tee /tmp/cfg.log) || true
