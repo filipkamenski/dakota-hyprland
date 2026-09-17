@@ -60,7 +60,7 @@ jobs:
             bst-runner \
             bash -c "
               mkdir -p /root/.config
-              printf '[log]\n[element]\nmaximum-lines: 400\n' > /root/.config/buildstream.conf
+              printf 'log:\n  element:\n    maximum-lines: 400\n' > /root/.config/buildstream.conf
               echo 'Validating project dependency tree...'
               bst show image/image.bst || { echo 'Project validation failed'; exit 1; }
 
