@@ -75,6 +75,24 @@ variables:
 
 
 
+
 config:
+  configure-commands:
+    - |
+      # FDS lua.pc leaks /buildstream-install into Cflags; override with our own clean pc
+      install -d /tmp/pc
+      cat > /tmp/pc/lua.pc <<'EOT'
+      prefix=/usr
+      libdir=/usr/lib/x86_64-linux-gnu
+      includedir=/usr/include
+
+      Name: lua
+      Version: 5.5
+      Description: Lua scripting language
+      Libs: -L${libdir} -llua
+      Cflags: -I${includedir}
+      EOT
+      export PKG_CONFIG_PATH=/tmp/pc:${PKG_CONFIG_PATH}
+
   install-commands:
     - env DESTDIR="/buildstream-install" cmake --build _builddir --target install
