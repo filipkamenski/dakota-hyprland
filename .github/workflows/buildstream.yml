@@ -60,13 +60,13 @@ jobs:
             bst-runner \
             bash -c "
               echo 'Validating project dependency tree...'
-              bst --max-log-lines 500 show image/image.bst || { echo 'Project validation failed'; exit 1; }
+              bst --error-lines 200 --message-lines 20 show image/image.bst || { echo 'Project validation failed'; exit 1; }
 
               echo 'Tracking element sources...'
-              bst --max-log-lines 500 source track --deps all image/image.bst || true
+              bst --error-lines 200 --message-lines 20 source track --deps all image/image.bst || true
 
               echo 'Building OS image with upstream artifact cache...'
-              bst --max-log-lines 500 build image/image.bst
+              bst --error-lines 200 --message-lines 20 build image/image.bst
 
               echo 'Checking out compiled rootfs...'
               bst artifact checkout image/image.bst --directory /workspace/rootfs
