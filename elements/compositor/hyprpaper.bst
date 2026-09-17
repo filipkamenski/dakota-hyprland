@@ -12,9 +12,13 @@ depends:
   - freedesktop-sdk.bst:components/jpeg.bst
   - freedesktop-sdk.bst:components/libpng.bst
   - freedesktop-sdk.bst:components/libwebp.bst
+  - freedesktop-sdk.bst:components/libdrm.bst
+  - freedesktop-sdk.bst:components/git.bst
   - compositor/hyprutils.bst
   - compositor/hyprlang.bst
   - compositor/hyprland-protocols.bst
+  - deps/hyprwire.bst
+  - deps/hyprtoolkit.bst
 
 sources:
   - kind: git
