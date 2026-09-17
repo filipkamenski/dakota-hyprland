@@ -19,7 +19,7 @@ config:
 
   install-commands:
     - install -d %{install-root}%{libdir}
-    - ln -sf ../../x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0 %{install-root}%{libdir}/libEGL.so
-    - ln -sf ../../x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0 %{install-root}%{libdir}/libEGL.so.1
-    - ln -sf ../../x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0 %{install-root}%{libdir}/libGLESv2.so
-    - ln -sf ../../x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0 %{install-root}%{libdir}/libGLESv2.so.2
+    - ln -sf ../x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0 %{install-root}%{libdir}/libEGL.so
+    - ln -sf ../x86_64-linux-gnu/GL/default/lib/libEGL_mesa.so.0 %{install-root}%{libdir}/libEGL.so.1
+    - ln -sf ../x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0 %{install-root}%{libdir}/libGLESv2.so
+    - ln -sf ../x86_64-linux-gnu/GL/default/lib/libGLESv2_mesa.so.0 %{install-root}%{libdir}/libGLESv2.so.2

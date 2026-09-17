@@ -32,8 +32,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # NOTE: cache disabled — stale artifacts caused subtle breakage; upstream
-      # FDS CAS pull cache makes rebuilds cheap enough.
+      # BuildStream artifact cache: keyed on the full project definition so it
+      # invalidates cleanly as ONE unit. No loose restore-keys (that caused the
+      # stale-artifact whack-a-mole). Save happens post-job; failed builds
+      # save too (partial artifacts are still keyed by exact cache key and
+      # only successfully-built elements enter the local cache).
+      - name: Cache BuildStream Artifact Store
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/buildstream
+          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}
 
       - name: Build OS Rootfs via BuildStream
         run: |
@@ -41,7 +49,8 @@ jobs:
           docker build -t bst-runner -f- . <<'DOCKERFILE'
           FROM python:3.11-slim
           RUN apt-get update && apt-get install -y --no-install-recommends \
-              git build-essential bubblewrap lzip xz-utils unzip bzip2 && rm -rf /var/lib/apt/lists/*
+              git build-essential bubblewrap lzip xz-utils unzip bzip2 && \
+              rm -rf /var/lib/apt/lists/*
           RUN pip install --no-cache-dir "buildstream>=2.5" buildstream-plugins \
               buildstream-plugins-community "dulwich" requests tomlkit
           DOCKERFILE
@@ -52,13 +61,13 @@ jobs:
             bash -c "
               echo 'Validating project dependency tree...'
               bst show image/image.bst || { echo 'Project validation failed'; exit 1; }
-              
+
               echo 'Tracking element sources...'
               bst source track --deps all image/image.bst || true
-              
+
               echo 'Building OS image with upstream artifact cache...'
               bst build image/image.bst
-              
+
               echo 'Checking out compiled rootfs...'
               bst artifact checkout image/image.bst --directory /workspace/rootfs
             "
@@ -67,7 +76,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-          
+
           cat <<EOF > Dockerfile
           FROM scratch
           COPY rootfs/ /
@@ -84,7 +93,7 @@ jobs:
         run: |
           mkdir -p output
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-          
+
           docker run --rm --privileged \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v $(pwd)/output:/output \
