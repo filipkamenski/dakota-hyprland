@@ -77,10 +77,9 @@ variables:
 config:
   configure-commands:
     - |
-      # FDS lua.pc leaks /buildstream-install into Cflags; replace with our own clean pc
-      find /usr -name "lua*.pc" -path "*pkgconfig*" 2>/dev/null | head -3
-      install -d /usr/lib/pkgconfig
-      cat > /usr/lib/pkgconfig/lua.pc <<'EOT'
+      # FDS lua.pc leaks /buildstream-install into Cflags; override with our own clean pc
+      install -d /tmp/pc
+      cat > /tmp/pc/lua.pc <<'EOT'
       prefix=/usr
       libdir=/usr/lib/x86_64-linux-gnu
       includedir=/usr/include
@@ -91,6 +90,7 @@ config:
       Libs: -L${libdir} -llua
       Cflags: -I${includedir}
       EOT
+      export PKG_CONFIG_PATH=/tmp/pc:${PKG_CONFIG_PATH}
       (cmake -B_builddir -H"." -G"Ninja" -DCMAKE_VERBOSE_MAKEFILE=ON \
         -DCMAKE_INSTALL_PREFIX:PATH="/usr" \
         -DCMAKE_INSTALL_LIBDIR:PATH="lib" -DCMAKE_PREFIX_PATH=/usr -DNO_XWAYLAND=ON -DNO_SYSTEMD=OFF 2>&1 | tee /tmp/cfg.log) || true
