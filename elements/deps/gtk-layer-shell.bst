@@ -5,6 +5,7 @@ depends:
   - freedesktop-sdk.bst:components/gcc.bst
   - freedesktop-sdk.bst:components/pkg-config.bst
   - freedesktop-sdk.bst:components/gtk3.bst
+  - freedesktop-sdk.bst:components/gobject-introspection.bst
   - freedesktop-sdk.bst:components/wayland.bst
 
 sources:
@@ -17,3 +18,5 @@ variables:
     -Dtests=false
     -Dexamples=false
     -Ddocs=false
+    -Dintrospection=false
+    -Dvapi=false
