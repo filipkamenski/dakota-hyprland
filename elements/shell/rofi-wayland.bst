@@ -11,6 +11,8 @@ depends:
   - freedesktop-sdk.bst:components/glib.bst
   - freedesktop-sdk.bst:components/libxkbcommon.bst
   - freedesktop-sdk.bst:components/gdk-pixbuf.bst
+  - freedesktop-sdk.bst:components/librsvg.bst
+  - freedesktop-sdk.bst:bootstrap/sed.bst
 
 sources:
   - kind: git
