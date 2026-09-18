@@ -5,23 +5,18 @@ depends:
   - freedesktop-sdk.bst:components/gcc.bst
   - freedesktop-sdk.bst:components/pkg-config.bst
 
+# mm-common's libstdc++.tag doc cross-reference file: with use-network=false
+# the build copies it from doctags/ in the source dir, so we overlay a stub
+# (nothing downstream consumes the tags — documentation is disabled everywhere).
 sources:
   - kind: git
     url: https://gitlab.gnome.org/GNOME/mm-common.git
     track: master
     ref: 1.0.8
+  - kind: local
+    path: files/mm-common-doctags
+    directory: doctags
 
 variables:
   meson-local: >-
     -Duse-network=false
-
-config:
-  build-commands:
-    - |
-      # mm-common's doc step needs a libstdc++.tag; provide a stub (docs are disabled downstream anyway)
-      echo "libstdc++.tag" > /dev/null
-      touch libstdc++.tag
-  install-commands:
-    - |
-      touch libstdc++.tag
-      meson install -C _builddir --no-rebuild
