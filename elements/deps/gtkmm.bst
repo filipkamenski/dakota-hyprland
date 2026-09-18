@@ -23,3 +23,5 @@ variables:
   meson-local: >-
     -Dbuild-documentation=false
     -Dmaintainer-mode=false
+    -Dbuild-demos=false
+    -Dbuild-tests=false
