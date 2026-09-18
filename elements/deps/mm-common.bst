@@ -14,7 +14,7 @@ sources:
     track: master
     ref: 1.0.8
   - kind: local
-    path: files/mm-common-doctags
+    path: elements/deps/files/mm-common-doctags
     directory: doctags
 
 variables:
