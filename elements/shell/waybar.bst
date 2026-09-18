@@ -15,6 +15,7 @@ depends:
   - freedesktop-sdk.bst:components/fmtlib.bst
   - deps/spdlog.bst
   - deps/jsoncpp.bst
+  - deps/gtk-layer-shell.bst
   - deps/gtkmm.bst
 
 sources:
