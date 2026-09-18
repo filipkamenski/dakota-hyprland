@@ -21,6 +21,5 @@ sources:
 
 variables:
   meson-local: >-
-    -Dbuild-examples=false
     -Dbuild-documentation=false
     -Dmaintainer-mode=false
