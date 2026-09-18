@@ -28,6 +28,7 @@ sources:
   - kind: git
     url: https://github.com/noctalia-dev/noctalia-greeter.git
     track: main
+    ref: d9fe1d7851464a923020d39efae8a6e3561f0d63
 
 variables:
   meson-local: >-
