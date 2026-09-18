@@ -14,4 +14,3 @@ sources:
 variables:
   meson-local: >-
     -Duse-network=false
-    -Dmaintainer-mode=false
