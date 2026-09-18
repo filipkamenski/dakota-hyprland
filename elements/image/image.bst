@@ -21,8 +21,6 @@ depends:
     type: build
   - filename: shell/greetd.bst
     type: build
-  - filename: shell/tuigreet.bst
-    type: build
   - filename: shell/foot.bst
     type: build
   - filename: shell/rofi-wayland.bst
