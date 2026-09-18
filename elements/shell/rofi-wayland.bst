@@ -13,6 +13,8 @@ depends:
   - freedesktop-sdk.bst:components/gdk-pixbuf.bst
   - freedesktop-sdk.bst:components/librsvg.bst
   - freedesktop-sdk.bst:bootstrap/sed.bst
+  - freedesktop-sdk.bst:components/flex.bst
+  - freedesktop-sdk.bst:components/bison.bst
 
 
 sources:
