@@ -1,9 +1,0 @@
-<map id="Atk::Object" name="Atk::Object">
-<area shape="rect" id="Node000001" title="The base object class for the Accessibility Toolkit API." alt="" coords="107,81,201,109"/>
-<area shape="rect" id="Node000003" href="$classAtk_1_1NoOpObject.html" title="An Atk::NoOpObject is an Atk::Object which purports to implement all ATK interfaces." alt="" coords="5,157,135,184"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="130,119,86,158,83,154,125,120"/>
-<area shape="rect" id="Node000004" href="$classAtk_1_1ObjectAccessible.html" title="This object class is derived from AtkObject and can be used as a basis implementing accessible object..." alt="" coords="158,157,320,184"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="182,117,227,156,222,156,180,122"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="105,5,203,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,47,156,82,152,80,153,51"/>
-</map>

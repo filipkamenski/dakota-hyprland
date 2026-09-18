@@ -1,9 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$classGtk_1_1TreeModelColumnBase.html" title="Base class of TreeModelColumn templates." alt="" coords="5,83,207,111"/>
-<area shape="rect" id="Node000001" href="$classGtk_1_1TreeModelColumn.html" title=" " alt="" coords="274,5,443,50"/>
-<area shape="poly" id="edge334_Node000000_Node000001" title=" " alt="" coords="173,76,277,49,272,52,175,81"/>
-<area shape="rect" id="Node000002" href="$classGtk_1_1TreeModelColumn.html" title=" " alt="" coords="274,75,443,119"/>
-<area shape="poly" id="edge335_Node000000_Node000002" title=" " alt="" coords="222,94,276,96,270,98,222,100"/>
-<area shape="rect" id="Node000003" href="$classGtk_1_1TreeModelColumn.html" title="A Gtk::TreeModelColumn describes the C++ type of the data in a model column, and identifies that colu..." alt="" coords="255,143,462,171"/>
-<area shape="poly" id="edge336_Node000000_Node000003" title=" " alt="" coords="182,112,299,142,294,143,182,118"/>
-</map>

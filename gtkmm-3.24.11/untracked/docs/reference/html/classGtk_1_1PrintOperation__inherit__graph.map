@@ -1,9 +1,0 @@
-<map id="Gtk::PrintOperation" name="Gtk::PrintOperation">
-<area shape="rect" id="Node000001" title="PrintOperation is the high&#45;level, portable printing API." alt="" coords="66,157,212,184"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,103,109"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,117,127,155,122,157,80,122"/>
-<area shape="rect" id="Node000003" href="$classGtk_1_1PrintOperationPreview.html" title=" " alt="" coords="127,81,325,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,118,156,158,153,154,197,120"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="169,5,283,33"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="228,47,228,82,224,79,224,51"/>
-</map>

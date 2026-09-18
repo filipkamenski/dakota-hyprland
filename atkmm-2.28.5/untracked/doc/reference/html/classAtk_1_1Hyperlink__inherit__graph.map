@@ -1,9 +1,0 @@
-<map id="Atk::Hyperlink" name="Atk::Hyperlink">
-<area shape="rect" id="Node000001" title="Encapsulates a link or set of links in a hypertext document." alt="" coords="56,157,170,184"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,103,109"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="75,119,105,156,100,157,73,123"/>
-<area shape="rect" id="Node000003" href="$classAtk_1_1Action.html" title="The ATK interface provided by UI components which the user can activate/interact with,..." alt="" coords="126,81,219,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,120,125,158,122,154,150,122"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="116,5,229,33"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="174,47,175,82,170,80,171,51"/>
-</map>

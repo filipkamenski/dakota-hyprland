@@ -1,7 +1,0 @@
-<map id="Gtk::StyleProvider" name="Gtk::StyleProvider">
-<area shape="rect" id="Node000001" title="This is a base class used to provide style information to a StyleContext." alt="" coords="5,81,145,109"/>
-<area shape="rect" id="Node000003" href="$classGtk_1_1CssProvider.html" title="CSS&#45;like styling for widgets, implementing the StyleProvider base class." alt="" coords="10,157,140,184"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="77,123,78,157,72,155,73,126"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="18,5,132,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="76,46,78,81,72,80,74,51"/>
-</map>
