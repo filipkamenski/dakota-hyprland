@@ -14,3 +14,14 @@ sources:
 variables:
   meson-local: >-
     -Duse-network=false
+
+config:
+  build-commands:
+    - |
+      # mm-common's doc step needs a libstdc++.tag; provide a stub (docs are disabled downstream anyway)
+      echo "libstdc++.tag" > /dev/null
+      touch libstdc++.tag
+  install-commands:
+    - |
+      touch libstdc++.tag
+      meson install -C _builddir --no-rebuild
