@@ -5,6 +5,7 @@ depends:
   - freedesktop-sdk.bst:components/gcc.bst
   - freedesktop-sdk.bst:components/pkg-config.bst
   - freedesktop-sdk.bst:components/glib.bst
+  - freedesktop-sdk.bst:components/pango.bst
   - deps/sigc.bst
   - deps/cairomm.bst
   - deps/glibmm.bst
