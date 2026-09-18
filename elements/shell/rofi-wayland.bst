@@ -37,4 +37,4 @@ sources:
     directory: subprojects/libgwater-wayland
 
 variables:
-  meson-local: -Dxcb=disabled -Dcheck=disabled
+  meson-local: -Dcheck=disabled
