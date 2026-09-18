@@ -4,6 +4,8 @@ depends:
   - freedesktop-sdk.bst:public-stacks/buildsystem-meson.bst
   - freedesktop-sdk.bst:components/gcc.bst
   - freedesktop-sdk.bst:components/pkg-config.bst
+  - freedesktop-sdk.bst:components/cairo.bst
+  - deps/sigc.bst
   - deps/mm-common.bst
 
 sources:
