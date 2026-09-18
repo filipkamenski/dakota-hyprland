@@ -62,8 +62,7 @@ jobs:
               echo 'Validating project dependency tree...'
               bst --error-lines 200 --message-lines 20 show image/image.bst || { echo 'Project validation failed'; exit 1; }
 
-              echo 'Tracking element sources...'
-              bst --error-lines 200 --message-lines 20 source track --deps all image/image.bst || true
+              echo 'Skipping auto-track: refs in the repo are the pins (auto-track silently drifted wlroots/rofi to master)'
 
               echo 'Building OS image with upstream artifact cache...'
               bst --error-lines 200 --message-lines 20 build image/image.bst
