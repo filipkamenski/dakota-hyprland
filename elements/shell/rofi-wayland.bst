@@ -32,4 +32,4 @@ sources:
     directory: subprojects/libnkutils
 
 variables:
-  meson-local: -Dcheck=disabled
+  meson-local: -Dcheck=disabled -Dxcb=disabled
