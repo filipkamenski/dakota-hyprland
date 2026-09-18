@@ -11,6 +11,3 @@ sources:
     url: https://cairographics.org/releases/cairomm-1.14.5.tar.xz
     ref: 70136203540c884e89ce1c9edfb6369b9953937f6cd596d97c78c9758a5d48db
 
-variables:
-  meson-local: >-
-    -Dtests=disabled
