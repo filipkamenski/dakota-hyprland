@@ -19,3 +19,4 @@ sources:
     url: https://github.com/lbonn/rofi.git
     track: master
     ref: 1.7.5+wayland3
+    checkout-submodules: true
