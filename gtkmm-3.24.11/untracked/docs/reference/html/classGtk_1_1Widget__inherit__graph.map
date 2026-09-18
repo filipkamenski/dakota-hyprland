@@ -1,0 +1,285 @@
+<map id="Gtk::Widget" name="Gtk::Widget">
+<area shape="rect" id="Node000001" title="Abstract Widget (Base class for all widgets)." alt="" coords="350,2656,448,2684"/>
+<area shape="rect" id="Node000007" href="$classGtk_1_1Calendar.html" title="Display a calendar and/or allow the user to select a date." alt="" coords="509,1980,620,2008"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="399,2640,403,2509,418,2324,430,2229,446,2142,468,2070,480,2041,494,2019,512,2006,509,2010,498,2022,485,2044,473,2072,452,2143,435,2230,423,2325,409,2509,404,2641"/>
+<area shape="rect" id="Node000008" href="$classGtk_1_1CellView.html" title="A widget displaying a single row of a TreeModel." alt="" coords="510,2032,619,2060"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="399,2640,405,2519,421,2350,433,2263,449,2183,469,2117,494,2071,513,2058,510,2062,498,2074,474,2119,454,2185,439,2264,426,2350,411,2519,404,2641"/>
+<area shape="rect" id="Node000009" href="$classGtk_1_1Container.html" title="Abstract container class." alt="" coords="507,2084,622,2112"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="406,2640,557,2113,562,2111,411,2642"/>
+<area shape="rect" id="Node000118" href="$classGtk_1_1DrawingArea.html" title="A widget for custom user interface elements." alt="" coords="496,2473,633,2501"/>
+<area shape="poly" id="edge117_Node000001_Node000118" title=" " alt="" coords="409,2640,441,2577,465,2542,495,2512,518,2500,514,2503,498,2516,470,2545,446,2579,413,2643"/>
+<area shape="rect" id="Node000119" href="$classGtk_1_1Entry.html" title="A single line text entry field." alt="" coords="521,2525,608,2553"/>
+<area shape="poly" id="edge118_Node000001_Node000119" title=" " alt="" coords="418,2641,451,2602,495,2564,523,2551,519,2554,498,2568,455,2606,421,2645"/>
+<area shape="rect" id="Node000122" href="$classGtk_1_1GLArea.html" title="A widget used for drawing with OpenGL." alt="" coords="514,2577,615,2605"/>
+<area shape="poly" id="edge121_Node000001_Node000122" title=" " alt="" coords="437,2646,495,2615,527,2604,522,2607,497,2620,439,2650"/>
+<area shape="rect" id="Node000123" href="$classGtk_1_1Invisible.html" title="This widget is used internally in GTK+, and is probably not useful for application developers." alt="" coords="511,2629,618,2657"/>
+<area shape="poly" id="edge122_Node000001_Node000123" title=" " alt="" coords="463,2657,513,2651,508,2653,465,2662"/>
+<area shape="rect" id="Node000124" href="$classGtk_1_1LevelBar.html" title="A bar that can used as a level indicator." alt="" coords="510,2681,619,2709"/>
+<area shape="poly" id="edge123_Node000001_Node000124" title=" " alt="" coords="463,2677,512,2686,507,2688,464,2682"/>
+<area shape="rect" id="Node000125" href="$classGtk_1_1Misc.html" title="A base class for widgets with alignments and padding." alt="" coords="523,2733,606,2761"/>
+<area shape="poly" id="edge124_Node000001_Node000125" title=" " alt="" coords="439,2689,497,2718,528,2733,522,2733,495,2723,439,2694"/>
+<area shape="rect" id="Node000130" href="$classGtk_1_1ProgressBar.html" title="A widget which indicates progress visually." alt="" coords="499,2785,630,2813"/>
+<area shape="poly" id="edge129_Node000001_Node000130" title=" " alt="" coords="420,2694,455,2733,498,2770,522,2785,516,2785,495,2775,451,2737,419,2699"/>
+<area shape="rect" id="Node000131" href="$classGtk_1_1Range.html" title="Base class for widgets which visualize an adjustment." alt="" coords="518,2837,611,2865"/>
+<area shape="poly" id="edge130_Node000001_Node000131" title=" " alt="" coords="412,2696,446,2760,470,2793,498,2822,520,2838,515,2837,495,2827,466,2797,442,2763,411,2701"/>
+<area shape="rect" id="Node000138" href="$classGtk_1_1Separator.html" title="A separator widget." alt="" coords="507,2889,622,2917"/>
+<area shape="poly" id="edge137_Node000001_Node000138" title=" " alt="" coords="408,2696,420,2737,438,2784,464,2832,498,2875,517,2889,512,2888,495,2878,459,2835,433,2787,415,2739,406,2701"/>
+<area shape="rect" id="Node000141" href="$classGtk_1_1Spinner.html" title="A widget that displays a spinner animation." alt="" coords="514,2941,615,2969"/>
+<area shape="poly" id="edge140_Node000001_Node000141" title=" " alt="" coords="405,2697,415,2748,431,2808,458,2871,477,2901,498,2927,516,2941,511,2940,495,2930,472,2904,454,2874,426,2810,410,2749,402,2702"/>
+<area shape="rect" id="Node000142" href="$classGtk_1_1Switch.html" title="A &quot;light switch&quot;&#45;style toggle." alt="" coords="517,2993,612,3021"/>
+<area shape="poly" id="edge141_Node000001_Node000142" title=" " alt="" coords="403,2697,410,2757,425,2832,437,2871,453,2910,473,2946,498,2979,519,2995,514,2994,494,2982,469,2949,448,2912,432,2873,419,2833,405,2758,400,2702"/>
+<area shape="rect" id="Node000002" href="$classGtk_1_1Object.html" title="Gtk::Object is the base class for all widgets, and for a few non&#45;widget objects such as Gtk::Adjustme..." alt="" coords="187,2604,282,2632"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="295,2634,355,2654,350,2656,296,2639"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="13,2604,111,2632"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="125,2616,189,2616,185,2620,127,2620"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1Buildable.html" title="A base class for objects that can be built by Gtk::Builder." alt="" coords="178,2656,291,2684"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="305,2667,352,2669,347,2671,307,2672"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,2656,119,2684"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="133,2668,179,2668,175,2671,136,2672"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="167,2708,302,2736"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="294,2700,355,2683,351,2686,296,2705"/>
+<area shape="rect" id="Node000010" href="$classGtk_1_1Bin.html" title="A container with just one child." alt="" coords="718,629,791,657"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="628,2072,630,2070,687,1416,751,660,753,655,693,1417,635,2072,633,2075"/>
+<area shape="rect" id="Node000074" href="$classGtk_1_1Box.html" title="The Box widget organizes child widgets into a rectangular area." alt="" coords="716,1564,793,1592"/>
+<area shape="poly" id="edge73_Node000009_Node000074" title=" " alt="" coords="628,2072,631,2070,650,2039,663,2009,670,1980,673,1951,667,1894,653,1838,640,1781,634,1724,637,1694,645,1664,658,1634,679,1603,695,1589,717,1582,713,1585,698,1594,683,1606,663,1636,650,1666,642,1695,640,1723,645,1780,658,1837,672,1893,678,1951,675,1981,668,2011,655,2042,635,2073,633,2075"/>
+<area shape="rect" id="Node000094" href="$classGtk_1_1Fixed.html" title="A container which allows you to position widgets at fixed coordinates." alt="" coords="711,1616,798,1644"/>
+<area shape="poly" id="edge93_Node000009_Node000094" title=" " alt="" coords="628,2072,631,2070,648,2043,660,2016,667,1990,669,1965,665,1914,653,1864,642,1813,638,1762,641,1736,648,1709,660,1682,679,1655,693,1642,712,1635,709,1639,696,1647,683,1658,665,1685,653,1711,646,1737,643,1762,647,1813,659,1863,670,1913,674,1965,672,1991,665,2018,653,2045,635,2073,633,2075"/>
+<area shape="rect" id="Node000095" href="$classGtk_1_1FlowBox.html" title="A container that allows reflowing its children." alt="" coords="700,1668,808,1696"/>
+<area shape="poly" id="edge94_Node000009_Node000095" title=" " alt="" coords="628,2072,631,2070,646,2046,657,2023,665,1978,662,1934,653,1890,645,1846,642,1801,651,1754,662,1731,679,1707,701,1692,698,1696,683,1710,667,1733,656,1756,647,1801,650,1845,659,1889,668,1933,671,1978,662,2025,651,2049,635,2073,633,2075"/>
+<area shape="rect" id="Node000096" href="$classGtk_1_1Grid.html" title="A container which arranges its child widgets in rows and columns." alt="" coords="715,1720,794,1748"/>
+<area shape="poly" id="edge95_Node000009_Node000096" title=" " alt="" coords="628,2073,631,2070,654,2030,662,1991,660,1954,654,1916,647,1878,645,1839,654,1799,679,1759,695,1746,716,1738,712,1742,697,1750,683,1762,659,1801,651,1840,652,1877,659,1915,665,1953,667,1992,659,2032,635,2073,632,2076"/>
+<area shape="rect" id="Node000097" href="$classGtk_1_1HeaderBar.html" title="A box with a centered child." alt="" coords="694,1772,815,1800"/>
+<area shape="poly" id="edge96_Node000009_Node000097" title=" " alt="" coords="628,2073,631,2070,650,2037,658,2005,658,1973,654,1942,649,1910,649,1878,658,1845,679,1811,697,1798,694,1802,683,1814,662,1847,654,1878,655,1910,659,1941,663,1973,664,2005,655,2039,635,2073,632,2076"/>
+<area shape="rect" id="Node000098" href="$classGtk_1_1IconView.html" title="The IconView provides an alternative view of a list model." alt="" coords="699,1824,810,1852"/>
+<area shape="poly" id="edge97_Node000009_Node000098" title=" " alt="" coords="628,2073,631,2070,647,2044,655,2018,656,1993,654,1968,652,1942,653,1916,661,1890,679,1863,700,1849,696,1853,683,1866,666,1892,658,1917,657,1942,659,1967,661,1993,660,2019,652,2046,635,2073,632,2076"/>
+<area shape="rect" id="Node000099" href="$classGtk_1_1Layout.html" title="Infinite scrollable area containing child widgets and/or custom drawing." alt="" coords="706,1876,802,1904"/>
+<area shape="poly" id="edge98_Node000009_Node000099" title=" " alt="" coords="627,2073,631,2069,644,2050,651,2031,654,1993,657,1955,664,1935,679,1915,707,1898,704,1902,682,1918,669,1937,662,1956,659,1994,656,2033,649,2053,635,2073,631,2076"/>
+<area shape="rect" id="Node000100" href="$classGtk_1_1ListBox.html" title="A ListBox is a vertical container that contains ListBoxRow children." alt="" coords="704,1928,804,1956"/>
+<area shape="poly" id="edge99_Node000009_Node000100" title=" " alt="" coords="626,2074,631,2069,648,2044,654,2019,660,1993,667,1980,679,1966,706,1952,702,1956,682,1971,672,1983,665,1995,659,2020,653,2046,635,2073,630,2077"/>
+<area shape="rect" id="Node000101" href="$classGtk_1_1MenuShell.html" title="The abstract base class for Gtk::Menu and Gtk::MenuBar." alt="" coords="694,1980,814,2008"/>
+<area shape="poly" id="edge100_Node000009_Node000101" title=" " alt="" coords="622,2075,631,2069,645,2057,654,2044,664,2031,679,2018,706,2006,702,2010,682,2023,668,2035,659,2047,649,2060,634,2073,625,2079"/>
+<area shape="rect" id="Node000105" href="$classGtk_1_1Notebook.html" title="Container which shows one of its children at a time, in tabbed windows." alt="" coords="697,2032,812,2060"/>
+<area shape="poly" id="edge104_Node000009_Node000105" title=" " alt="" coords="631,2077,703,2059,699,2062,634,2082"/>
+<area shape="rect" id="Node000106" href="$classGtk_1_1Paned.html" title="A widget with two adjustable panes." alt="" coords="709,2084,800,2112"/>
+<area shape="poly" id="edge105_Node000009_Node000106" title=" " alt="" coords="637,2095,711,2097,706,2099,639,2100"/>
+<area shape="rect" id="Node000109" href="$classGtk_1_1Socket.html" title="Container for widgets from other processes." alt="" coords="707,2136,802,2164"/>
+<area shape="poly" id="edge108_Node000009_Node000109" title=" " alt="" coords="632,2114,709,2136,704,2138,633,2119"/>
+<area shape="rect" id="Node000110" href="$classGtk_1_1Stack.html" title="A container that shows only one child at a time." alt="" coords="710,2188,798,2216"/>
+<area shape="poly" id="edge109_Node000009_Node000110" title=" " alt="" coords="596,2119,637,2146,682,2173,712,2187,707,2189,679,2178,634,2151,597,2124"/>
+<area shape="rect" id="Node000111" href="$classGtk_1_1Table.html" title="Pack widgets in regular patterns." alt="" coords="711,2240,798,2268"/>
+<area shape="poly" id="edge110_Node000009_Node000111" title=" " alt="" coords="583,2122,626,2174,653,2201,682,2225,713,2242,708,2243,679,2229,649,2205,622,2178,583,2127"/>
+<area shape="rect" id="Node000112" href="$classGtk_1_1TextView.html" title="Multi&#45;line text editing widget." alt="" coords="699,2292,810,2320"/>
+<area shape="poly" id="edge111_Node000009_Node000112" title=" " alt="" coords="577,2124,595,2160,618,2200,647,2242,682,2277,704,2291,698,2292,679,2281,643,2245,613,2203,590,2162,577,2129"/>
+<area shape="rect" id="Node000113" href="$classGtk_1_1ToolItemGroup.html" title="A ToolItemGroup is used together with ToolPalette to add ToolItems to a palette&#45;like container with d..." alt="" coords="681,2344,828,2372"/>
+<area shape="poly" id="edge112_Node000009_Node000113" title=" " alt="" coords="573,2124,588,2170,610,2225,641,2281,660,2306,682,2329,702,2343,697,2344,679,2333,656,2310,637,2284,605,2227,583,2172,572,2129"/>
+<area shape="rect" id="Node000114" href="$classGtk_1_1ToolPalette.html" title="A ToolPalette allows you to add ToolItems to a palette&#45;like container with various categories and dra..." alt="" coords="693,2396,816,2424"/>
+<area shape="poly" id="edge113_Node000009_Node000114" title=" " alt="" coords="570,2124,583,2180,603,2248,636,2319,657,2352,682,2381,701,2395,696,2396,679,2385,653,2355,631,2322,598,2250,578,2181,569,2130"/>
+<area shape="rect" id="Node000115" href="$classGtk_1_1Toolbar.html" title="Bars of buttons and other widgets." alt="" coords="705,2448,804,2476"/>
+<area shape="poly" id="edge114_Node000009_Node000115" title=" " alt="" coords="568,2125,578,2190,596,2272,611,2315,630,2358,654,2398,682,2433,707,2450,702,2451,679,2437,649,2401,625,2360,606,2317,591,2273,573,2191,567,2130"/>
+<area shape="rect" id="Node000116" href="$classGtk_1_1TreeView.html" title="The TreeView widget displays the model (Gtk::TreeModel) data and allows the user to interact with it." alt="" coords="699,2500,810,2528"/>
+<area shape="poly" id="edge115_Node000009_Node000116" title=" " alt="" coords="567,2125,574,2199,590,2294,604,2345,624,2396,650,2443,683,2485,701,2500,696,2500,679,2489,645,2446,619,2398,599,2347,585,2295,568,2199,565,2130"/>
+<area shape="rect" id="Node000011" href="$classGtk_1_1ActionBar.html" title="A full width bar for presenting contextual actions." alt="" coords="908,109,1023,137"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="756,613,770,511,795,371,811,301,829,237,850,184,874,148,889,136,909,129,906,133,892,141,878,152,855,187,834,239,816,302,800,372,776,511,762,615"/>
+<area shape="rect" id="Node000012" href="$classGtk_1_1Alignment.html" title="A widget which controls the alignment and size of its child." alt="" coords="906,161,1025,189"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="752,613,754,533,760,480,769,422,784,362,806,304,836,249,874,200,888,189,907,182,904,186,891,194,878,204,840,252,811,306,789,364,775,423,765,480,760,533,757,614"/>
+<area shape="rect" id="Node000013" href="$classGtk_1_1Button.html" title="A widget that creates a signal when clicked on." alt="" coords="918,213,1013,241"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="753,613,759,541,776,444,791,392,812,342,839,294,874,252,894,238,919,231,916,234,897,243,878,256,844,297,817,344,796,394,781,445,764,542,759,614"/>
+<area shape="rect" id="Node000025" href="$classGtk_1_1ComboBox.html" title="A widget used to choose from a list of items." alt="" coords="904,265,1027,293"/>
+<area shape="poly" id="edge24_Node000010_Node000025" title=" " alt="" coords="755,613,763,550,783,467,798,423,818,380,843,339,874,304,905,287,902,291,878,308,847,343,823,382,803,425,788,468,768,551,760,614"/>
+<area shape="rect" id="Node000028" href="$classGtk_1_1EventBox.html" title="Event capturing box." alt="" coords="908,317,1023,345"/>
+<area shape="poly" id="edge27_Node000010_Node000028" title=" " alt="" coords="757,613,768,559,790,490,824,418,847,385,874,356,890,345,910,338,906,342,892,350,878,360,851,388,829,421,795,492,773,560,762,615"/>
+<area shape="rect" id="Node000029" href="$classGtk_1_1Expander.html" title="A container which can hide its child." alt="" coords="909,369,1022,397"/>
+<area shape="poly" id="edge28_Node000010_Node000029" title=" " alt="" coords="760,614,774,569,797,513,830,457,851,431,874,408,910,391,907,395,878,412,855,434,834,460,802,516,779,571,765,615"/>
+<area shape="rect" id="Node000030" href="$classGtk_1_1FlowBoxChild.html" title="See the description of FlowBox." alt="" coords="895,421,1036,449"/>
+<area shape="poly" id="edge29_Node000010_Node000030" title=" " alt="" coords="765,614,781,579,805,537,836,495,874,460,900,447,896,452,878,464,840,499,810,540,786,581,769,616"/>
+<area shape="rect" id="Node000031" href="$classGtk_1_1Frame.html" title="A Gtk::Bin with a decorative frame and optional label." alt="" coords="919,473,1012,501"/>
+<area shape="poly" id="edge30_Node000010_Node000031" title=" " alt="" coords="772,615,815,562,843,535,875,512,920,494,917,498,877,516,847,539,819,566,776,618"/>
+<area shape="rect" id="Node000033" href="$classGtk_1_1HandleBox.html" title="A widget for detachable window portions." alt="" coords="904,525,1027,553"/>
+<area shape="poly" id="edge32_Node000010_Node000033" title=" " alt="" coords="784,618,826,590,875,563,910,552,906,556,877,568,829,595,788,622"/>
+<area shape="rect" id="Node000034" href="$classGtk_1_1ListBoxRow.html" title="See the description of ListBox." alt="" coords="902,577,1030,605"/>
+<area shape="poly" id="edge33_Node000010_Node000034" title=" " alt="" coords="804,629,908,604,905,607,808,633"/>
+<area shape="rect" id="Node000035" href="$classGtk_1_1MenuItem.html" title="Child item for menus." alt="" coords="906,629,1025,657"/>
+<area shape="poly" id="edge34_Node000010_Node000035" title=" " alt="" coords="805,641,908,642,904,645,808,645"/>
+<area shape="rect" id="Node000041" href="$classGtk_1_1Overlay.html" title="A container which overlays widgets on top of each other." alt="" coords="914,681,1017,709"/>
+<area shape="poly" id="edge40_Node000010_Node000041" title=" " alt="" coords="805,653,916,681,911,684,807,658"/>
+<area shape="rect" id="Node000042" href="$classGtk_1_1Popover.html" title="Context dependent bubbles." alt="" coords="913,733,1018,761"/>
+<area shape="poly" id="edge41_Node000010_Node000042" title=" " alt="" coords="785,664,829,692,877,718,915,733,910,735,875,723,826,696,787,669"/>
+<area shape="rect" id="Node000044" href="$classGtk_1_1Revealer.html" title="Hide and show with animation." alt="" coords="910,785,1021,813"/>
+<area shape="poly" id="edge43_Node000010_Node000044" title=" " alt="" coords="773,667,819,720,847,747,877,770,913,787,908,789,875,775,843,751,815,724,774,673"/>
+<area shape="rect" id="Node000045" href="$classGtk_1_1ScrolledWindow.html" title="Adds scrollbars to its child widget." alt="" coords="888,837,1044,865"/>
+<area shape="poly" id="edge44_Node000010_Node000045" title=" " alt="" coords="767,669,786,705,810,746,840,787,878,822,901,836,896,838,874,827,836,791,805,749,781,708,767,674"/>
+<area shape="rect" id="Node000047" href="$classGtk_1_1SearchBar.html" title="A toolbar to integrate a search entry with." alt="" coords="906,889,1025,917"/>
+<area shape="poly" id="edge46_Node000010_Node000047" title=" " alt="" coords="763,669,779,716,802,771,834,827,855,852,878,874,908,892,903,894,874,879,851,856,830,830,797,773,774,718,762,674"/>
+<area shape="rect" id="Node000048" href="$classGtk_1_1StackSidebar.html" title="Sidebar widget that shows the pages of a Stack." alt="" coords="897,941,1034,969"/>
+<area shape="poly" id="edge47_Node000010_Node000048" title=" " alt="" coords="760,670,773,726,795,795,829,866,851,898,878,926,899,941,894,942,874,931,847,901,824,868,790,797,768,727,759,675"/>
+<area shape="rect" id="Node000049" href="$classGtk_1_1ToolItem.html" title="The base class of widgets that can be added to ToolShell." alt="" coords="912,993,1020,1021"/>
+<area shape="poly" id="edge48_Node000010_Node000049" title=" " alt="" coords="758,670,768,736,788,818,803,862,823,904,847,944,878,979,894,990,913,999,909,1001,891,994,874,982,843,947,818,907,798,864,783,820,763,737,757,675"/>
+<area shape="rect" id="Node000055" href="$classGtk_1_1Viewport.html" title="An adapter which makes widgets scrollable." alt="" coords="910,1045,1021,1073"/>
+<area shape="poly" id="edge54_Node000010_Node000055" title=" " alt="" coords="756,670,764,745,781,841,796,892,817,942,844,989,878,1031,893,1042,912,1051,907,1053,890,1046,874,1034,839,992,812,945,791,894,776,842,759,745,756,675"/>
+<area shape="rect" id="Node000056" href="$classGtk_1_1Window.html" title="Toplevel Window." alt="" coords="914,1175,1018,1202"/>
+<area shape="poly" id="edge55_Node000010_Node000056" title=" " alt="" coords="759,670,774,747,795,852,830,969,852,1028,878,1083,914,1134,951,1174,946,1175,910,1138,874,1086,847,1030,825,971,790,853,768,748,759,675"/>
+<area shape="rect" id="Node000014" href="$classGtk_1_1ColorButton.html" title="A button to launch a color selection dialog." alt="" coords="1137,5,1266,33"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="1026,216,1054,199,1068,180,1075,161,1076,123,1079,83,1086,63,1101,44,1117,32,1138,25,1135,29,1120,37,1105,48,1091,66,1084,85,1082,123,1080,163,1072,183,1057,202,1030,219"/>
+<area shape="rect" id="Node000015" href="$classGtk_1_1FontButton.html" title="A button to launch a font selection dialog." alt="" coords="1140,57,1263,85"/>
+<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="1026,214,1054,198,1065,186,1071,174,1077,148,1082,122,1090,109,1102,96,1119,84,1141,77,1138,81,1122,89,1105,100,1094,112,1087,124,1082,150,1076,176,1069,189,1057,203,1030,218"/>
+<area shape="rect" id="Node000016" href="$classGtk_1_1LinkButton.html" title="Create buttons bound to a URL." alt="" coords="1140,109,1263,137"/>
+<area shape="poly" id="edge15_Node000013_Node000016" title=" " alt="" coords="1026,211,1054,198,1068,186,1077,174,1086,160,1102,148,1142,132,1138,136,1105,152,1090,164,1081,177,1072,190,1057,203,1030,215"/>
+<area shape="rect" id="Node000017" href="$classGtk_1_1LockButton.html" title="A widget to unlock or lock privileged operations." alt="" coords="1139,161,1264,189"/>
+<area shape="poly" id="edge16_Node000013_Node000017" title=" " alt="" coords="1027,211,1141,187,1137,191,1030,215"/>
+<area shape="rect" id="Node000018" href="$classGtk_1_1ModelButton.html" title="A button that uses a Gio::Action as model." alt="" coords="1134,213,1269,241"/>
+<area shape="poly" id="edge17_Node000013_Node000018" title=" " alt="" coords="1027,225,1135,226,1131,229,1030,229"/>
+<area shape="rect" id="Node000019" href="$classGtk_1_1ScaleButton.html" title="A button which pops up a scale widget." alt="" coords="1136,265,1267,293"/>
+<area shape="poly" id="edge18_Node000013_Node000019" title=" " alt="" coords="1027,238,1138,264,1134,266,1029,243"/>
+<area shape="rect" id="Node000021" href="$classGtk_1_1ToggleButton.html" title="A Gtk::ToggleButton will remain &#39;pressed&#45;in&#39; when clicked." alt="" coords="1133,317,1270,345"/>
+<area shape="poly" id="edge20_Node000013_Node000021" title=" " alt="" coords="1027,239,1057,252,1072,265,1081,278,1090,290,1105,302,1135,317,1130,319,1102,307,1086,294,1077,281,1068,268,1054,256,1029,244"/>
+<area shape="rect" id="Node000020" href="$classGtk_1_1VolumeButton.html" title="A button which pops up a volume control." alt="" coords="1372,265,1516,293"/>
+<area shape="poly" id="edge19_Node000019_Node000020" title=" " alt="" coords="1281,277,1374,278,1369,281,1284,281"/>
+<area shape="rect" id="Node000022" href="$classGtk_1_1CheckButton.html" title="Create widgets with a discrete toggle button." alt="" coords="1376,317,1512,345"/>
+<area shape="poly" id="edge21_Node000021_Node000022" title=" " alt="" coords="1284,329,1378,330,1373,333,1287,333"/>
+<area shape="rect" id="Node000024" href="$classGtk_1_1MenuButton.html" title="A widget that shows a menu when clicked on." alt="" coords="1378,369,1510,397"/>
+<area shape="poly" id="edge23_Node000021_Node000024" title=" " alt="" coords="1283,346,1380,368,1375,370,1285,351"/>
+<area shape="rect" id="Node000023" href="$classGtk_1_1RadioButton.html" title="A choice from multiple check buttons." alt="" coords="1601,317,1733,345"/>
+<area shape="poly" id="edge22_Node000022_Node000023" title=" " alt="" coords="1526,329,1603,330,1598,333,1528,333"/>
+<area shape="rect" id="Node000026" href="$classGtk_1_1AppChooserButton.html" title="A button to launch an application chooser dialog." alt="" coords="1115,369,1288,397"/>
+<area shape="poly" id="edge25_Node000025_Node000026" title=" " alt="" coords="1041,296,1057,304,1072,317,1081,330,1090,342,1105,354,1133,368,1128,370,1102,359,1086,346,1077,333,1068,320,1054,308,1042,301"/>
+<area shape="rect" id="Node000027" href="$classGtk_1_1ComboBoxText.html" title="This is a simple variant of ComboBox that hides the model&#45;view complexity for simple text&#45;only use ca..." alt="" coords="1126,421,1277,449"/>
+<area shape="poly" id="edge26_Node000025_Node000027" title=" " alt="" coords="1041,294,1057,304,1069,317,1076,330,1082,357,1087,382,1094,395,1105,406,1128,421,1123,423,1102,411,1090,398,1082,384,1077,358,1071,332,1065,320,1054,308,1042,299"/>
+<area shape="rect" id="Node000032" href="$classGtk_1_1AspectFrame.html" title="A frame that constrains its child to a particular aspect ratio." alt="" coords="1133,473,1270,501"/>
+<area shape="poly" id="edge31_Node000031_Node000032" title=" " alt="" coords="1026,485,1134,486,1130,489,1029,489"/>
+<area shape="rect" id="Node000036" href="$classGtk_1_1CheckMenuItem.html" title="A menu item that maintains the state of a boolean value in addition to a Gtk::MenuItem&#39;s usual role i..." alt="" coords="1122,525,1281,553"/>
+<area shape="poly" id="edge35_Node000035_Node000036" title=" " alt="" coords="1037,623,1054,614,1068,602,1077,590,1086,576,1102,564,1132,552,1128,555,1105,568,1090,580,1081,593,1072,606,1057,619,1041,627"/>
+<area shape="rect" id="Node000038" href="$classGtk_1_1ImageMenuItem.html" title="A menu item with an icon." alt="" coords="1122,577,1281,605"/>
+<area shape="poly" id="edge37_Node000035_Node000038" title=" " alt="" coords="1038,625,1137,604,1133,607,1041,629"/>
+<area shape="rect" id="Node000039" href="$classGtk_1_1SeparatorMenuItem.html" title="A separator used to group items within a menu." alt="" coords="1111,629,1292,657"/>
+<area shape="poly" id="edge38_Node000035_Node000039" title=" " alt="" coords="1039,641,1113,642,1108,645,1042,645"/>
+<area shape="rect" id="Node000040" href="$classGtk_1_1TearoffMenuItem.html" title="A special Gtk::MenuItem which is used to tear off and reattach its menu." alt="" coords="1120,681,1283,709"/>
+<area shape="poly" id="edge39_Node000035_Node000040" title=" " alt="" coords="1039,657,1138,679,1133,682,1041,662"/>
+<area shape="rect" id="Node000037" href="$classGtk_1_1RadioMenuItem.html" title="A CheckMenuItem that belongs to a group." alt="" coords="1366,525,1522,553"/>
+<area shape="poly" id="edge36_Node000036_Node000037" title=" " alt="" coords="1295,537,1368,538,1364,541,1298,541"/>
+<area shape="rect" id="Node000043" href="$classGtk_1_1PopoverMenu.html" title="A Popover to use as a menu." alt="" coords="1131,733,1272,761"/>
+<area shape="poly" id="edge42_Node000042_Node000043" title=" " alt="" coords="1033,745,1133,746,1128,749,1035,749"/>
+<area shape="rect" id="Node000046" href="$classGtk_1_1PlacesSidebar.html" title="Sidebar that displays frequently&#45;used places in the file system." alt="" coords="1130,837,1273,865"/>
+<area shape="poly" id="edge45_Node000045_Node000046" title=" " alt="" coords="1058,849,1132,850,1127,853,1061,853"/>
+<area shape="rect" id="Node000050" href="$classGtk_1_1SeparatorToolItem.html" title="A toolbar item that separates groups of other toolbar items." alt="" coords="1116,915,1287,942"/>
+<area shape="poly" id="edge49_Node000049_Node000050" title=" " alt="" coords="1033,986,1054,978,1102,953,1142,941,1138,945,1104,958,1056,983,1036,990"/>
+<area shape="rect" id="Node000051" href="$classGtk_1_1ToolButton.html" title="A Gtk::ToolItem subclass that displays buttons." alt="" coords="1141,967,1262,994"/>
+<area shape="poly" id="edge50_Node000049_Node000051" title=" " alt="" coords="1034,997,1143,986,1138,989,1037,1002"/>
+<area shape="rect" id="Node000052" href="$classGtk_1_1MenuToolButton.html" title="A Gtk::ToolItem containing a toggle button." alt="" coords="1365,863,1522,890"/>
+<area shape="poly" id="edge51_Node000051_Node000052" title=" " alt="" coords="1275,963,1298,952,1313,940,1321,927,1331,914,1346,901,1376,889,1372,893,1349,905,1335,917,1326,930,1317,943,1301,956,1279,967"/>
+<area shape="rect" id="Node000053" href="$classGtk_1_1ToggleToolButton.html" title="A Gtk::ToolItem containing a toggle button." alt="" coords="1362,915,1526,942"/>
+<area shape="poly" id="edge52_Node000051_Node000053" title=" " alt="" coords="1276,962,1378,941,1374,945,1279,966"/>
+<area shape="rect" id="Node000054" href="$classGtk_1_1RadioToolButton.html" title="A toolbar item that contains a radio button." alt="" coords="1588,915,1746,942"/>
+<area shape="poly" id="edge53_Node000053_Node000054" title=" " alt="" coords="1540,926,1590,927,1585,930,1543,931"/>
+<area shape="rect" id="Node000057" href="$classGtk_1_1ApplicationWindow.html" title="A Gtk::Window subclass with Gtk::Application support." alt="" coords="1113,1071,1290,1098"/>
+<area shape="poly" id="edge56_Node000056_Node000057" title=" " alt="" coords="999,1164,1047,1135,1102,1109,1141,1097,1137,1101,1104,1114,1050,1140,1003,1168"/>
+<area shape="rect" id="Node000058" href="$classGtk_1_1Assistant.html" title="A widget used to guide users through multi&#45;step operations." alt="" coords="1145,1123,1258,1150"/>
+<area shape="poly" id="edge57_Node000056_Node000058" title=" " alt="" coords="1031,1172,1147,1147,1143,1150,1034,1176"/>
+<area shape="rect" id="Node000059" href="$classGtk_1_1Dialog.html" title="Create popup windows." alt="" coords="1154,1175,1249,1202"/>
+<area shape="poly" id="edge58_Node000056_Node000059" title=" " alt="" coords="1032,1186,1156,1187,1152,1190,1035,1191"/>
+<area shape="rect" id="Node000071" href="$classGtk_1_1OffscreenWindow.html" title="A top&#45;level container widget used to manage offscreen rendering of child widgets." alt="" coords="1118,1227,1285,1254"/>
+<area shape="poly" id="edge70_Node000056_Node000071" title=" " alt="" coords="1032,1201,1138,1225,1133,1227,1034,1206"/>
+<area shape="rect" id="Node000072" href="$classGtk_1_1Plug.html" title="Toplevel for embedding into other processes." alt="" coords="1161,1279,1242,1306"/>
+<area shape="poly" id="edge71_Node000056_Node000072" title=" " alt="" coords="1001,1208,1050,1237,1104,1263,1163,1283,1158,1285,1102,1268,1047,1242,1002,1214"/>
+<area shape="rect" id="Node000073" href="$classGtk_1_1ShortcutsWindow.html" title="Toplevel which shows help for shortcuts." alt="" coords="1119,1331,1284,1358"/>
+<area shape="poly" id="edge72_Node000056_Node000073" title=" " alt="" coords="987,1212,1039,1265,1070,1292,1105,1315,1134,1329,1129,1331,1102,1320,1067,1297,1035,1269,988,1217"/>
+<area shape="rect" id="Node000060" href="$classGtk_1_1AboutDialog.html" title="The AboutDialog offers a simple way to display information about a program like its logo,..." alt="" coords="1378,967,1510,994"/>
+<area shape="poly" id="edge59_Node000059_Node000060" title=" " alt="" coords="1262,1179,1282,1171,1298,1160,1312,1142,1319,1123,1321,1084,1323,1045,1331,1025,1346,1005,1379,988,1375,991,1349,1009,1335,1027,1328,1046,1326,1085,1324,1124,1317,1144,1302,1164,1284,1176,1265,1184"/>
+<area shape="rect" id="Node000061" href="$classGtk_1_1AppChooserDialog.html" title="An application chooser dialog." alt="" coords="1358,1019,1530,1046"/>
+<area shape="poly" id="edge60_Node000059_Node000061" title=" " alt="" coords="1262,1178,1281,1170,1298,1160,1309,1148,1316,1136,1321,1110,1327,1083,1334,1070,1346,1057,1369,1045,1365,1049,1349,1061,1338,1073,1332,1085,1326,1111,1321,1138,1313,1151,1301,1164,1284,1175,1265,1182"/>
+<area shape="rect" id="Node000062" href="$classGtk_1_1ColorChooserDialog.html" title="This dialog is for choosing a color." alt="" coords="1353,1071,1534,1098"/>
+<area shape="poly" id="edge61_Node000059_Node000062" title=" " alt="" coords="1262,1175,1298,1160,1313,1148,1321,1135,1331,1122,1346,1109,1376,1097,1372,1101,1349,1113,1335,1125,1326,1138,1317,1151,1301,1164,1266,1179"/>
+<area shape="rect" id="Node000063" href="$classGtk_1_1ColorSelectionDialog.html" title="This dialog allows the user to select a color." alt="" coords="1350,1123,1538,1150"/>
+<area shape="poly" id="edge62_Node000059_Node000063" title=" " alt="" coords="1262,1173,1378,1149,1374,1152,1265,1178"/>
+<area shape="rect" id="Node000064" href="$classGtk_1_1FileChooserDialog.html" title="Convenient file chooser window." alt="" coords="1359,1175,1529,1202"/>
+<area shape="poly" id="edge63_Node000059_Node000064" title=" " alt="" coords="1263,1186,1360,1187,1356,1190,1265,1191"/>
+<area shape="rect" id="Node000065" href="$classGtk_1_1FontChooserDialog.html" title="A dialog box for selecting fonts." alt="" coords="1356,1227,1532,1254"/>
+<area shape="poly" id="edge64_Node000059_Node000065" title=" " alt="" coords="1263,1199,1378,1225,1374,1227,1265,1204"/>
+<area shape="rect" id="Node000066" href="$classGtk_1_1FontSelectionDialog.html" title="A dialog box for selecting fonts." alt="" coords="1353,1279,1535,1306"/>
+<area shape="poly" id="edge65_Node000059_Node000066" title=" " alt="" coords="1263,1197,1301,1213,1317,1226,1326,1239,1335,1252,1349,1264,1377,1278,1372,1279,1346,1268,1331,1255,1321,1242,1313,1229,1298,1217,1265,1203"/>
+<area shape="rect" id="Node000067" href="$classGtk_1_1MessageDialog.html" title="Convenient message window." alt="" coords="1368,1331,1520,1358"/>
+<area shape="poly" id="edge66_Node000059_Node000067" title=" " alt="" coords="1263,1194,1284,1202,1301,1213,1313,1226,1321,1239,1326,1266,1332,1292,1338,1304,1349,1316,1370,1330,1365,1331,1346,1320,1334,1307,1327,1294,1321,1267,1316,1241,1309,1229,1298,1217,1281,1207,1264,1199"/>
+<area shape="rect" id="Node000068" href="$classGtk_1_1PageSetupUnixDialog.html" title="PageSetupUnixDialog implements a page setup dialog for platforms which don&#39;t provide a native page se..." alt="" coords="1348,1383,1540,1410"/>
+<area shape="poly" id="edge67_Node000059_Node000068" title=" " alt="" coords="1263,1193,1284,1201,1302,1213,1317,1233,1324,1253,1326,1292,1328,1331,1335,1350,1350,1368,1367,1382,1362,1382,1346,1372,1331,1352,1323,1332,1321,1293,1319,1254,1312,1235,1298,1217,1282,1206,1265,1198"/>
+<area shape="rect" id="Node000069" href="$classGtk_1_1PrintUnixDialog.html" title="PrintUnixDialog implements a print dialog for platforms which don&#39;t provide a native print dialog,..." alt="" coords="1367,1435,1521,1462"/>
+<area shape="poly" id="edge68_Node000059_Node000069" title=" " alt="" coords="1263,1192,1284,1200,1302,1213,1320,1240,1328,1266,1329,1293,1326,1319,1324,1345,1325,1370,1332,1395,1350,1420,1369,1435,1364,1436,1346,1424,1327,1397,1319,1371,1318,1344,1321,1318,1324,1292,1323,1267,1315,1242,1298,1217,1282,1205,1264,1197"/>
+<area shape="rect" id="Node000070" href="$classGtk_1_1RecentChooserDialog.html" title="RecentChooserDialog is a dialog box suitable for displaying the recently used documents." alt="" coords="1348,1487,1540,1514"/>
+<area shape="poly" id="edge69_Node000059_Node000070" title=" " alt="" coords="1263,1192,1285,1200,1302,1213,1324,1246,1332,1279,1331,1312,1326,1345,1321,1377,1321,1409,1329,1440,1350,1472,1366,1486,1361,1486,1346,1476,1324,1443,1315,1409,1316,1377,1321,1344,1326,1312,1327,1280,1319,1249,1298,1217,1282,1205,1265,1197"/>
+<area shape="rect" id="Node000075" href="$classGtk_1_1AppChooserWidget.html" title="An application chooser widget that can be embedded in other widgets." alt="" coords="878,1356,1054,1384"/>
+<area shape="poly" id="edge74_Node000074_Node000075" title=" " alt="" coords="765,1548,781,1513,805,1472,836,1430,874,1394,900,1382,896,1386,878,1399,840,1434,810,1475,786,1516,769,1551"/>
+<area shape="rect" id="Node000076" href="$classGtk_1_1ButtonBox.html" title="A container for arranging buttons." alt="" coords="906,1408,1026,1436"/>
+<area shape="poly" id="edge75_Node000074_Node000076" title=" " alt="" coords="772,1549,815,1497,843,1470,875,1446,907,1433,903,1437,877,1451,847,1474,819,1501,776,1552"/>
+<area shape="rect" id="Node000079" href="$classGtk_1_1FontChooserWidget.html" title="A dialog box for selecting fonts." alt="" coords="876,1460,1055,1488"/>
+<area shape="poly" id="edge78_Node000074_Node000079" title=" " alt="" coords="784,1553,826,1525,875,1498,910,1487,906,1490,877,1503,829,1529,788,1557"/>
+<area shape="rect" id="Node000080" href="$classGtk_1_1HBox.html" title="Horizontal Box for laying widgets in a horizontal row." alt="" coords="922,1512,1009,1540"/>
+<area shape="poly" id="edge79_Node000074_Node000080" title=" " alt="" coords="807,1563,923,1535,919,1538,810,1567"/>
+<area shape="rect" id="Node000084" href="$classGtk_1_1ShortcutLabel.html" title="Displays a keyboard shortcut." alt="" coords="895,1564,1036,1592"/>
+<area shape="poly" id="edge83_Node000074_Node000084" title=" " alt="" coords="807,1575,897,1576,892,1579,810,1580"/>
+<area shape="rect" id="Node000085" href="$classGtk_1_1ShortcutsGroup.html" title="Represents a group of shortcuts in a ShortcutsWindow." alt="" coords="890,1616,1042,1644"/>
+<area shape="poly" id="edge84_Node000074_Node000085" title=" " alt="" coords="807,1588,909,1614,904,1617,809,1593"/>
+<area shape="rect" id="Node000086" href="$classGtk_1_1ShortcutsSection.html" title="Represents an application mode in a ShortcutsWindow." alt="" coords="885,1668,1046,1696"/>
+<area shape="poly" id="edge85_Node000074_Node000086" title=" " alt="" coords="807,1591,830,1602,845,1616,854,1629,863,1641,877,1653,904,1667,899,1668,875,1657,859,1645,850,1632,841,1619,826,1607,808,1596"/>
+<area shape="rect" id="Node000087" href="$classGtk_1_1ShortcutsShortcut.html" title="Represents a keyboard shortcut in a ShortcutsWindow." alt="" coords="882,1720,1049,1748"/>
+<area shape="poly" id="edge86_Node000074_Node000087" title=" " alt="" coords="807,1589,830,1602,841,1616,848,1629,854,1656,860,1681,867,1693,878,1705,898,1719,893,1720,874,1709,862,1696,855,1683,849,1657,843,1631,837,1619,826,1607,808,1594"/>
+<area shape="rect" id="Node000088" href="$classGtk_1_1StackSwitcher.html" title="A controller for a Gtk::Stack." alt="" coords="894,1772,1038,1800"/>
+<area shape="poly" id="edge87_Node000074_Node000088" title=" " alt="" coords="807,1588,830,1603,845,1623,852,1643,854,1682,857,1720,864,1739,878,1757,896,1771,891,1772,874,1761,859,1741,851,1722,849,1683,847,1644,840,1625,826,1606,808,1593"/>
+<area shape="rect" id="Node000089" href="$classGtk_1_1VBox.html" title="Vertical Box for laying widgets in a vertical row." alt="" coords="922,1824,1009,1852"/>
+<area shape="poly" id="edge88_Node000074_Node000089" title=" " alt="" coords="807,1587,830,1603,848,1630,855,1657,856,1683,854,1709,852,1734,853,1759,860,1784,878,1809,899,1824,925,1833,920,1835,896,1829,874,1813,856,1787,847,1760,846,1734,849,1708,851,1683,850,1657,843,1632,826,1606,808,1592"/>
+<area shape="rect" id="Node000077" href="$classGtk_1_1HButtonBox.html" title="A container for arranging buttons horizontally." alt="" coords="1136,1383,1267,1410"/>
+<area shape="poly" id="edge76_Node000076_Node000077" title=" " alt="" coords="1040,1411,1138,1402,1134,1405,1043,1416"/>
+<area shape="rect" id="Node000078" href="$classGtk_1_1VButtonBox.html" title="A container for arranging buttons vertically." alt="" coords="1137,1435,1266,1462"/>
+<area shape="poly" id="edge77_Node000076_Node000078" title=" " alt="" coords="1040,1428,1139,1440,1134,1442,1043,1433"/>
+<area shape="rect" id="Node000081" href="$classGtk_1_1FileChooserButton.html" title="A button to launch a file chooser dialog." alt="" coords="1116,1487,1287,1514"/>
+<area shape="poly" id="edge80_Node000080_Node000081" title=" " alt="" coords="1023,1517,1118,1508,1113,1511,1026,1522"/>
+<area shape="rect" id="Node000082" href="$classGtk_1_1InfoBar.html" title="This widget that can be used to show messages to the user without showing a dialog." alt="" coords="1152,1539,1251,1566"/>
+<area shape="poly" id="edge81_Node000080_Node000082" title=" " alt="" coords="1024,1530,1154,1546,1149,1548,1026,1535"/>
+<area shape="rect" id="Node000083" href="$classGtk_1_1Statusbar.html" title="Text status indicator This widget is used to display status information." alt="" coords="1144,1591,1259,1618"/>
+<area shape="poly" id="edge82_Node000080_Node000083" title=" " alt="" coords="1024,1539,1056,1550,1104,1575,1146,1590,1141,1592,1102,1580,1054,1555,1025,1544"/>
+<area shape="rect" id="Node000090" href="$classGtk_1_1ColorSelection.html" title="A widget used to select a color." alt="" coords="1128,1727,1275,1754"/>
+<area shape="poly" id="edge89_Node000089_Node000090" title=" " alt="" coords="1022,1823,1054,1809,1068,1798,1077,1787,1087,1776,1102,1765,1134,1753,1130,1756,1105,1769,1091,1780,1081,1791,1072,1802,1057,1813,1026,1827"/>
+<area shape="rect" id="Node000091" href="$classGtk_1_1FileChooserWidget.html" title="File chooser widget that can be embedded in other widgets." alt="" coords="1114,1779,1289,1806"/>
+<area shape="poly" id="edge90_Node000089_Node000091" title=" " alt="" coords="1023,1824,1128,1806,1123,1808,1025,1829"/>
+<area shape="rect" id="Node000092" href="$classGtk_1_1FontSelection.html" title="A widget for selecting fonts." alt="" coords="1131,1831,1272,1858"/>
+<area shape="poly" id="edge91_Node000089_Node000092" title=" " alt="" coords="1023,1837,1133,1841,1128,1844,1025,1842"/>
+<area shape="rect" id="Node000093" href="$classGtk_1_1RecentChooserWidget.html" title="RecentChooserWidget is a widget suitable for selecting recently used files." alt="" coords="1103,1883,1300,1910"/>
+<area shape="poly" id="edge92_Node000089_Node000093" title=" " alt="" coords="1023,1850,1145,1881,1140,1883,1025,1855"/>
+<area shape="rect" id="Node000102" href="$classGtk_1_1Menu.html" title="A drop&#45;down menu consisting of Gtk::MenuItem objects which can be navigated and activated by the user..." alt="" coords="922,1948,1010,1976"/>
+<area shape="poly" id="edge101_Node000101_Node000102" title=" " alt="" coords="829,1980,923,1967,919,1970,831,1985"/>
+<area shape="rect" id="Node000104" href="$classGtk_1_1MenuBar.html" title="A standard menu bar which usually holds Gtk::Menu submenu items." alt="" coords="910,2000,1021,2028"/>
+<area shape="poly" id="edge103_Node000101_Node000104" title=" " alt="" coords="829,1998,912,2008,908,2010,831,2003"/>
+<area shape="rect" id="Node000103" href="$classGtk_1_1RecentChooserMenu.html" title="RecentChooserMenu is a widget suitable for displaying recently used files inside a menu." alt="" coords="1108,1948,1295,1976"/>
+<area shape="poly" id="edge102_Node000102_Node000103" title=" " alt="" coords="1025,1959,1110,1961,1105,1963,1026,1964"/>
+<area shape="rect" id="Node000107" href="$classGtk_1_1HPaned.html" title="The Gtk::HPaned widget is a container widget with two children arranged horizontally." alt="" coords="915,2077,1016,2105"/>
+<area shape="poly" id="edge106_Node000106_Node000107" title=" " alt="" coords="815,2093,917,2092,912,2094,817,2098"/>
+<area shape="rect" id="Node000108" href="$classGtk_1_1VPaned.html" title="The Gtk::VPaned widget is a container widget with two children arranged vertically." alt="" coords="916,2129,1016,2157"/>
+<area shape="poly" id="edge107_Node000106_Node000108" title=" " alt="" coords="815,2108,917,2132,912,2133,816,2113"/>
+<area shape="rect" id="Node000117" href="$classGtk_1_1ListViewText.html" title="A simple listbox which presents some lines of information in columns and lets the user select some of..." alt="" coords="898,2500,1033,2528"/>
+<area shape="poly" id="edge116_Node000116_Node000117" title=" " alt="" coords="825,2511,901,2513,895,2515,826,2516"/>
+<area shape="rect" id="Node000120" href="$classGtk_1_1SearchEntry.html" title="This is a subclass of Gtk::Entry that has been tailored for use as a search entry." alt="" coords="689,2552,820,2580"/>
+<area shape="poly" id="edge119_Node000119_Node000120" title=" " alt="" coords="623,2545,691,2556,686,2557,624,2550"/>
+<area shape="rect" id="Node000121" href="$classGtk_1_1SpinButton.html" title="numeric Entry with up/down buttons Slightly misnamed, this should be called a SpinEntry." alt="" coords="693,2604,816,2632"/>
+<area shape="poly" id="edge120_Node000119_Node000121" title=" " alt="" coords="618,2557,634,2563,682,2589,714,2603,708,2604,680,2594,632,2568,618,2562"/>
+<area shape="rect" id="Node000126" href="$classGtk_1_1Arrow.html" title="Produces an arrow pointing in one of the four cardinal directions." alt="" coords="709,2656,800,2684"/>
+<area shape="poly" id="edge125_Node000125_Node000126" title=" " alt="" coords="617,2725,632,2718,680,2694,714,2683,709,2685,682,2699,634,2723,619,2729"/>
+<area shape="rect" id="Node000127" href="$classGtk_1_1Image.html" title="A widget displaying an image." alt="" coords="708,2708,801,2736"/>
+<area shape="poly" id="edge126_Node000125_Node000127" title=" " alt="" coords="620,2737,710,2727,705,2729,622,2742"/>
+<area shape="rect" id="Node000128" href="$classGtk_1_1Label.html" title="A widget that displays a small to medium amount of text." alt="" coords="711,2760,798,2788"/>
+<area shape="poly" id="edge127_Node000125_Node000128" title=" " alt="" coords="621,2752,713,2767,708,2768,621,2758"/>
+<area shape="rect" id="Node000129" href="$classGtk_1_1AccelLabel.html" title="A label which displays an accelerator key on the right of the text." alt="" coords="904,2708,1027,2736"/>
+<area shape="poly" id="edge128_Node000128_Node000129" title=" " alt="" coords="812,2757,909,2736,904,2737,814,2762"/>
+<area shape="rect" id="Node000132" href="$classGtk_1_1Scale.html" title="A slider widget for selecting a value from a range." alt="" coords="711,2812,798,2840"/>
+<area shape="poly" id="edge131_Node000131_Node000132" title=" " alt="" coords="626,2840,713,2831,708,2832,627,2846"/>
+<area shape="rect" id="Node000135" href="$classGtk_1_1Scrollbar.html" title="A Scrollbar." alt="" coords="700,2864,809,2892"/>
+<area shape="poly" id="edge134_Node000131_Node000135" title=" " alt="" coords="627,2857,702,2870,696,2870,627,2863"/>
+<area shape="rect" id="Node000133" href="$classGtk_1_1HScale.html" title="A horizontal slider for selecting values." alt="" coords="917,2760,1014,2788"/>
+<area shape="poly" id="edge132_Node000132_Node000133" title=" " alt="" coords="813,2809,919,2785,914,2786,814,2814"/>
+<area shape="rect" id="Node000134" href="$classGtk_1_1VScale.html" title="A vertical slider for selecting values." alt="" coords="918,2812,1014,2840"/>
+<area shape="poly" id="edge133_Node000132_Node000134" title=" " alt="" coords="813,2823,920,2825,914,2826,814,2828"/>
+<area shape="rect" id="Node000136" href="$classGtk_1_1HScrollbar.html" title="A horizontal scrollbar." alt="" coords="906,2864,1025,2892"/>
+<area shape="poly" id="edge135_Node000135_Node000136" title=" " alt="" coords="824,2875,908,2878,903,2878,825,2880"/>
+<area shape="rect" id="Node000137" href="$classGtk_1_1VScrollbar.html" title="A vertical scrollbar." alt="" coords="906,2916,1025,2944"/>
+<area shape="poly" id="edge136_Node000135_Node000137" title=" " alt="" coords="824,2892,909,2915,904,2915,824,2898"/>
+<area shape="rect" id="Node000139" href="$classGtk_1_1HSeparator.html" title="Horizontal line widget." alt="" coords="692,2916,817,2944"/>
+<area shape="poly" id="edge138_Node000138_Node000139" title=" " alt="" coords="638,2911,694,2921,689,2921,638,2916"/>
+<area shape="rect" id="Node000140" href="$classGtk_1_1VSeparator.html" title="Vertical line widget." alt="" coords="692,2968,816,2996"/>
+<area shape="poly" id="edge139_Node000138_Node000140" title=" " alt="" coords="618,2921,634,2927,682,2953,714,2968,708,2967,680,2958,632,2932,618,2926"/>
+</map>

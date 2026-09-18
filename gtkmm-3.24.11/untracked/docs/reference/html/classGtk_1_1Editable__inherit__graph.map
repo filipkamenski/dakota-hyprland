@@ -1,0 +1,11 @@
+<map id="Gtk::Editable" name="Gtk::Editable">
+<area shape="rect" id="Node000001" title="Base class for text&#45;editing widgets." alt="" coords="92,81,198,109"/>
+<area shape="rect" id="Node000003" href="$classGtk_1_1Entry.html" title="A single line text entry field." alt="" coords="102,157,188,184"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="147,122,148,157,143,155,144,127"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="88,5,202,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,46,148,81,143,80,144,51"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1SearchEntry.html" title="This is a subclass of Gtk::Entry that has been tailored for use as a search entry." alt="" coords="5,232,136,260"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="123,195,85,234,82,230,118,196"/>
+<area shape="rect" id="Node000005" href="$classGtk_1_1SpinButton.html" title="numeric Entry with up/down buttons Slightly misnamed, this should be called a SpinEntry." alt="" coords="160,232,283,260"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="171,193,210,232,205,232,168,198"/>
+</map>

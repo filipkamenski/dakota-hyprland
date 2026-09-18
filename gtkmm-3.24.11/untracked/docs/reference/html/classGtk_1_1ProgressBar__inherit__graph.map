@@ -1,0 +1,18 @@
+<map id="Gtk::ProgressBar" name="Gtk::ProgressBar">
+<area shape="rect" id="Node000001" title="A widget which indicates progress visually." alt="" coords="244,232,374,260"/>
+<area shape="rect" id="Node000002" href="$classGtk_1_1Widget.html" title="Abstract Widget (Base class for all widgets)." alt="" coords="193,157,291,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="265,194,299,232,294,231,263,198"/>
+<area shape="rect" id="Node000003" href="$classGtk_1_1Object.html" title="Gtk::Object is the base class for all widgets, and for a few non&#45;widget objects such as Gtk::Adjustme..." alt="" coords="7,81,101,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="102,112,211,155,207,158,101,117"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,5,103,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="54,46,57,81,51,80,54,51"/>
+<area shape="rect" id="Node000005" href="$classGtk_1_1Buildable.html" title="A base class for objects that can be built by Gtk::Builder." alt="" coords="125,81,239,109"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="203,119,234,156,229,156,202,124"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="252,5,365,33"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="271,43,206,83,203,78,275,39"/>
+<area shape="rect" id="Node000008" href="$classGtk_1_1Orientable.html" title="This interface is implemented by all widgets that can be oriented horizontally or vertically." alt="" coords="344,157,465,184"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="364,37,391,55,412,80,419,100,420,121,412,158,408,155,414,120,414,101,408,82,388,59,363,43"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="262,81,398,109"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="305,118,259,158,256,154,300,120"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="378,193,327,234,325,229,373,195"/>
+</map>

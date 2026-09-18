@@ -1,0 +1,23 @@
+<map id="Gtk::CellLayout" name="Gtk::CellLayout">
+<area shape="rect" id="Node000001" title="An interface for packing cells." alt="" coords="167,136,288,164"/>
+<area shape="rect" id="Node000003" href="$classGtk_1_1CellArea.html" title="An abstract base class for laying out CellRenderers." alt="" coords="363,5,470,33"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="248,122,286,82,335,44,365,32,360,35,337,48,289,86,251,126"/>
+<area shape="rect" id="Node000005" href="$classGtk_1_1CellView.html" title="A widget displaying a single row of a TreeModel." alt="" coords="362,57,471,85"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="268,126,335,95,372,84,367,87,337,100,271,131"/>
+<area shape="rect" id="Node000006" href="$classGtk_1_1ComboBox.html" title="A widget used to choose from a list of items." alt="" coords="355,109,478,137"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="302,137,357,131,352,133,304,142"/>
+<area shape="rect" id="Node000009" href="$classGtk_1_1EntryCompletion.html" title="Completion functionality for Gtk::Entry." alt="" coords="336,161,497,189"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="303,157,338,164,333,165,304,163"/>
+<area shape="rect" id="Node000010" href="$classGtk_1_1IconView.html" title="The IconView provides an alternative view of a list model." alt="" coords="361,213,472,241"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="271,168,337,198,372,213,367,213,335,203,270,174"/>
+<area shape="rect" id="Node000011" href="$classGtk_1_1TreeViewColumn.html" title="Typedefed as Gtk::TreeView::Column." alt="" coords="336,265,497,293"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="251,173,289,213,337,250,364,265,359,264,335,255,286,217,249,178"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,136,119,164"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,147,168,149,164,151,135,152"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1CellAreaBox.html" title="A cell area that renders CellRenderers into a row or a colum, depending on its orientation." alt="" coords="566,5,698,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="485,17,568,18,563,20,486,22"/>
+<area shape="rect" id="Node000007" href="$classGtk_1_1AppChooserButton.html" title="A button to launch an application chooser dialog." alt="" coords="545,84,719,112"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="493,112,547,107,542,109,494,117"/>
+<area shape="rect" id="Node000008" href="$classGtk_1_1ComboBoxText.html" title="This is a simple variant of ComboBox that hides the model&#45;view complexity for simple text&#45;only use ca..." alt="" coords="557,136,707,164"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="494,130,559,140,554,141,494,135"/>
+</map>

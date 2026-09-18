@@ -1,0 +1,9 @@
+<map id="Atk::Action" name="Atk::Action">
+<area shape="rect" id="Node000001" title="The ATK interface provided by UI components which the user can activate/interact with,..." alt="" coords="88,81,181,109"/>
+<area shape="rect" id="Node000003" href="$classAtk_1_1Hyperlink.html" title="Encapsulates a link or set of links in a hypertext document." alt="" coords="5,157,120,184"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="114,119,77,158,74,154,108,121"/>
+<area shape="rect" id="Node000004" href="$classAtk_1_1NoOpObject.html" title="An Atk::NoOpObject is an Atk::Object which purports to implement all ATK interfaces." alt="" coords="143,157,272,184"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="159,117,198,156,192,156,157,122"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="78,5,191,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,47,137,81,132,80,133,51"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="Gtk::TreeModelSort" name="Gtk::TreeModelSort">
+<area shape="rect" id="Node000001" title="A wrapper which makes an underlying Gtk::TreeModel sortable." alt="" coords="113,157,259,184"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,103,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,114,165,155,160,157,90,119"/>
+<area shape="rect" id="Node000003" href="$classGtk_1_1TreeModel.html" title="This class defines a generic tree interface for use by the Gtk::TreeView widget." alt="" coords="126,81,246,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,123,188,158,184,155,184,126"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="204,5,317,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="239,43,201,83,198,78,234,46"/>
+<area shape="rect" id="Node000005" href="$classGtk_1_1TreeSortable.html" title=" " alt="" coords="270,81,403,109"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="286,41,326,81,321,80,284,46"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="299,115,214,159,212,154,294,116"/>
+</map>

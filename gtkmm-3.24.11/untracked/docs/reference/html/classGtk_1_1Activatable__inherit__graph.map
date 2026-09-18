@@ -1,0 +1,57 @@
+<map id="Gtk::Activatable" name="Gtk::Activatable">
+<area shape="rect" id="Node000001" title="Activatable widgets can be connected to a Gtk::Action and reflect the state of the action." alt="" coords="167,499,293,526"/>
+<area shape="rect" id="Node000003" href="$classGtk_1_1Button.html" title="A widget that creates a signal when clicked on." alt="" coords="386,188,482,216"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="246,484,421,217,426,216,251,487"/>
+<area shape="rect" id="Node000015" href="$classGtk_1_1MenuItem.html" title="Child item for menus." alt="" coords="375,447,493,474"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="301,492,379,474,374,476,303,497"/>
+<area shape="rect" id="Node000021" href="$classGtk_1_1RecentChooserMenu.html" title="RecentChooserMenu is a widget suitable for displaying recently used files inside a menu." alt="" coords="341,499,527,526"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="308,510,343,512,338,513,309,515"/>
+<area shape="rect" id="Node000022" href="$classGtk_1_1Switch.html" title="A &quot;light switch&quot;&#45;style toggle." alt="" coords="386,551,482,578"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="302,528,389,552,384,553,302,533"/>
+<area shape="rect" id="Node000023" href="$classGtk_1_1ToolItem.html" title="The base class of widgets that can be added to ToolShell." alt="" coords="380,603,488,630"/>
+<area shape="poly" id="edge22_Node000001_Node000023" title=" " alt="" coords="259,533,298,562,342,587,382,604,377,604,340,592,295,566,259,539"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,499,119,526"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,510,169,511,164,514,136,515"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1ColorButton.html" title="A button to launch a color selection dialog." alt="" coords="601,5,731,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="450,173,501,108,535,73,574,44,603,32,599,35,577,48,539,77,505,112,455,177"/>
+<area shape="rect" id="Node000005" href="$classGtk_1_1FontButton.html" title="A button to launch a font selection dialog." alt="" coords="604,57,728,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="461,175,511,135,574,95,608,84,604,87,577,100,515,139,464,179"/>
+<area shape="rect" id="Node000006" href="$classGtk_1_1LinkButton.html" title="Create buttons bound to a URL." alt="" coords="605,109,727,137"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="485,180,574,147,617,136,612,139,576,152,488,184"/>
+<area shape="rect" id="Node000007" href="$classGtk_1_1LockButton.html" title="A widget to unlock or lock privileged operations." alt="" coords="603,161,729,189"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="496,192,605,181,601,184,498,197"/>
+<area shape="rect" id="Node000008" href="$classGtk_1_1ModelButton.html" title="A button that uses a Gio::Action as model." alt="" coords="598,213,734,241"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="497,206,600,219,595,221,498,211"/>
+<area shape="rect" id="Node000009" href="$classGtk_1_1ScaleButton.html" title="A button which pops up a scale widget." alt="" coords="601,265,731,293"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="487,219,576,250,617,264,612,265,574,255,488,224"/>
+<area shape="rect" id="Node000011" href="$classGtk_1_1ToggleButton.html" title="A Gtk::ToggleButton will remain &#39;pressed&#45;in&#39; when clicked." alt="" coords="597,317,735,345"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="463,223,515,264,577,302,609,316,603,317,574,307,512,268,463,229"/>
+<area shape="rect" id="Node000010" href="$classGtk_1_1VolumeButton.html" title="A button which pops up a volume control." alt="" coords="814,252,958,280"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="746,272,816,269,811,271,747,277"/>
+<area shape="rect" id="Node000012" href="$classGtk_1_1CheckButton.html" title="Create widgets with a discrete toggle button." alt="" coords="819,304,954,332"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="750,323,821,321,816,323,751,329"/>
+<area shape="rect" id="Node000014" href="$classGtk_1_1MenuButton.html" title="A widget that shows a menu when clicked on." alt="" coords="821,356,952,384"/>
+<area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="750,343,823,358,818,359,750,349"/>
+<area shape="rect" id="Node000013" href="$classGtk_1_1RadioButton.html" title="A choice from multiple check buttons." alt="" coords="1029,304,1161,332"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="969,315,1031,317,1026,318,970,320"/>
+<area shape="rect" id="Node000016" href="$classGtk_1_1CheckMenuItem.html" title="A menu item that maintains the state of a boolean value in addition to a Gtk::MenuItem&#39;s usual role i..." alt="" coords="587,395,745,422"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="508,441,604,422,599,424,509,446"/>
+<area shape="rect" id="Node000018" href="$classGtk_1_1ImageMenuItem.html" title="A menu item with an icon." alt="" coords="586,447,746,474"/>
+<area shape="poly" id="edge17_Node000015_Node000018" title=" " alt="" coords="509,458,589,460,583,461,510,463"/>
+<area shape="rect" id="Node000019" href="$classGtk_1_1SeparatorMenuItem.html" title="A separator used to group items within a menu." alt="" coords="575,499,757,526"/>
+<area shape="poly" id="edge18_Node000015_Node000019" title=" " alt="" coords="509,474,604,498,598,499,509,480"/>
+<area shape="rect" id="Node000020" href="$classGtk_1_1TearoffMenuItem.html" title="A special Gtk::MenuItem which is used to tear off and reattach its menu." alt="" coords="585,551,747,578"/>
+<area shape="poly" id="edge19_Node000015_Node000020" title=" " alt="" coords="508,475,529,485,544,498,554,511,562,524,577,536,604,550,599,550,574,540,558,527,549,514,540,501,526,489,508,480"/>
+<area shape="rect" id="Node000017" href="$classGtk_1_1RadioMenuItem.html" title="A CheckMenuItem that belongs to a group." alt="" coords="809,408,964,436"/>
+<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="760,412,811,417,806,418,761,417"/>
+<area shape="rect" id="Node000024" href="$classGtk_1_1SeparatorToolItem.html" title="A toolbar item that separates groups of other toolbar items." alt="" coords="580,603,752,630"/>
+<area shape="poly" id="edge23_Node000023_Node000024" title=" " alt="" coords="504,614,583,616,577,617,504,619"/>
+<area shape="rect" id="Node000025" href="$classGtk_1_1ToolButton.html" title="A Gtk::ToolItem subclass that displays buttons." alt="" coords="605,655,727,682"/>
+<area shape="poly" id="edge24_Node000023_Node000025" title=" " alt="" coords="504,629,608,655,602,655,503,635"/>
+<area shape="rect" id="Node000026" href="$classGtk_1_1MenuToolButton.html" title="A Gtk::ToolItem containing a toggle button." alt="" coords="808,628,965,656"/>
+<area shape="poly" id="edge25_Node000025_Node000026" title=" " alt="" coords="742,657,805,652,810,651,742,662"/>
+<area shape="rect" id="Node000027" href="$classGtk_1_1ToggleToolButton.html" title="A Gtk::ToolItem containing a toggle button." alt="" coords="805,680,968,708"/>
+<area shape="poly" id="edge26_Node000025_Node000027" title=" " alt="" coords="742,675,807,685,802,684,742,680"/>
+<area shape="rect" id="Node000028" href="$classGtk_1_1RadioToolButton.html" title="A toolbar item that contains a radio button." alt="" coords="1016,680,1174,708"/>
+<area shape="poly" id="edge27_Node000027_Node000028" title=" " alt="" coords="984,691,1018,694,1013,694,984,696"/>
+</map>

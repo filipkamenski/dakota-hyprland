@@ -1,0 +1,27 @@
+<map id="Gtk::RecentChooserWidget" name="Gtk::RecentChooserWidget">
+<area shape="rect" id="Node000001" title="RecentChooserWidget is a widget suitable for selecting recently used files." alt="" coords="332,459,528,487"/>
+<area shape="rect" id="Node000002" href="$classGtk_1_1VBox.html" title="Vertical Box for laying widgets in a vertical row." alt="" coords="347,384,433,411"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="406,423,425,460,420,458,403,428"/>
+<area shape="rect" id="Node000003" href="$classGtk_1_1Box.html" title="The Box widget organizes child widgets into a rectangular area." alt="" coords="335,308,413,336"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,349,390,384,385,382,379,353"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1Container.html" title="Abstract container class." alt="" coords="210,232,325,260"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="299,266,358,307,352,308,298,272"/>
+<area shape="rect" id="Node000005" href="$classGtk_1_1Widget.html" title="Abstract Widget (Base class for all widgets)." alt="" coords="164,157,262,184"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="232,194,260,232,255,232,231,200"/>
+<area shape="rect" id="Node000006" href="$classGtk_1_1Object.html" title="Gtk::Object is the base class for all widgets, and for a few non&#45;widget objects such as Gtk::Adjustme..." alt="" coords="7,81,101,109"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="96,113,187,155,182,158,97,118"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="5,5,103,33"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="54,46,57,81,51,80,54,51"/>
+<area shape="rect" id="Node000008" href="$classGtk_1_1Buildable.html" title="A base class for objects that can be built by Gtk::Builder." alt="" coords="125,81,239,109"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="194,121,210,156,205,156,193,126"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="379,5,492,33"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="374,40,229,83,226,78,377,36"/>
+<area shape="rect" id="Node000011" href="$classGtk_1_1Orientable.html" title="This interface is implemented by all widgets that can be oriented horizontally or vertically." alt="" coords="322,157,442,184"/>
+<area shape="poly" id="edge11_Node000011_Node000009" title=" " alt="" coords="430,46,412,110,391,158,386,155,408,108,427,50"/>
+<area shape="rect" id="Node000012" href="$classGtk_1_1RecentChooser.html" title="RecentChooser is an interface that can be implemented by widgets displaying the list of recently used..." alt="" coords="411,232,561,260"/>
+<area shape="poly" id="edge13_Node000012_Node000009" title=" " alt="" coords="443,46,486,232,480,231,440,50"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="262,81,398,109"/>
+<area shape="poly" id="edge9_Node000005_Node000010" title=" " alt="" coords="295,119,235,158,232,154,298,115"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="382,198,377,308,372,306,379,202"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="482,273,436,460,431,457,477,276"/>
+</map>

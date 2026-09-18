@@ -1,0 +1,14 @@
+<map id="Gtk::RecentAction" name="Gtk::RecentAction">
+<area shape="rect" id="Node000001" title="A deprecated action of which represents a list of recently used files." alt="" coords="136,232,274,260"/>
+<area shape="rect" id="Node000002" href="$classGtk_1_1Action.html" title="A deprecated action which can be triggered by a menu or toolbar item." alt="" coords="86,157,179,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,193,195,232,189,232,155,198"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,81,103,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="80,117,121,155,116,157,79,122"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1Buildable.html" title="A base class for objects that can be built by Gtk::Builder." alt="" coords="127,81,240,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="167,120,144,158,140,154,164,124"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="173,5,287,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="215,44,194,82,189,79,212,48"/>
+<area shape="rect" id="Node000006" href="$classGtk_1_1RecentChooser.html" title="RecentChooser is an interface that can be implemented by widgets displaying the list of recently used..." alt="" coords="203,157,353,184"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="242,45,255,80,277,157,272,156,250,82,240,50"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="257,195,219,234,216,230,252,197"/>
+</map>

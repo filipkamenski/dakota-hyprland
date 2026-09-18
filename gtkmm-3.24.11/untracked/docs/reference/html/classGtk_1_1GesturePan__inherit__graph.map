@@ -1,0 +1,13 @@
+<map id="Gtk::GesturePan" name="Gtk::GesturePan">
+<area shape="rect" id="Node000001" title="Pan gesture." alt="" coords="19,384,145,411"/>
+<area shape="rect" id="Node000002" href="$classGtk_1_1GestureDrag.html" title="Drag gesture." alt="" coords="15,308,149,336"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,350,85,384,79,382,80,353"/>
+<area shape="rect" id="Node000003" href="$classGtk_1_1GestureSingle.html" title="Base class for mouse/single&#45;touch gestures." alt="" coords="10,232,154,260"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="83,273,85,308,79,307,81,278"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1Gesture.html" title="Abstract base class for gestures." alt="" coords="30,157,134,184"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="83,198,85,232,79,231,81,203"/>
+<area shape="rect" id="Node000005" href="$classGtk_1_1EventController.html" title="Self&#45;contained handler of series of events." alt="" coords="5,81,159,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="82,122,85,157,79,156,82,127"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="33,5,131,33"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="82,46,85,81,79,80,82,51"/>
+</map>

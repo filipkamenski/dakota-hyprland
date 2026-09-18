@@ -1,0 +1,17 @@
+<map id="Gtk::CellAreaBox" name="Gtk::CellAreaBox">
+<area shape="rect" id="Node000001" title="A cell area that renders CellRenderers into a row or a colum, depending on its orientation." alt="" coords="236,232,368,260"/>
+<area shape="rect" id="Node000002" href="$classGtk_1_1CellArea.html" title="An abstract base class for laying out CellRenderers." alt="" coords="180,157,288,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,194,293,232,287,231,255,198"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,81,103,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,112,204,155,200,158,100,118"/>
+<area shape="rect" id="Node000004" href="$classGtk_1_1Buildable.html" title="A base class for objects that can be built by Gtk::Builder." alt="" coords="127,81,240,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="202,119,228,156,222,156,200,124"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="268,5,381,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="284,42,210,83,207,78,288,39"/>
+<area shape="rect" id="Node000006" href="$classGtk_1_1CellLayout.html" title="An interface for packing cells." alt="" coords="264,81,385,109"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="326,47,327,82,322,79,323,51"/>
+<area shape="rect" id="Node000007" href="$classGtk_1_1Orientable.html" title="This interface is implemented by all widgets that can be oriented horizontally or vertically." alt="" coords="336,157,457,184"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="363,39,385,57,400,80,406,100,408,121,402,158,398,155,402,121,401,101,396,82,381,61,362,44"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="299,118,252,158,249,154,294,120"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="370,193,320,234,318,229,365,195"/>
+</map>
