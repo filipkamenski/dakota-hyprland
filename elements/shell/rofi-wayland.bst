@@ -30,11 +30,6 @@ sources:
     track: master
     ref: 72bd7fb07f627a864e724639eea9fab6cccbd77c
     directory: subprojects/libnkutils
-  - kind: git
-    url: https://github.com/sardemff7/libgwater.git
-    track: master
-    ref: 42a145150cff135be377754486c504836ddea836
-    directory: subprojects/libgwater-wayland
 
 variables:
   meson-local: -Dcheck=disabled
