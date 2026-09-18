@@ -18,8 +18,8 @@ depends:
 sources:
   - kind: git
     url: https://github.com/lbonn/rofi.git
-    track: master
-    ref: 1.7.5+wayland3
+    track: 1.7.5+wayland3
+    ref: 32d229bb47d1d84a15edb3e142e6e3805c5c0ea4
   - kind: git
     url: https://github.com/sardemff7/libgwater.git
     track: master
