@@ -57,3 +57,6 @@ variables:
 config:
   install-commands:
     - meson install -C build-release --no-rebuild
+
+environment:
+  LDFLAGS: -logg -lvorbis -lopus
