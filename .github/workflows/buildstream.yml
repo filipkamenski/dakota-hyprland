@@ -97,10 +97,10 @@ jobs:
           docker run --rm --privileged \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v $(pwd)/output:/output \
-            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            -v $HOME/.docker/config.json:/root/.config/containers/auth.json:ro \
             quay.io/centos-bootc/bootc-image-builder:latest \
             --type qcow2 \
-            "containers-storage:[$IMAGE_NAME]" || echo "bootc-image-builder finished or skipped"
+            "$IMAGE_NAME" || echo "bootc-image-builder finished or skipped"
 
       - name: Upload QCOW2 VM Disk Artifact
         if: github.event_name != 'pull_request'
