@@ -83,7 +83,7 @@ jobs:
           # Our BST-built tree replaces the base OS tree; keep ostree internals.
           COPY rootfs/ /
           EOF
-          docker build --cap-add=all --security-opt label=type:container_runtime_t --device /dev/fuse -t "$IMAGE_NAME" .
+          docker build -t "$IMAGE_NAME" .
           docker push "$IMAGE_NAME"
 
       - name: Build QCOW2 Virtual Disk Image for Testing
