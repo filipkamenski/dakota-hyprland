@@ -27,6 +27,8 @@ depends:
   - freedesktop-sdk.bst:components/libogg.bst
   - freedesktop-sdk.bst:components/libvorbis.bst
   - freedesktop-sdk.bst:components/opus.bst
+  - freedesktop-sdk.bst:components/libflac.bst
+  - freedesktop-sdk.bst:components/mpg123.bst
   - freedesktop-sdk.bst:components/polkit-gobject.bst
   - freedesktop-sdk.bst:components/polkit.bst
   - freedesktop-sdk.bst:components/linux-pam.bst
@@ -59,4 +61,4 @@ config:
     - meson install -C build-release --no-rebuild
 
 environment:
-  LDFLAGS: -logg -lvorbis -lopus
+  LDFLAGS: -logg -lvorbis -lopus -lFLAC -lmpg123
