@@ -24,6 +24,9 @@ depends:
   - freedesktop-sdk.bst:components/wireplumber.bst
   - freedesktop-sdk.bst:components/libical.bst
   - deps/stb.bst
+  - freedesktop-sdk.bst:components/libogg.bst
+  - freedesktop-sdk.bst:components/libvorbis.bst
+  - freedesktop-sdk.bst:components/opus.bst
   - freedesktop-sdk.bst:components/polkit-gobject.bst
   - freedesktop-sdk.bst:components/polkit.bst
   - freedesktop-sdk.bst:components/linux-pam.bst
