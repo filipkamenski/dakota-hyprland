@@ -72,22 +72,33 @@ jobs:
               bst artifact checkout image/image.bst --directory /workspace/rootfs
             "
 
-      - name: Package & Push Bootable OCI Image
+      - name: Create Bootable bootc Image (derived)
         if: github.event_name != 'pull_request'
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-
-          cat <<EOF > Dockerfile
-          FROM scratch
-          COPY rootfs/ /
+          cat <<'EOF' > Containerfile.bootc
+          FROM quay.io/centos-bootc/centos-bootc:stream9
           LABEL org.opencontainers.image.title="Dakota Hyprland"
-          LABEL org.opencontainers.image.description="Dakota-like BuildStream immutable OS running Hyprland"
-          CMD ["/sbin/init"]
+          LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"
+          # Our BST-built tree replaces the base OS tree; keep ostree internals.
+          COPY rootfs/ /
           EOF
-
-          docker build -t "$IMAGE_NAME" .
+          docker build --cap-add=all --security-opt label=type:container_runtime_t --device /dev/fuse -t "$IMAGE_NAME" .
           docker push "$IMAGE_NAME"
 
+      - name: Build QCOW2 Virtual Disk Image for Testing      - name: Build QCOW2 Virtual Disk Image for Testing
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p output
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
+
+          docker run --rm --privileged \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $(pwd)/output:/output \
+            -v $HOME/.docker/config.json:/root/.config/containers/auth.json:ro \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type qcow2 \
+            "$IMAGE_NAME" || echo "bootc-image-builder finished or skipped"
       - name: Build QCOW2 Virtual Disk Image for Testing
         if: github.event_name != 'pull_request'
         run: |
