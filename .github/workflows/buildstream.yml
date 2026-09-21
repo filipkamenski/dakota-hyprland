@@ -86,7 +86,7 @@ jobs:
           docker build --cap-add=all --security-opt label=type:container_runtime_t --device /dev/fuse -t "$IMAGE_NAME" .
           docker push "$IMAGE_NAME"
 
-      - name: Build QCOW2 Virtual Disk Image for Testing      - name: Build QCOW2 Virtual Disk Image for Testing
+      - name: Build QCOW2 Virtual Disk Image for Testing
         if: github.event_name != 'pull_request'
         run: |
           mkdir -p output
