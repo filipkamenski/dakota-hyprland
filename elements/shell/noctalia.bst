@@ -23,6 +23,7 @@ depends:
   - freedesktop-sdk.bst:components/pipewire.bst
   - freedesktop-sdk.bst:components/wireplumber.bst
   - freedesktop-sdk.bst:components/polkit-gobject.bst
+  - freedesktop-sdk.bst:components/polkit.bst
   - freedesktop-sdk.bst:components/linux-pam.bst
   - freedesktop-sdk.bst:components/curl.bst
   # Image + media
