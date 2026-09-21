@@ -26,7 +26,6 @@ depends:
   - deps/stb.bst
   - freedesktop-sdk.bst:components/libogg.bst
   - freedesktop-sdk.bst:components/libvorbis.bst
-  - freedesktop-sdk.bst:components/libvorbisenc.bst
   - freedesktop-sdk.bst:components/opus.bst
   - freedesktop-sdk.bst:components/libflac.bst
   - freedesktop-sdk.bst:components/mpg123.bst
