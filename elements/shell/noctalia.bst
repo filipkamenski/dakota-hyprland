@@ -58,7 +58,7 @@ variables:
 
 config:
   install-commands:
-    - meson install -C build-release --no-rebuild
+    - env DESTDIR="/buildstream-install" meson install -C _builddir --no-rebuild
 
 environment:
   LDFLAGS: -logg -lvorbis -lvorbisenc -lopus -lFLAC -lmpg123
