@@ -81,7 +81,6 @@ jobs:
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
           docker cp rootfs/. dakota-merge:/
-          docker exec dakota-merge bash -c "for d in /usr /bin /sbin /lib /lib64 /etc/pki /etc/profile.d; do rm -rf \"$d\"; done; cp -a /rootfs/. /; rm -rf /rootfs; mkdir -p /usr/sbin"
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
