@@ -82,13 +82,10 @@ jobs:
           LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"
           # Our BST-built tree replaces the base OS tree; keep ostree internals.
           COPY rootfs/ /rootfs-tmp/
-          # Merge our tree over the base: remove conflicting entries first
+          # Merge our tree over the base; pre-remove whole dirs our tree replaces
           # (FDS /usr/sbin is a symlink; bootc base has a real dir, etc.)
           RUN set -x \
-            && for f in /rootfs-tmp/usr/sbin /rootfs-tmp/usr/bin /rootfs-tmp/bin /rootfs-tmp/sbin /rootfs-tmp/lib /rootfs-tmp/lib64 /rootfs-tmp/usr/lib /rootfs-tmp/usr/lib64; do \
-                 if [ -L "/rootfs-tmp/$f" ]; then continue; fi; \
-                 rm -rf "/rootfs-tmp/$f"; done \
-            && rm -f /usr/sbin \
+            && rm -rf /usr/bin /usr/sbin /usr/lib /usr/lib64 /usr/share /usr/include /usr/local /bin /sbin /lib /lib64 /etc/pki /etc/profile.d \
             && cp -a /rootfs-tmp/. / \
             && rm -rf /rootfs-tmp
           EOF
