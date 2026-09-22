@@ -76,7 +76,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-          cat <<'EOF' > Containerfile.bootc
+          cat <<'EOF' > Dockerfile
           FROM quay.io/centos-bootc/centos-bootc:stream9
           LABEL org.opencontainers.image.title="Dakota Hyprland"
           LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"
