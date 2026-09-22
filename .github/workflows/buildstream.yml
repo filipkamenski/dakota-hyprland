@@ -76,8 +76,8 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-          docker run --name dakota-merge --entrypoint sleep quay.io/centos-bootc/centos-bootc:stream9 600 &
-          sleep 5
+          docker run -d --name dakota-merge --entrypoint sleep quay.io/centos-bootc/centos-bootc:stream9 900
+          for i in $(seq 1 30); do docker inspect dakota-merge >/dev/null 2>&1 && break; sleep 2; done
           docker cp rootfs/. dakota-merge:/
           docker exec dakota-merge bash -c "for d in /usr /bin /sbin /lib /lib64 /etc/pki /etc/profile.d; do rm -rf \"$d\"; done; cp -a /rootfs/. /; rm -rf /rootfs; mkdir -p /usr/sbin"
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
