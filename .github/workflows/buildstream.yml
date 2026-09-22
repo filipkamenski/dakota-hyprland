@@ -76,20 +76,12 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-          cat <<'EOF' > Dockerfile
-          FROM quay.io/centos-bootc/centos-bootc:stream9
-          LABEL org.opencontainers.image.title="Dakota Hyprland"
-          LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"
-          # Our BST-built tree replaces the base OS tree; keep ostree internals.
-          COPY rootfs/ /rootfs-tmp/
-          # Merge our tree over the base; pre-remove whole dirs our tree replaces
-          # (FDS /usr/sbin is a symlink; bootc base has a real dir, etc.)
-          RUN set -x \
-            && rm -rf /usr/sbin /usr/lib64 /sbin /lib64 \
-            && cp -a /rootfs-tmp/. / \
-            && rm -rf /rootfs-tmp
-          EOF
-          docker build -t "$IMAGE_NAME" .
+          docker run --name dakota-merge quay.io/centos-bootc/centos-bootc:stream9 sleep 600 &
+          sleep 5
+          docker cp rootfs/. dakota-merge:/
+          docker exec dakota-merge bash -c "for d in /usr /bin /sbin /lib /lib64 /etc/pki /etc/profile.d; do rm -rf \"$d\"; done; cp -a /rootfs/. /; rm -rf /rootfs; mkdir -p /usr/sbin"
+          docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
+          docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
 
       - name: Build QCOW2 Virtual Disk Image for Testing
