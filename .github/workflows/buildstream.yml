@@ -81,7 +81,16 @@ jobs:
           LABEL org.opencontainers.image.title="Dakota Hyprland"
           LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"
           # Our BST-built tree replaces the base OS tree; keep ostree internals.
-          COPY rootfs/ /
+          COPY rootfs/ /rootfs-tmp/
+          # Merge our tree over the base: remove conflicting entries first
+          # (FDS /usr/sbin is a symlink; bootc base has a real dir, etc.)
+          RUN set -x \
+            && for f in /rootfs-tmp/usr/sbin /rootfs-tmp/usr/bin /rootfs-tmp/bin /rootfs-tmp/sbin /rootfs-tmp/lib /rootfs-tmp/lib64 /rootfs-tmp/usr/lib /rootfs-tmp/usr/lib64; do \
+                 if [ -L "/rootfs-tmp/$f" ]; then continue; fi; \
+                 rm -rf "/rootfs-tmp/$f"; done \
+            && rm -f /usr/sbin \
+            && cp -a /rootfs-tmp/. / \
+            && rm -rf /rootfs-tmp
           EOF
           docker build -t "$IMAGE_NAME" .
           docker push "$IMAGE_NAME"
