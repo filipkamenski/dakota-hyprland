@@ -108,6 +108,7 @@ jobs:
           sudo podman pull "$IMAGE_NAME"
 
           sudo podman run --rm --privileged \
+            --security-opt label=type:unconfined_t \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             -v $(pwd)/output:/output \
             quay.io/centos-bootc/bootc-image-builder:latest \
