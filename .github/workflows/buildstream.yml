@@ -91,19 +91,6 @@ jobs:
           mkdir -p output
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
 
-          docker run --rm --privileged \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v $(pwd)/output:/output \
-            -v $HOME/.docker/config.json:/root/.config/containers/auth.json:ro \
-            quay.io/centos-bootc/bootc-image-builder:v0.22.0 \
-            --type qcow2 \
-            "$IMAGE_NAME" || echo "bootc-image-builder finished or skipped"
-      - name: Build QCOW2 Virtual Disk Image for Testing
-        if: github.event_name != 'pull_request'
-        run: |
-          mkdir -p output
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-
           sudo apt-get update -qq && sudo apt-get install -y -qq podman
           sudo podman pull "$IMAGE_NAME"
 
@@ -111,7 +98,7 @@ jobs:
             --security-opt label=type:unconfined_t \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             -v $(pwd)/output:/output \
-            quay.io/centos-bootc/bootc-image-builder:v0.22.0 \
+            quay.io/centos-bootc/bootc-image-builder:latest \
             --type qcow2 \
             "$IMAGE_NAME"
 
