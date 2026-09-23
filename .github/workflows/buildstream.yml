@@ -92,9 +92,13 @@ jobs:
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
 
           # Pull with bib's own internal podman (avoids host/bib podman storage-format mismatch),
-          # then run the builder against the in-container storage:
+          # then run the builder against the in-container storage.
+          # Force vfs storage driver (overlay-on-overlay mount fails on nested podman):
+          mkdir -p .bib
+          printf '[storage]\ndriver = "vfs"\nrunroot = "/run/containers/storage"\ngraphroot = "/var/lib/containers/storage"\n' > .bib/storage.conf
           sudo -S -p '' podman run --rm --privileged \
             --entrypoint /bin/bash \
+            -v $(pwd)/.bib/storage.conf:/etc/containers/storage.conf:ro \
             -v $(pwd)/output:/output \
             quay.io/centos-bootc/bootc-image-builder:latest \
             -c "podman pull $IMAGE_NAME && bootc-image-builder --type qcow2 $IMAGE_NAME"
