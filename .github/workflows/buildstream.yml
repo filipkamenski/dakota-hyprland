@@ -107,10 +107,9 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq podman
           sudo podman pull "$IMAGE_NAME"
 
-          docker run --rm --privileged \
+          sudo podman run --rm --privileged \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             -v $(pwd)/output:/output \
-            -v $HOME/.docker/config.json:/root/.config/containers/auth.json:ro \
             quay.io/centos-bootc/bootc-image-builder:latest \
             --type qcow2 \
             "$IMAGE_NAME"
