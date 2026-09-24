@@ -89,6 +89,9 @@ jobs:
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
           docker run -d --name dakota-merge --entrypoint sleep quay.io/centos-bootc/centos-bootc:stream9 900
           for i in $(seq 1 30); do docker inspect dakota-merge >/dev/null 2>&1 && break; sleep 2; done
+          # Strip debug symbol trees (FDS ships unstripped; halves the image):
+          sudo rm -rf rootfs/usr/lib/debug rootfs/usr/src
+          sudo find rootfs -name "*.debug" -type f -delete 2>/dev/null || true
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
           docker cp rootfs/. dakota-merge:/
