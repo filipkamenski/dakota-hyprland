@@ -96,6 +96,10 @@ jobs:
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
 
+          # Free ~15GB: the extracted rootfs is no longer needed after the image push,
+          # and it doubles the disk footprint during the qcow2 step:
+          sudo rm -rf rootfs
+
       - name: Build QCOW2 Virtual Disk Image for Testing
         if: github.event_name != 'pull_request'
         run: |
