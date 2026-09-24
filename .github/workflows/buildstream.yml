@@ -99,3 +99,13 @@ jobs:
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
 
+          # bootc's composefs backend can't read Docker schema2 config blobs on
+          # switch (bootc-dev/bootc#1703, "blob unknown to registry"). Re-push the
+          # same image as native OCI so bootc switch/upgrade works registry-direct:
+          sudo apt-get update -qq && sudo apt-get install -y -qq skopeo
+          skopeo copy --format oci \
+            --dest-creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" \
+            "docker-daemon:$IMAGE_NAME" "docker://$IMAGE_NAME"
+          skopeo inspect --raw "docker://$IMAGE_NAME" \
+            --creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" | head -3
+
