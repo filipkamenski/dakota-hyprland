@@ -99,32 +99,3 @@ jobs:
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
 
-          # Free ~15GB: the extracted rootfs is no longer needed after the image push,
-          # and it doubles the disk footprint during the qcow2 step:
-          sudo rm -rf rootfs
-
-      - name: Build QCOW2 Virtual Disk Image for Testing
-        if: github.event_name != 'pull_request'
-        run: |
-          mkdir -p output
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
-
-          # Pull with bib's own internal podman (avoids host/bib podman storage-format mismatch),
-          # then run the builder against the in-container storage.
-          # Force vfs storage driver (overlay-on-overlay mount fails on nested podman):
-          mkdir -p .bib
-          printf '[storage]\ndriver = "vfs"\nrunroot = "/run/containers/storage"\ngraphroot = "/var/lib/containers/storage"\n' > .bib/storage.conf
-          sudo -S -p '' podman run --rm --privileged \
-            --entrypoint /bin/bash \
-            -v $(pwd)/.bib/storage.conf:/etc/containers/storage.conf:ro \
-            -v $(pwd)/output:/output \
-            quay.io/centos-bootc/bootc-image-builder:latest \
-            -c "podman pull $IMAGE_NAME && mkdir -p /var/lib/containers/storage/overlay && bootc-image-builder --type qcow2 $IMAGE_NAME"
-
-      - name: Upload QCOW2 VM Disk Artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: dakota-hyprland-qcow2
-          path: output/qcow2/disk.qcow2
-          if-no-files-found: ignore

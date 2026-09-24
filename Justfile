@@ -17,18 +17,27 @@ checkout:
     mkdir -p rootfs
     bst artifact checkout elements/image/image.bst --directory rootfs
 
-# Launch local QEMU VM test (requires disk.qcow2)
+# Launch local QEMU VM test (requires output/qcow2/disk.qcow2 from `just vm-disk`)
 test-vm:
     qemu-system-x86_64 \
         -enable-kvm \
         -m 4G \
         -smp 4 \
         -cpu host \
-        -drive file=disk.qcow2,format=qcow2 \
+        -drive file=output/qcow2/disk.qcow2,format=qcow2 \
         -device virtio-vga-gl \
         -display gtk,gl=on \
         -device intel-hda -device hda-duplex \
         -net nic,model=virtio -net user
+
+# Build a bootable qcow2 VM disk locally (requires podman; run on Bluefin host, not CI)
+vm-disk:
+    mkdir -p output
+    podman run --rm --privileged \
+      -v ./output:/output \
+      quay.io/centos-bootc/bootc-image-builder:latest \
+      --type qcow2 \
+      ghcr.io/filipkamenski/dakota-hyprland:latest
 
 # Report hardware issue to GitHub (Feedback Loop)
 report:

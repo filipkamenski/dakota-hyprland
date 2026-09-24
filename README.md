@@ -34,7 +34,18 @@ sudo systemctl reboot
 
 ## Testing in a Virtual Machine (QEMU)
 
-Download the prebuilt `disk.qcow2` from the **Actions > Artifacts** tab of this repository, then run:
+Build a test disk locally with [bootc-image-builder](https://github.com/osbuild/bootc-image-builder)
+(requires native podman — e.g. a Bluefin/Fedora host; nested-in-CI is unsupported):
+
+```bash
+podman run --rm --privileged \
+  -v ./output:/output \
+  quay.io/centos-bootc/bootc-image-builder:latest \
+  --type qcow2 \
+  ghcr.io/filipkamenski/dakota-hyprland:latest
+```
+
+Then boot it:
 
 ```bash
 just test-vm
