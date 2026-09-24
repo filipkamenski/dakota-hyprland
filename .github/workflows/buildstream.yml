@@ -119,7 +119,7 @@ jobs:
             -v $(pwd)/.bib/storage.conf:/etc/containers/storage.conf:ro \
             -v $(pwd)/output:/output \
             quay.io/centos-bootc/bootc-image-builder:latest \
-            -c "podman pull $IMAGE_NAME && bootc-image-builder --type qcow2 $IMAGE_NAME"
+            -c "podman pull $IMAGE_NAME && mkdir -p /var/lib/containers/storage/overlay && bootc-image-builder --type qcow2 $IMAGE_NAME"
 
       - name: Upload QCOW2 VM Disk Artifact
         if: github.event_name != 'pull_request'
