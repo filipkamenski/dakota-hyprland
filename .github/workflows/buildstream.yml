@@ -94,25 +94,29 @@ jobs:
           sudo find rootfs -name "*.debug" -type f -delete 2>/dev/null || true
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
-          docker cp rootfs/. dakota-merge:/
-          # Single-kernel image: remove the CentOS base kernel, then generate the FDS
-          # kernel's initramfs INSIDE the merge container (merged tree now at /). The FDS
-          # 7.2.x kernel must be the ONLY kernel — the el9 5.14 base kernel hard-hangs in
-          # PCI enumeration on 2026-era hardware (observed on the target laptop).
-          docker exec -e DRACUT_KMODDIR_OVERRIDE=1 dakota-merge bash -c '
+          # Single-kernel image: the FDS 7.2.x kernel must be the ONLY kernel — the el9
+          # 5.14 base kernel hard-hangs in PCI enumeration on 2026-era hardware. Remove
+          # base kernels from the FDS tree, then generate its initramfs in a chroot of
+          # the FDS tree itself (FDS bash+dracut+kmod are native there; the FDS userland
+          # cannot exec under the merge container's el9 glibc).
+          sudo ls rootfs/usr/lib/modules/
+          for k in rootfs/usr/lib/modules/*; do
+            case "$k" in *el9*|*el10*) sudo rm -rf "$k";; esac
+          done
+          KVER="$(sudo ls rootfs/usr/lib/modules | head -n1)"
+          echo "FDS kernel: $KVER"
+          sudo chroot rootfs /usr/bin/bash -c '
             set -e
-            KVER="$(ls /usr/lib/modules | grep -v -e el9 -e el10 | head -n1)"
-            echo "FDS kernel: $KVER"
-            for k in /usr/lib/modules/*; do
-              case "$k" in */$KVER) ;; *) rm -rf "$k";; esac
-            done
-            ls /usr/lib/modules/
+            KVER="'"$KVER"'"
             dracut --no-compress --kmoddir "/usr/lib/modules/${KVER}" "${KVER}" \
               --add " systemd ostree " --omit " multipath " \
               --filesystems " btrfs " \
               "/usr/lib/modules/${KVER}/initramfs"
             ls -la "/usr/lib/modules/${KVER}/"
           ' || { echo "dracut failed"; exit 1; }
+          # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
+          if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
+          docker cp rootfs/. dakota-merge:/
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
