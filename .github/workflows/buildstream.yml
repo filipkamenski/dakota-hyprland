@@ -104,10 +104,10 @@ jobs:
           # Generate the initramfs for the FDS kernel inside the merge container
           # (host-arch binaries from the staged FDS tree run natively here):
           KVER="$(ls rootfs/usr/lib/modules | head -n1)"
-          docker exec dakota-merge bash -c '
+          docker exec -e DRACUT_KMODDIR_OVERRIDE=1 dakota-merge bash -c '
             set -e
             KVER="'"$KVER"'"
-            dracut --no-compress --kmoddir "/usr/lib/modules/${KVER}" \
+            dracut --no-compress --kmoddir "/usr/lib/modules/${KVER}" "${KVER}" \
               --add " systemd ostree " --omit " multipath " \
               --filesystems " btrfs " \
               "/usr/lib/modules/${KVER}/initramfs"
