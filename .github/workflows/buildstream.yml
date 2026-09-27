@@ -92,31 +92,27 @@ jobs:
           # Strip debug symbol trees (FDS ships unstripped; halves the image):
           sudo rm -rf rootfs/usr/lib/debug rootfs/usr/src
           sudo find rootfs -name "*.debug" -type f -delete 2>/dev/null || true
-          # Remove the CentOS base kernel: FDS 7.2.x kernel + its initramfs (built by
-          # elements/system/initramfs.bst) must be the ONLY kernel in the image, else
-          # bootc deploys the el9 5.14 kernel which hard-hangs on modern hardware:
-          sudo ls rootfs/usr/lib/modules/
-          for k in rootfs/usr/lib/modules/*; do
-            case "$k" in *el9*|*el10*) sudo rm -rf "$k";; esac
-          done
-          sudo ls rootfs/usr/lib/modules/
-          # Kernel install machinery must regenerate module metadata for the FDS kernel:
-          # Generate the initramfs for the FDS kernel inside the merge container
-          # (host-arch binaries from the staged FDS tree run natively here):
-          KVER="$(ls rootfs/usr/lib/modules | head -n1)"
-          docker exec -e DRACUT_KMODDIR_OVERRIDE=1 dakota-merge bash -c '
-            set -e
-            KVER="'"$KVER"'"
-            dracut --no-compress \
-              --kmoddir "/mnt/rootfs/usr/lib/modules/${KVER}" \
-              --add " systemd ostree " --omit " multipath " \
-              --filesystems " btrfs " \
-              "/mnt/rootfs/usr/lib/modules/${KVER}/initramfs"
-            ls -la "/mnt/rootfs/usr/lib/modules/${KVER}/"
-          ' || { echo "dracut failed"; exit 1; }
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
           docker cp rootfs/. dakota-merge:/
+          # Single-kernel image: remove the CentOS base kernel, then generate the FDS
+          # kernel's initramfs INSIDE the merge container (merged tree now at /). The FDS
+          # 7.2.x kernel must be the ONLY kernel — the el9 5.14 base kernel hard-hangs in
+          # PCI enumeration on 2026-era hardware (observed on the target laptop).
+          docker exec -e DRACUT_KMODDIR_OVERRIDE=1 dakota-merge bash -c '
+            set -e
+            KVER="$(ls /usr/lib/modules | grep -v -e el9 -e el10 | head -n1)"
+            echo "FDS kernel: $KVER"
+            for k in /usr/lib/modules/*; do
+              case "$k" in */$KVER) ;; *) rm -rf "$k";; esac
+            done
+            ls /usr/lib/modules/
+            dracut --no-compress --kmoddir "/usr/lib/modules/${KVER}" "${KVER}" \
+              --add " systemd ostree " --omit " multipath " \
+              --filesystems " btrfs " \
+              "/usr/lib/modules/${KVER}/initramfs"
+            ls -la "/usr/lib/modules/${KVER}/"
+          ' || { echo "dracut failed"; exit 1; }
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
