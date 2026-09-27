@@ -105,6 +105,12 @@ jobs:
           done
           KVER="$(sudo ls rootfs/usr/lib/modules | head -n1)"
           echo "FDS kernel: $KVER"
+          # FDS tree lacks runtime scratch dirs dracut expects:
+          sudo mkdir -p rootfs/var/tmp rootfs/tmp rootfs/var/lib/rpm rootfs/dev rootfs/proc rootfs/sys rootfs/run
+          sudo mount --bind /dev  rootfs/dev  2>/dev/null || true
+          sudo mount --bind /proc rootfs/proc 2>/dev/null || true
+          sudo mount --bind /sys  rootfs/sys  2>/dev/null || true
+          trap 'sudo umount -f rootfs/dev rootfs/proc rootfs/sys 2>/dev/null || true' EXIT
           sudo chroot rootfs /usr/bin/bash -c '
             set -e
             KVER="'"$KVER"'"
