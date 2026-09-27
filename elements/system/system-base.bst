@@ -12,6 +12,8 @@ depends:
   - freedesktop-sdk.bst:components/sudo.bst
   - freedesktop-sdk.bst:components/kmod.bst
   - freedesktop-sdk.bst:components/linux.bst
+  - freedesktop-sdk.bst:components/dracut.bst
+  - freedesktop-sdk.bst:components/ostree.bst
   - freedesktop-sdk.bst:extensions/mesa/mesa.bst
   - freedesktop-sdk.bst:components/networkmanager.bst
   - system/system-config.bst
