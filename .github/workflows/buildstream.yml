@@ -107,11 +107,12 @@ jobs:
           docker exec -e DRACUT_KMODDIR_OVERRIDE=1 dakota-merge bash -c '
             set -e
             KVER="'"$KVER"'"
-            dracut --no-compress --kmoddir "/usr/lib/modules/${KVER}" "${KVER}" \
+            dracut --no-compress \
+              --kmoddir "/mnt/rootfs/usr/lib/modules/${KVER}" \
               --add " systemd ostree " --omit " multipath " \
               --filesystems " btrfs " \
-              "/usr/lib/modules/${KVER}/initramfs"
-            ls -la "/usr/lib/modules/${KVER}/"
+              "/mnt/rootfs/usr/lib/modules/${KVER}/initramfs"
+            ls -la "/mnt/rootfs/usr/lib/modules/${KVER}/"
           ' || { echo "dracut failed"; exit 1; }
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
