@@ -92,6 +92,17 @@ jobs:
           # Strip debug symbol trees (FDS ships unstripped; halves the image):
           sudo rm -rf rootfs/usr/lib/debug rootfs/usr/src
           sudo find rootfs -name "*.debug" -type f -delete 2>/dev/null || true
+          # Remove the CentOS base kernel: FDS 7.2.x kernel + its initramfs (built by
+          # elements/system/initramfs.bst) must be the ONLY kernel in the image, else
+          # bootc deploys the el9 5.14 kernel which hard-hangs on modern hardware:
+          sudo ls rootfs/usr/lib/modules/
+          for k in rootfs/usr/lib/modules/*; do
+            case "$k" in *el9*|*el10*) sudo rm -rf "$k";; esac
+          done
+          sudo ls rootfs/usr/lib/modules/
+          # Kernel install machinery must regenerate module metadata for the FDS kernel:
+          sudo depmod "$(ls rootfs/usr/lib/modules | head -n1)" 2>/dev/null || true
+          test -f "rootfs/usr/lib/modules/$(ls rootfs/usr/lib/modules | head -n1)/initramfs" || { echo "FDS initramfs missing"; exit 1; }
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
           docker cp rootfs/. dakota-merge:/
