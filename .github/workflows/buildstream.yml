@@ -101,8 +101,18 @@ jobs:
           done
           sudo ls rootfs/usr/lib/modules/
           # Kernel install machinery must regenerate module metadata for the FDS kernel:
-          sudo depmod "$(ls rootfs/usr/lib/modules | head -n1)" 2>/dev/null || true
-          test -f "rootfs/usr/lib/modules/$(ls rootfs/usr/lib/modules | head -n1)/initramfs" || { echo "FDS initramfs missing"; exit 1; }
+          # Generate the initramfs for the FDS kernel inside the merge container
+          # (host-arch binaries from the staged FDS tree run natively here):
+          KVER="$(ls rootfs/usr/lib/modules | head -n1)"
+          docker exec dakota-merge bash -c '
+            set -e
+            KVER="'"$KVER"'"
+            dracut --no-compress --kmoddir "/usr/lib/modules/${KVER}" \
+              --add " systemd ostree " --omit " multipath " \
+              --filesystems " btrfs " \
+              "/usr/lib/modules/${KVER}/initramfs"
+            ls -la "/usr/lib/modules/${KVER}/"
+          ' || { echo "dracut failed"; exit 1; }
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
           docker cp rootfs/. dakota-merge:/

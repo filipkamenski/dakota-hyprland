@@ -3,8 +3,6 @@ kind: compose
 depends:
   - filename: system/system-base.bst
     type: build
-  - filename: system/initramfs.bst
-    type: build
   - filename: compositor/hyprland.bst
     type: build
   - filename: compositor/xdg-desktop-portal-hyprland.bst
