@@ -131,7 +131,7 @@ jobs:
           sudo mkdir -p rootfs/proc rootfs/sys rootfs/dev rootfs/run
           # Stream the rootfs into the container (docker cp makes a full tar copy in
           # /var/lib/docker/tmp which exhausts the runner disk):
-          sudo tar -C rootfs --one-file-system -cf - . | docker exec -i dakota-merge tar -xf - -C /
+          sudo tar -C rootfs -cf - --exclude=./proc --exclude=./sys --exclude=./dev --exclude=./run . | docker exec -i dakota-merge tar -xf - -C /
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
