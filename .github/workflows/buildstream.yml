@@ -114,6 +114,7 @@ jobs:
           sudo chroot rootfs /usr/bin/env DRACUT_KMODDIR_OVERRIDE=1 /usr/bin/bash -c '
             set -e
             KVER="'"$KVER"'"
+            depmod -b / "${KVER}"
             dracut --no-compress \
               --kmoddir "/usr/lib/modules/${KVER}" \
               --add " systemd ostree " --omit " multipath " \
