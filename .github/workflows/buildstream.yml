@@ -124,9 +124,14 @@ jobs:
           ' || { echo "dracut failed"; exit 1; }
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
+          # Unmount the chroot binds and clear pseudo-filesystem mountpoints before
+          # streaming (they contain host procfs/devfs and must not enter the image):
+          sudo umount -f rootfs/dev rootfs/proc rootfs/sys 2>/dev/null || true
+          sudo rm -rf rootfs/proc rootfs/sys rootfs/dev rootfs/run
+          sudo mkdir -p rootfs/proc rootfs/sys rootfs/dev rootfs/run
           # Stream the rootfs into the container (docker cp makes a full tar copy in
           # /var/lib/docker/tmp which exhausts the runner disk):
-          sudo tar -C rootfs -cf - . | docker exec -i dakota-merge tar -xf - -C /
+          sudo tar -C rootfs --one-file-system -cf - . | docker exec -i dakota-merge tar -xf - -C /
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"
