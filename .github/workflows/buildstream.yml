@@ -114,10 +114,11 @@ jobs:
           sudo chroot rootfs /usr/bin/bash -c '
             set -e
             KVER="'"$KVER"'"
-            dracut --no-compress --kmoddir "/usr/lib/modules/${KVER}" "${KVER}" \
+            dracut --no-compress -e DRACUT_KMODDIR_OVERRIDE=1 \
+              --kmoddir "/usr/lib/modules/${KVER}" \
               --add " systemd ostree " --omit " multipath " \
               --filesystems " btrfs " \
-              "/usr/lib/modules/${KVER}/initramfs"
+              "/usr/lib/modules/${KVER}/initramfs" "${KVER}"
             ls -la "/usr/lib/modules/${KVER}/"
           ' || { echo "dracut failed"; exit 1; }
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
