@@ -115,11 +115,13 @@ jobs:
             set -e
             KVER="'"$KVER"'"
             depmod -b / "${KVER}"
+            # bootc deploy requires the initramfs named initramfs.img; must include
+            # crypt/lvm (LUKS root) + ostree (composefs handoff):
             dracut --no-compress \
               --kmoddir "/usr/lib/modules/${KVER}" \
-              --add " systemd ostree " --omit " multipath " \
+              --add " systemd ostree crypt lvm " --omit " multipath " \
               --filesystems " btrfs " \
-              "/usr/lib/modules/${KVER}/initramfs" "${KVER}"
+              "/usr/lib/modules/${KVER}/initramfs.img" "${KVER}"
             ls -la "/usr/lib/modules/${KVER}/"
           ' || { echo "dracut failed"; exit 1; }
           # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
