@@ -14,6 +14,8 @@ depends:
   - freedesktop-sdk.bst:components/linux.bst
   - freedesktop-sdk.bst:components/dracut.bst
   - freedesktop-sdk.bst:components/ostree.bst
+  - freedesktop-sdk.bst:components/cryptsetup.bst
+  - freedesktop-sdk.bst:components/libdevmapper.bst
   - freedesktop-sdk.bst:extensions/mesa/mesa.bst
   - freedesktop-sdk.bst:components/networkmanager.bst
   - system/system-config.bst
