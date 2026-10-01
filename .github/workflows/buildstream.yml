@@ -115,11 +115,17 @@ jobs:
             set -e
             KVER="'"$KVER"'"
             depmod -b / "${KVER}"
+            # FDS ships no dmsetup (lvm2 tools are not built), and dracut's crypt
+            # module hard-requires the dm module for it. cryptsetup talks to
+            # device-mapper itself, so drop the dm dep and force the dm kernel
+            # modules instead:
+            sed -i "/echo dm$/d" /usr/lib/dracut/modules.d/90crypt/module-setup.sh
             # bootc deploy requires the initramfs named initramfs.img; must include
-            # crypt/lvm (LUKS root) + ostree (composefs handoff):
+            # crypt (LUKS root) + ostree (composefs handoff):
             dracut --no-compress \
               --kmoddir "/usr/lib/modules/${KVER}" \
-              --add " systemd ostree crypt lvm " --omit " multipath " \
+              --add-drivers " dm_mod dm_crypt " \
+              --add " systemd ostree crypt " --omit " multipath lvm " \
               --filesystems " btrfs " \
               "/usr/lib/modules/${KVER}/initramfs.img" "${KVER}"
             ls -la "/usr/lib/modules/${KVER}/"
