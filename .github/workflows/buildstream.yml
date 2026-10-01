@@ -119,6 +119,12 @@ jobs:
             # module hard-requires the dm module for it. cryptsetup talks to
             # device-mapper itself, so drop the dm dep and force the dm kernel
             # modules instead:
+            echo "== dracut diagnostics:"
+            ls -la /usr/bin/dracut /usr/sbin/dracut 2>/dev/null || true
+            ls /usr/lib/dracut/ 2>/dev/null | head -5 || true
+            echo "PATH=$PATH"
+            find /usr -maxdepth 3 -name "dracut*" 2>/dev/null | head -10
+            echo "== end diagnostics"
             CRYPTMOD="$(ls -d /usr/lib/dracut/modules.d/*crypt* 2>/dev/null | head -n1 || true)"
             echo "crypt module dir: ${CRYPTMOD:-none}"
             if [ -n "$CRYPTMOD" ] && [ -f "$CRYPTMOD/module-setup.sh" ]; then
