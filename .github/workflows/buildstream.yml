@@ -116,7 +116,7 @@ jobs:
             fi
             dracut --no-compress \
               --kmoddir "/usr/lib/modules/${KVER}" \
-              --add-drivers " dm_mod dm_crypt " \
+              --add-drivers " dm_mod dm_crypt btrfs " \
               --add " systemd ostree crypt lvm " --omit " multipath " \
               --filesystems " btrfs " \
               "/usr/lib/modules/${KVER}/initramfs.img" "${KVER}"
@@ -132,6 +132,27 @@ jobs:
           # Stream the rootfs into the container (docker cp makes a full tar copy in
           # /var/lib/docker/tmp which exhausts the runner disk):
           sudo tar -C rootfs -cf - --exclude=./proc --exclude=./sys --exclude=./dev --exclude=./run . | docker exec -i dakota-merge tar -xf - -C /
+          # SINGLE-KERNEL GUARANTEE INSIDE THE FINAL IMAGE. The base container ships
+          # its own el9 kernel tree (5.14.0-752.el9.x86_64) whose initramfs has NO
+          # btrfs module. With two kernel trees present bootc deploys the el9 one
+          # (first entry in /usr/lib/modules) instead of our FDS kernel, and the
+          # resulting boot hangs silently right after the kernel starts because it
+          # cannot assemble the LUKS + Btrfs root. Purge every foreign tree here.
+          docker exec -e KEEP="$KVER" dakota-merge bash -c '
+            set -e
+            for d in /usr/lib/modules/*; do
+              b="$(basename "$d")"
+              if [ "$b" != "$KEEP" ]; then echo "purging foreign kernel tree: $b"; rm -rf "$d"; fi
+            done
+            rm -f /boot/vmlinuz-* /boot/initramfs-*.img /boot/config-* /boot/symvers-* 2>/dev/null || true
+            echo "kernels remaining in image:"; ls /usr/lib/modules/
+            [ "$(ls /usr/lib/modules/ | wc -l)" = "1" ] || { echo "FATAL: more than one kernel tree in image"; exit 1; }
+            # The published initramfs must be able to mount the target root (LUKS + Btrfs)
+            grep -qi btrfs "/usr/lib/modules/$KEEP/modules.builtin" \
+              || grep -qi btrfs "/usr/lib/modules/$KEEP/modules.dep" \
+              || { echo "FATAL: published kernel tree has no btrfs support"; exit 1; }
+            echo "btrfs support: OK"
+          '
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
           docker rm -f dakota-merge
           docker push "$IMAGE_NAME"

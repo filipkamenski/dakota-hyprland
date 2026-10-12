@@ -1,0 +1,15 @@
+NAME="Dakota Hyprland"
+ID=dakota-hyprland
+ID_LIKE="centos fedora"
+VERSION_ID=20261012
+VERSION="1 (Dakota Hyprland)"
+PRETTY_NAME="Dakota Hyprland"
+VARIANT="Dakota Hyprland"
+VARIANT_ID=dakota-hyprland
+ANSI_COLOR="0;38;2;137;180;250"
+HOME_URL="https://github.com/filipkamenski/dakota-hyprland"
+DOCUMENTATION_URL="https://github.com/filipkamenski/dakota-hyprland/blob/main/docs/build-spec.md"
+SUPPORT_URL="https://github.com/filipkamenski/dakota-hyprland/issues"
+BUG_REPORT_URL="https://github.com/filipkamenski/dakota-hyprland/issues"
+LOGO=dakota-hyprland
+DEFAULT_HOSTNAME=dakota
