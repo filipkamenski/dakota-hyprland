@@ -194,7 +194,8 @@ jobs:
           echo "boot-readiness gate: PASS"
 
       - name: Publish Image to GHCR
-        if: github.event_name != 'pull_request'
+        # Only a push to main may publish: never a PR, never a branch dispatch.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           # A bootc image without bootc is not deployable, and an image without
           # an initramfs cannot assemble a LUKS+Btrfs root. Both are separate
