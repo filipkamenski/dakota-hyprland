@@ -3,18 +3,36 @@ hyprland:
   repo: https://github.com/hyprwm/Hyprland
   tag: v0.56.2
   release: "2026-08-05"
+  config_format: lua    # hyprlang deprecated in 0.55; the shipped config is hyprland.lua
+  min: "0.55"           # native scrolling layout requires 0.55+
 noctalia:
   repo: https://github.com/noctalia-dev/noctalia
   tag: v5.1.0
   release: "2026-09-10"
 noctalia-greeter:
   repo: https://github.com/noctalia-dev/noctalia-greeter
-  # pinned commit resolved at build time from the v5 release branch
-  branch: main
+  ref: 434b8095e813a7c04584b2841d03d862c4ff354a   # main @ 2026-10-18 (was a mutable branch ref)
+quickshell:
+  repo: https://github.com/quickshell-mirror/quickshell
+  tag: v0.3.2
+  release: "2026-10-08"
+  license: LGPL-3.0
+  note: >-
+    Requires a Qt 6.6+ stack we build ourselves (qtbase, qtdeclarative,
+    qtshadertools, qtwayland, qt6svg) plus libdrm, cli11, jemalloc. Uses private
+    Qt APIs: quickshell and Qt must be rebuilt together whenever either moves.
+cliamp:
+  repo: https://github.com/bjarneo/cliamp
+  tag: v2.3.0
+  license: MIT
+  note: >-
+    Data source (`cliamp visstream` NDJSON) for the music-reactive Quickshell
+    modules we keep (music-wallpaper, winamp-background, data-sphere).
+bootc:
+  repo: https://github.com/bootc-dev/bootc
+  tag: v1.17.1          # same version Dakota builds in-tree; NO element in this repo yet (see R-IMG-2)
 freedesktop-sdk:
   tag: freedesktop-sdk-26.08.1
+  ref: b02b59ffe19a49a402f357fd5fcb1d552ebc50d7
 scroll_layout:
-  plan: A   # A = native scroller (Hyprland >= 0.53), B = cpiber/hyprscroller fallback
-hyprscroller_plan_b:
-  repo: https://github.com/cpiber/hyprscroller
-  pin: null  # only pinned if plan B activates
+  plan: native-only     # plugin path removed: upstream archived, incompatible with native scrolling
