@@ -90,116 +90,103 @@ jobs:
               bst artifact checkout image/image.bst --directory /workspace/rootfs
             "
 
-      - name: Create Bootable bootc Image (derived)
-        if: github.event_name != 'pull_request'
+      # R-IMG-1: the image IS the BuildStream rootfs. Nothing is merged into a
+      # second distro. The previous design layered this rootfs over
+      # quay.io/centos-bootc/centos-bootc:stream9, which left TWO userlands
+      # (el9 glibc 2.34 in /usr/lib64, whose /etc/ld.so.cache won, next to FDS
+      # glibc 2.44 in /usr/lib/x86_64-linux-gnu), TWO kernel trees and an ostree
+      # sysroot/; the image could not run its own binaries (run 38258985164:
+      # "bash: /lib64/libc.so.6: version `GLIBC_2.38' not found (required by
+      # bash)"). Composing the rootfs alone removes the cause, not the symptom:
+      # no base image is pulled, so no foreign userspace can ride along.
+      - name: Compose Image from the FDS Rootfs (single userspace)
         run: |
+          set -eu
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
           echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
-          docker run -d --name dakota-merge --entrypoint sleep quay.io/centos-bootc/centos-bootc:stream9 900
-          for i in $(seq 1 30); do docker inspect dakota-merge >/dev/null 2>&1 && break; sleep 2; done
-          # Strip debug symbol trees (FDS ships unstripped; halves the image):
+          # Build debris only — never another distro's files:
           sudo rm -rf rootfs/usr/lib/debug rootfs/usr/src
           sudo find rootfs -name "*.debug" -type f -delete 2>/dev/null || true
-          # FDS rootfs ships /usr/sbin as a symlink to bin; bootc base has a real dir — normalize:
-          if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
-          # Single-kernel image: the FDS 7.2.x kernel must be the ONLY kernel in
-          # /usr/lib/modules — the base el9 kernel is dropped so bootc deploys ours.
-          sudo ls rootfs/usr/lib/modules/
-          for k in rootfs/usr/lib/modules/*; do
-            case "$k" in *el9*|*el10*) sudo rm -rf "$k";; esac
-          done
-          KVER="$(sudo ls rootfs/usr/lib/modules | head -n1)"
-          echo "FDS kernel: $KVER"
-          echo "KVER=$KVER" >> "$GITHUB_ENV"
-          # Stage ONLY the FDS kernel modules into the pristine merge container and
-          # generate the initramfs with the BASE's dracut (el9 dracut+ostree+crypt
-          # machinery, proven on the target; the FDS split ships no dracut CLI).
-          sudo tar -C rootfs/usr/lib -cf - modules | docker exec -i dakota-merge tar -xf - -C /usr/lib/
-          docker exec -e DRACUT_KMODDIR_OVERRIDE=1 dakota-merge bash -c '
-            set -e
-            KVER="'"$KVER"'"
-            depmod -b / "${KVER}"
-            CRYPTMOD="$(ls -d /usr/lib/dracut/modules.d/*crypt* 2>/dev/null | head -n1 || true)"
-            if [ -n "$CRYPTMOD" ] && [ -f "$CRYPTMOD/module-setup.sh" ]; then
-              sed -i "/echo dm$/d" "$CRYPTMOD/module-setup.sh"
-            fi
-            dracut --no-compress \
-              --kmoddir "/usr/lib/modules/${KVER}" \
-              --add-drivers " dm_mod dm_crypt btrfs " \
-              --add " systemd ostree crypt lvm " --omit " multipath " \
-              --filesystems " btrfs " \
-              "/usr/lib/modules/${KVER}/initramfs.img" "${KVER}"
-            ls -la "/usr/lib/modules/${KVER}/"
-          ' || { echo "initramfs generation failed"; exit 1; }
-          # SINGLE-KERNEL GUARANTEE, STILL BEFORE THE FULL ROOTFS MERGE. The base
-          # container ships its own el9 kernel tree (5.14.0-752.el9.x86_64) whose
-          # initramfs has NO btrfs module. With two trees present bootc deploys the
-          # el9 one and the boot hangs because it cannot assemble the LUKS + Btrfs
-          # root. This MUST run here and not after the merge: once the FDS rootfs
-          # is layered over the base, /usr/bin/bash is FDS's (needs glibc >= 2.38)
-          # while /lib64/libc.so.6 is still el9's 2.34 and /etc/ld.so.cache sends
-          # every FDS binary to it — so `docker exec` cannot even start a shell
-          # ("GLIBC_2.38 not found (required by bash)", run 38258985164). Nothing
-          # inside the container may be executed after the merge.
-          docker exec -e KEEP="$KVER" dakota-merge bash -c '
-            set -e
-            for d in /usr/lib/modules/*; do
-              b="$(basename "$d")"
-              if [ "$b" != "$KEEP" ]; then echo "purging foreign kernel tree: $b"; rm -rf "$d"; fi
-            done
-            rm -f /boot/vmlinuz-* /boot/initramfs-*.img /boot/config-* /boot/symvers-* 2>/dev/null || true
-            echo "kernels remaining in container:"; ls /usr/lib/modules/
-            [ "$(ls /usr/lib/modules/ | wc -l)" = "1" ] || { echo "FATAL: more than one kernel tree in image"; exit 1; }
-            grep -qi btrfs "/usr/lib/modules/$KEEP/modules.builtin" \
-              || grep -qi btrfs "/usr/lib/modules/$KEEP/modules.dep" \
-              || { echo "FATAL: published kernel tree has no btrfs support"; exit 1; }
-            echo "btrfs support: OK"
-          '
-          # Now merge the FULL rootfs over the base (the initramfs.img is included):
-          if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
-          # Unmount the chroot binds and clear pseudo-filesystem mountpoints before
-          # streaming (they contain host procfs/devfs and must not enter the image):
+          # Pseudo-filesystems must not be baked into the image:
           sudo umount -f rootfs/dev rootfs/proc rootfs/sys 2>/dev/null || true
           sudo rm -rf rootfs/proc rootfs/sys rootfs/dev rootfs/run
           sudo mkdir -p rootfs/proc rootfs/sys rootfs/dev rootfs/run
-          # Stream the rootfs into the container (docker cp makes a full tar copy in
-          # /var/lib/docker/tmp which exhausts the runner disk):
-          sudo tar -C rootfs -cf - --exclude=./proc --exclude=./sys --exclude=./dev --exclude=./run . | docker exec -i dakota-merge tar -xf - -C /
-          # Post-merge checks read the container's filesystem from the OUTSIDE
-          # (docker export | tar -t). No docker exec from here on.
-          docker export dakota-merge | tar -t 2>/dev/null \
-            | sed -n 's|^usr/lib/modules/\([^/]*\)/.*|\1|p' | sort -u > /tmp/kernels.txt
-          echo "kernel trees in composed image:"; cat /tmp/kernels.txt
-          [ "$(wc -l < /tmp/kernels.txt)" = "1" ] || { echo "FATAL: composed image has $(wc -l < /tmp/kernels.txt) kernel trees, expected 1"; exit 1; }
-          grep -qx "$KVER" /tmp/kernels.txt || { echo "FATAL: FDS kernel $KVER missing from composed image"; exit 1; }
-          docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
-          docker rm -f dakota-merge
+          # ONE loader cache, generated from the FDS tree by FDS's own ldconfig.
+          # A cache inherited from another distro is what sent every FDS binary
+          # to el9's /lib64/libc.so.6 (criteria 3 and 4 below assert it is clean).
+          # FDS ships an EMPTY /etc/ld.so.conf.d, so name the FDS libdirs
+          # explicitly instead of relying on the loader's built-in defaults.
+          sudo rm -f rootfs/etc/ld.so.cache
+          : > /tmp/ldso.conf
+          for d in usr/lib/x86_64-linux-gnu usr/lib; do
+            if [ -d "rootfs/$d" ]; then echo "/$d" >> /tmp/ldso.conf; fi
+          done
+          sudo mkdir -p rootfs/etc/ld.so.conf.d
+          sudo install -m 0644 /tmp/ldso.conf rootfs/etc/ld.so.conf.d/00-dakota.conf
+          echo "ld.so.conf.d:"; cat /tmp/ldso.conf
+          sudo chroot rootfs /usr/bin/ldconfig
+          # --- structural assertions on the tree, BEFORE it becomes a layer ---
+          KERNELS="$(sudo ls rootfs/usr/lib/modules | sort -u)"
+          echo "kernel trees:"; echo "$KERNELS"
+          [ "$(echo "$KERNELS" | wc -l)" = "1" ] || { echo "FATAL: expected exactly one kernel tree (R-IMG-1/R-IMG-3)"; exit 1; }
+          KVER="$KERNELS"
+          echo "KVER=$KVER" >> "$GITHUB_ENV"
+          if sudo find rootfs -name '*el9*' -print | grep -q .; then
+            echo "FATAL: el9 artefacts in the tree (R-IMG-1)"; sudo find rootfs -name '*el9*' | head; exit 1
+          fi
+          [ ! -d rootfs/sysroot ] || { echo "FATAL: /sysroot present (R-IMG-1)"; exit 1; }
+          [ ! -d rootfs/ostree ] || { echo "FATAL: /ostree present (R-IMG-1)"; exit 1; }
+          test -e rootfs/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 || { echo "FATAL: FDS loader missing"; exit 1; }
+          if [ -e rootfs/usr/lib64/ld-linux-x86-64.so.2 ]; then
+            [ "$(sudo readlink -f rootfs/usr/lib64/ld-linux-x86-64.so.2)" = "$(sudo readlink -f rootfs/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)" ] \
+              || { echo "FATAL: /usr/lib64 loader is not the FDS loader (R-IMG-1)"; exit 1; }
+          fi
+          test -s rootfs/etc/ld.so.cache || { echo "FATAL: ld.so.cache was not generated"; exit 1; }
+          if strings rootfs/etc/ld.so.cache | grep -q "^/lib64/"; then
+            echo "FATAL: ld.so.cache still points at /lib64 (R-IMG-1)"; strings rootfs/etc/ld.so.cache | grep "^/lib64/" | head; exit 1
+          fi
+          echo "cache entries on FDS paths: $(strings rootfs/etc/ld.so.cache | grep -c '^/usr/lib/x86_64-linux-gnu/' || true)"
+          strings rootfs/etc/ld.so.cache | grep -q "^/usr/lib/x86_64-linux-gnu/" || { echo "FATAL: cache has no FDS paths"; exit 1; }
+          # Not fatal here — separate requirements, and the publish step refuses
+          # to ship an image without them (see R-IMG-2 / R-IMG-4):
+          [ -e rootfs/usr/lib/bootc ] || echo "WARNING: no /usr/lib/bootc payload (R-IMG-2 still open)"
+          [ -e "rootfs/usr/lib/modules/$KVER/initramfs.img" ] || echo "WARNING: no initramfs.img (R-IMG-4 still open)"
+          # Import the tree as-is: one layer, one userspace, no base image.
+          sudo tar -C rootfs --numeric-owner -cf - . | docker import \
+            --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' \
+            --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' \
+            --change 'CMD ["/sbin/init"]' - "$IMAGE_NAME"
 
-      # Gate: the composed image must be able to RUN ITS OWN USERSPACE before it
-      # is published. This is the check that catches the el9/FDS glibc split
-      # (AMI: /usr/lib64/libc.so.6 = el9 2.34, /etc/ld.so.cache = el9's, while
-      # the binaries at /usr/bin are FDS's and need glibc >= 2.38). A green build
-      # that publishes a non-booting :latest is worse than a red build.
+      # Gate: the composed image must run ITS OWN userland, and must contain
+      # exactly one userland, before anything is published. With the el9 base
+      # gone this is a real exec again — inside the chimera it could not even
+      # start bash, which is why the old gate had to read the tree from outside.
       - name: Verify Composed Image (boot-readiness gate)
-        if: github.event_name != 'pull_request'
         run: |
           set -x
           docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c '
             set -e
             echo "glibc: $(ldd --version | head -1)"
             echo "systemd: $(systemctl --version | head -1)"
-            echo "init: $(readlink -f /sbin/init)"
+            echo "os-release: $(. /etc/os-release; echo $NAME $VERSION_ID)"
+            echo "kernel trees: $(ls /usr/lib/modules | tr "\n" " ")"
+            [ "$(ls /usr/lib/modules | wc -l)" = 1 ] || { echo "FATAL: image has multiple kernel trees"; exit 1; }
+            [ -e /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 ] || { echo "FATAL: FDS loader missing"; exit 1; }
+            if [ -e /usr/lib64/ld-linux-x86-64.so.2 ] && [ "$(readlink -f /usr/lib64/ld-linux-x86-64.so.2)" != "$(readlink -f /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)" ]; then
+              echo "FATAL: /usr/lib64 loader is not the FDS loader"; exit 1
+            fi
+            [ ! -e /sysroot ] || { echo "FATAL: /sysroot present"; exit 1; }
+            [ ! -e /ostree ]  || { echo "FATAL: /ostree present"; exit 1; }
+            if ldconfig -p | grep -q "/lib64/"; then echo "FATAL: ld.so.cache still has /lib64 paths"; ldconfig -p | grep "/lib64/" | head; exit 1; fi
             for b in /usr/bin/bash /usr/bin/systemctl /usr/bin/hyprland; do
               [ -e "$b" ] || { echo "MISSING: $b"; exit 1; }
               if ldd "$b" 2>/dev/null | grep -q "not found"; then echo "BROKEN LINKAGE: $b"; ldd "$b"; exit 1; fi
             done
-            echo "userspace: OK"
+            echo "userspace: OK (single FDS userland)"
           '
-          docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c 'grep -E "^(NAME|ID|VERSION_ID)=" /etc/os-release'
           docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c 'grep -E "^(NAME|ID)=" /etc/os-release | grep -q dakota' \
             || { echo "FATAL: /etc/os-release does not identify as Dakota"; exit 1; }
           docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c '
-            ls /usr/lib/modules/ | wc -l | grep -qx 1 || { echo "FATAL: image has multiple kernel trees"; exit 1; }
             grep -qi btrfs "/usr/lib/modules/$1/modules.builtin" 2>/dev/null \
               || grep -qi btrfs "/usr/lib/modules/$1/modules.dep" \
               || { echo "FATAL: kernel tree has no btrfs support"; exit 1; }
@@ -209,6 +196,14 @@ jobs:
       - name: Publish Image to GHCR
         if: github.event_name != 'pull_request'
         run: |
+          # A bootc image without bootc is not deployable, and an image without
+          # an initramfs cannot assemble a LUKS+Btrfs root. Both are separate
+          # requirements (R-IMG-2 / R-IMG-4); until they land, publishing would
+          # replace a working tag with an unbootable one — refuse instead.
+          docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c '[ -e /usr/lib/bootc ]' \
+            || { echo "FATAL: image has no /usr/lib/bootc payload — R-IMG-2 open, refusing to publish"; exit 1; }
+          docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c "test -e /usr/lib/modules/$KVER/initramfs.img" \
+            || { echo "FATAL: image has no initramfs.img — R-IMG-4 open, refusing to publish"; exit 1; }
           docker push "$IMAGE_NAME"
           # bootc's composefs backend can't read Docker schema2 config blobs on
           # switch (bootc-dev/bootc#1703, "blob unknown to registry"). Re-push the
