@@ -45,11 +45,15 @@ jobs:
 
       # BuildStream artifact cache: keyed on the full project definition so it
       # invalidates cleanly as ONE unit. No loose restore-keys (that caused the
-      # stale-artifact whack-a-mole). Save happens post-job; failed builds
-      # save too (partial artifacts are still keyed by exact cache key and
-      # only successfully-built elements enter the local cache).
-      - name: Cache BuildStream Artifact Store
-        uses: actions/cache@v4
+      # stale-artifact whack-a-mole).
+      # Restore and save are SEPARATE steps on purpose: the combined
+      # actions/cache@v4 post-step refused to save on the 2026-10-12 run
+      # ("State not set"), so a 4.5 h cold build cached nothing and the next run
+      # was cold again. Only successfully-built elements enter the local cache,
+      # so saving on failure is safe and saves the whole rebuild.
+      - name: Restore BuildStream Artifact Store
+        id: bst-cache
+        uses: actions/cache/restore@v4
         with:
           path: ~/.cache/buildstream
           key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}
@@ -87,6 +91,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
+          echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
           docker run -d --name dakota-merge --entrypoint sleep quay.io/centos-bootc/centos-bootc:stream9 900
           for i in $(seq 1 30); do docker inspect dakota-merge >/dev/null 2>&1 && break; sleep 2; done
           # Strip debug symbol trees (FDS ships unstripped; halves the image):
@@ -102,6 +107,7 @@ jobs:
           done
           KVER="$(sudo ls rootfs/usr/lib/modules | head -n1)"
           echo "FDS kernel: $KVER"
+          echo "KVER=$KVER" >> "$GITHUB_ENV"
           # Stage ONLY the FDS kernel modules into the pristine merge container and
           # generate the initramfs with the BASE's dracut (el9 dracut+ostree+crypt
           # machinery, proven on the target; the FDS split ships no dracut CLI).
@@ -121,7 +127,31 @@ jobs:
               --filesystems " btrfs " \
               "/usr/lib/modules/${KVER}/initramfs.img" "${KVER}"
             ls -la "/usr/lib/modules/${KVER}/"
-          ' || { echo "dracut failed"; exit 1; }
+          ' || { echo "initramfs generation failed"; exit 1; }
+          # SINGLE-KERNEL GUARANTEE, STILL BEFORE THE FULL ROOTFS MERGE. The base
+          # container ships its own el9 kernel tree (5.14.0-752.el9.x86_64) whose
+          # initramfs has NO btrfs module. With two trees present bootc deploys the
+          # el9 one and the boot hangs because it cannot assemble the LUKS + Btrfs
+          # root. This MUST run here and not after the merge: once the FDS rootfs
+          # is layered over the base, /usr/bin/bash is FDS's (needs glibc >= 2.38)
+          # while /lib64/libc.so.6 is still el9's 2.34 and /etc/ld.so.cache sends
+          # every FDS binary to it — so `docker exec` cannot even start a shell
+          # ("GLIBC_2.38 not found (required by bash)", run 38258985164). Nothing
+          # inside the container may be executed after the merge.
+          docker exec -e KEEP="$KVER" dakota-merge bash -c '
+            set -e
+            for d in /usr/lib/modules/*; do
+              b="$(basename "$d")"
+              if [ "$b" != "$KEEP" ]; then echo "purging foreign kernel tree: $b"; rm -rf "$d"; fi
+            done
+            rm -f /boot/vmlinuz-* /boot/initramfs-*.img /boot/config-* /boot/symvers-* 2>/dev/null || true
+            echo "kernels remaining in container:"; ls /usr/lib/modules/
+            [ "$(ls /usr/lib/modules/ | wc -l)" = "1" ] || { echo "FATAL: more than one kernel tree in image"; exit 1; }
+            grep -qi btrfs "/usr/lib/modules/$KEEP/modules.builtin" \
+              || grep -qi btrfs "/usr/lib/modules/$KEEP/modules.dep" \
+              || { echo "FATAL: published kernel tree has no btrfs support"; exit 1; }
+            echo "btrfs support: OK"
+          '
           # Now merge the FULL rootfs over the base (the initramfs.img is included):
           if [ -L rootfs/usr/sbin ]; then sudo rm rootfs/usr/sbin && sudo mkdir rootfs/usr/sbin; fi
           # Unmount the chroot binds and clear pseudo-filesystem mountpoints before
@@ -132,31 +162,51 @@ jobs:
           # Stream the rootfs into the container (docker cp makes a full tar copy in
           # /var/lib/docker/tmp which exhausts the runner disk):
           sudo tar -C rootfs -cf - --exclude=./proc --exclude=./sys --exclude=./dev --exclude=./run . | docker exec -i dakota-merge tar -xf - -C /
-          # SINGLE-KERNEL GUARANTEE INSIDE THE FINAL IMAGE. The base container ships
-          # its own el9 kernel tree (5.14.0-752.el9.x86_64) whose initramfs has NO
-          # btrfs module. With two kernel trees present bootc deploys the el9 one
-          # (first entry in /usr/lib/modules) instead of our FDS kernel, and the
-          # resulting boot hangs silently right after the kernel starts because it
-          # cannot assemble the LUKS + Btrfs root. Purge every foreign tree here.
-          docker exec -e KEEP="$KVER" dakota-merge bash -c '
-            set -e
-            for d in /usr/lib/modules/*; do
-              b="$(basename "$d")"
-              if [ "$b" != "$KEEP" ]; then echo "purging foreign kernel tree: $b"; rm -rf "$d"; fi
-            done
-            rm -f /boot/vmlinuz-* /boot/initramfs-*.img /boot/config-* /boot/symvers-* 2>/dev/null || true
-            echo "kernels remaining in image:"; ls /usr/lib/modules/
-            [ "$(ls /usr/lib/modules/ | wc -l)" = "1" ] || { echo "FATAL: more than one kernel tree in image"; exit 1; }
-            # The published initramfs must be able to mount the target root (LUKS + Btrfs)
-            grep -qi btrfs "/usr/lib/modules/$KEEP/modules.builtin" \
-              || grep -qi btrfs "/usr/lib/modules/$KEEP/modules.dep" \
-              || { echo "FATAL: published kernel tree has no btrfs support"; exit 1; }
-            echo "btrfs support: OK"
-          '
+          # Post-merge checks read the container's filesystem from the OUTSIDE
+          # (docker export | tar -t). No docker exec from here on.
+          docker export dakota-merge | tar -t 2>/dev/null \
+            | sed -n 's|^usr/lib/modules/\([^/]*\)/.*|\1|p' | sort -u > /tmp/kernels.txt
+          echo "kernel trees in composed image:"; cat /tmp/kernels.txt
+          [ "$(wc -l < /tmp/kernels.txt)" = "1" ] || { echo "FATAL: composed image has $(wc -l < /tmp/kernels.txt) kernel trees, expected 1"; exit 1; }
+          grep -qx "$KVER" /tmp/kernels.txt || { echo "FATAL: FDS kernel $KVER missing from composed image"; exit 1; }
           docker commit --change 'LABEL org.opencontainers.image.title="Dakota Hyprland"' --change 'LABEL org.opencontainers.image.description="BuildStream immutable OS running Hyprland"' --change 'CMD ["/sbin/init"]' dakota-merge "$IMAGE_NAME"
           docker rm -f dakota-merge
-          docker push "$IMAGE_NAME"
 
+      # Gate: the composed image must be able to RUN ITS OWN USERSPACE before it
+      # is published. This is the check that catches the el9/FDS glibc split
+      # (AMI: /usr/lib64/libc.so.6 = el9 2.34, /etc/ld.so.cache = el9's, while
+      # the binaries at /usr/bin are FDS's and need glibc >= 2.38). A green build
+      # that publishes a non-booting :latest is worse than a red build.
+      - name: Verify Composed Image (boot-readiness gate)
+        if: github.event_name != 'pull_request'
+        run: |
+          set -x
+          docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c '
+            set -e
+            echo "glibc: $(ldd --version | head -1)"
+            echo "systemd: $(systemctl --version | head -1)"
+            echo "init: $(readlink -f /sbin/init)"
+            for b in /usr/bin/bash /usr/bin/systemctl /usr/bin/hyprland; do
+              [ -e "$b" ] || { echo "MISSING: $b"; exit 1; }
+              if ldd "$b" 2>/dev/null | grep -q "not found"; then echo "BROKEN LINKAGE: $b"; ldd "$b"; exit 1; fi
+            done
+            echo "userspace: OK"
+          '
+          docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c 'grep -E "^(NAME|ID|VERSION_ID)=" /etc/os-release'
+          docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c 'grep -E "^(NAME|ID)=" /etc/os-release | grep -q dakota' \
+            || { echo "FATAL: /etc/os-release does not identify as Dakota"; exit 1; }
+          docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c '
+            ls /usr/lib/modules/ | wc -l | grep -qx 1 || { echo "FATAL: image has multiple kernel trees"; exit 1; }
+            grep -qi btrfs "/usr/lib/modules/$1/modules.builtin" 2>/dev/null \
+              || grep -qi btrfs "/usr/lib/modules/$1/modules.dep" \
+              || { echo "FATAL: kernel tree has no btrfs support"; exit 1; }
+          ' _ "$KVER"
+          echo "boot-readiness gate: PASS"
+
+      - name: Publish Image to GHCR
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push "$IMAGE_NAME"
           # bootc's composefs backend can't read Docker schema2 config blobs on
           # switch (bootc-dev/bootc#1703, "blob unknown to registry"). Re-push the
           # same image as native OCI so bootc switch/upgrade works registry-direct:
@@ -167,3 +217,13 @@ jobs:
           skopeo inspect --raw "docker://$IMAGE_NAME" \
             --creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" | head -3
 
+      # Runs even when the build or the gate failed: only successfully built
+      # elements sit in ~/.cache/buildstream, and re-using them is what keeps
+      # follow-up runs at ~1 h instead of a 4.5 h cold rebuild.
+      - name: Save BuildStream Artifact Store
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/buildstream
+          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}
