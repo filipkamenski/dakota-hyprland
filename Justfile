@@ -39,6 +39,14 @@ vm-disk:
       --type qcow2 \
       ghcr.io/filipkamenski/dakota-hyprland:latest
 
+# Lint shipped desktop configs (layout messages, Noctalia IPC names)
+lint-config:
+    python3 scripts/lint-config.py
+
+# Re-seed shipped desktop defaults for the current user (see docs/build-spec.md)
+defaults *ARGS:
+    ./elements/system/files/usr/bin/dakota-hyprland-defaults {{ARGS}}
+
 # Report hardware issue to GitHub (Feedback Loop)
 report:
     @echo "Generating hardware diagnostic bundle..."

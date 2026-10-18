@@ -43,6 +43,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lint Shipped Configs (layout messages, IPC names)
+        run: python3 scripts/lint-config.py
+
       # BuildStream artifact cache: keyed on the full project definition so it
       # invalidates cleanly as ONE unit. No loose restore-keys (that caused the
       # stale-artifact whack-a-mole).

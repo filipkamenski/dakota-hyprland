@@ -73,7 +73,7 @@ hl.bind(mainMod .. "+Down",  hl.dsp.layout("move +col"))
 
 -- Column management
 hl.bind(mainMod .. "+Tab",   hl.dsp.layout("promote"))            -- new column from window
-hl.bind(mainMod .. "+C",     hl.dsp.layout("consume_or_expel prev"))
+hl.bind(mainMod .. "+C",     hl.dsp.layout("expel"))            -- push window into its own column
 hl.bind(mainMod .. "+F",     hl.dsp.layout("fit active"))
 hl.bind(mainMod .. "+V",     hl.dsp.layout("fit expand"))
 hl.bind(mainMod .. "+bracketright",  hl.dsp.layout("colresize +conf"))

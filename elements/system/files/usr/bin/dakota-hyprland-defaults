@@ -1,0 +1,42 @@
+#!/bin/bash
+# dakota-hyprland-defaults — re-seed the shipped desktop defaults for an
+# existing user account.
+#
+# Fresh accounts pick these up from /etc/skel when the home directory is
+# created; /etc/skel is never re-read afterwards, which is what this script is
+# for. Existing files are never overwritten unless --force is passed.
+set -euo pipefail
+
+SKEL="/etc/skel/.config"
+DEST="${XDG_CONFIG_HOME:-$HOME/.config}"
+FORCE=0
+[[ "${1:-}" == "--force" ]] && FORCE=1
+
+if [[ ! -d "$SKEL" ]]; then
+    echo "dakota-hyprland-defaults: no defaults in $SKEL (nothing to do)" >&2
+    exit 0
+fi
+
+shopt -s nullglob globstar
+seeded=0
+skipped=0
+for src in "$SKEL"/**/*; do
+    [[ -f "$src" ]] || continue
+    rel="${src#"$SKEL"/}"
+    case "$rel" in
+        hypr/*|noctalia/*|quickshell/*) ;;
+        *) continue ;;
+    esac
+    target="$DEST/$rel"
+    if [[ -e "$target" && "$FORCE" -eq 0 ]]; then
+        skipped=$((skipped + 1))
+        continue
+    fi
+    install -Dm"$(stat -c '%a' "$src")" "$src" "$target"
+    seeded=$((seeded + 1))
+done
+
+echo "dakota-hyprland-defaults: seeded $seeded file(s), kept $skipped already-present file(s) under $DEST"
+if [[ "$seeded" -eq 0 && "$skipped" -gt 0 ]]; then
+    echo "Nothing changed — pass --force to overwrite existing files."
+fi
