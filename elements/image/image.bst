@@ -17,8 +17,6 @@ depends:
     type: build
   - filename: shell/noctalia-greeter.bst
     type: build
-  - filename: shell/waybar.bst
-    type: build
   - filename: shell/greetd.bst
     type: build
   - filename: shell/foot.bst

@@ -38,7 +38,7 @@ Rules:
 | R-DE-7 | Exactly one config format: `hyprland.lua` (D7-era hyprlang ban) | `.../etc/skel/.config/hypr/` | skel holds only `hyprland.lua` | DONE |
 | R-DE-8 | Every `hl.dsp.layout(...)` message exists in the wiki message set | `hyprland.lua` + `scripts/lint-config.py` | lint exits 0; found and fixed `consume_or_expel`, allowed `swapcol` per `wrap_swapcol` | DONE |
 | R-DE-9 | CI geometry test: 3rd window scrolls off-viewport | test element / workflow | not implemented | OPEN |
-| R-DE-10 | Exactly one bar in the session (D6) | skel | `waybar/` deleted; Quickshell bar deferred until our configs exist | DONE |
+| R-DE-10 | Exactly one bar in the session (D6) | skel, `elements/image/image.bst` | `grep -rn waybar elements/` → no hits; skel has no `waybar/` | DONE |
 | R-DE-11 | Our own Quickshell configs (clean-room, D5) | `.../etc/skel/.config/quickshell/**` | vendor tree removed from the repo; our configs not written yet | OPEN |
 | R-DE-12 | Configs must not depend on another distro's plumbing | our future configs | omarchy paths are gone from the tree with the vendor collection | OPEN |
 | R-DE-13 | Music-reactive modules get their data source or are dropped (D7) | `music-wallpaper/`, `winamp-background/`, `data-sphere/` | `cliamp` `v2.3.0` (MIT) pinned in `versions.yaml`; element not written | OPEN |
