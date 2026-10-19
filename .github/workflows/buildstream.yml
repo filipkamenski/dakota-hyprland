@@ -96,13 +96,18 @@ jobs:
           # R-CI-4: track OUR elements only. `--deps all` also re-tracked the
           # freedesktop-sdk junction's elements, moving every FDS source off the
           # ref the release artifacts were built from. That changes their cache
-          # keys, so the public cache could never hit and LLVM/mesa were compiled
-          # from source (~3 h19m on LLVM alone). Junction elements stay pinned;
-          # our own elements still get their missing refs filled.
+          # keys; more importantly we cannot use the FDS cache at all (see the
+          # 11001/11004 note in project.conf), so the junction must simply stay
+          # pinned. Our own elements still get their missing refs filled.
           echo 'Tracking sources of our own elements only...'
-          OURS=$(bst --format '%{name}' show --deps all image/image.bst \
+          # `bst show --format` exists, but the option must come AFTER the
+          # subcommand — `bst --format X show` is parsed as a top-level option
+          # and fails with "No such option '--format'", which is how run
+          # 39279994856 died 42s in (fatal under `set -eu`). `|| true` keeps
+          # tracking non-fatal either way.
+          OURS=$(bst show --format '%{name}' --deps all image/image.bst \
                  | grep -v '\.bst:' \
-                 | grep -vxE 'freedesktop-sdk\.bst|plugins/buildstream-plugins-community\.bst')
+                 | grep -vxE 'freedesktop-sdk\.bst|plugins/buildstream-plugins-community\.bst' || true)
           if [ -n "$OURS" ]; then
             bst --error-lines 200 --message-lines 20 source track $OURS || true
           fi
