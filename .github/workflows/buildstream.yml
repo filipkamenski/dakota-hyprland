@@ -60,10 +60,23 @@ jobs:
         with:
           path: ~/.cache/buildstream
           key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}
+          # The artifact store is content-addressed: a stale entry can never be
+          # used for a changed element, it is simply never referenced. So a
+          # prefix restore is always safe and is what keeps a one-element edit
+          # from recompiling LLVM: without it, ANY change to elements/**/*.bst
+          # changes the key above and guarantees a full cold build.
+          restore-keys: |
+            bst2-${{ runner.os }}-
 
       - name: Build OS Rootfs via BuildStream
         run: |
           mkdir -p rootfs
+          # R-CI-4: the artifact store MUST live on the host. Without this mount
+          # bst writes ~6 h of artifacts into the ephemeral container's /root,
+          # which is discarded on exit -- that is why the save step failed with
+          # "Path(s) specified in the action for caching do(es) not exist"
+          # (total_count: 0 caches) on run 39168905786.
+          mkdir -p "$HOME/.cache/buildstream"
           docker build -t bst-runner -f- . <<'DOCKERFILE'
           FROM python:3.11-slim
           RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -72,23 +85,41 @@ jobs:
           RUN pip install --no-cache-dir "buildstream>=2.5" buildstream-plugins \
               buildstream-plugins-community "dulwich" requests tomlkit
           DOCKERFILE
+          # The in-container steps live in a file with a QUOTED heredoc: written
+          # inline inside `bash -c "..."` every $ and backslash needs escaping,
+          # which is exactly the kind of quoting that silently mangles a build.
+          cat > .ci-build.sh <<'BSTSCRIPT'
+          set -eu
+          echo 'Validating project dependency tree...'
+          bst --error-lines 200 --message-lines 20 show image/image.bst
+
+          # R-CI-4: track OUR elements only. `--deps all` also re-tracked the
+          # freedesktop-sdk junction's elements, moving every FDS source off the
+          # ref the release artifacts were built from. That changes their cache
+          # keys, so the public cache could never hit and LLVM/mesa were compiled
+          # from source (~3 h19m on LLVM alone). Junction elements stay pinned;
+          # our own elements still get their missing refs filled.
+          echo 'Tracking sources of our own elements only...'
+          OURS=$(bst --format '%{name}' show --deps all image/image.bst \
+                 | grep -v '\.bst:' \
+                 | grep -vxE 'freedesktop-sdk\.bst|plugins/buildstream-plugins-community\.bst')
+          if [ -n "$OURS" ]; then
+            bst --error-lines 200 --message-lines 20 source track $OURS || true
+          fi
+
+          echo 'Building OS image with upstream artifact cache...'
+          bst --error-lines 200 --message-lines 20 build image/image.bst
+
+          echo 'Checking out compiled rootfs...'
+          bst artifact checkout image/image.bst --directory /workspace/rootfs
+          BSTSCRIPT
           docker run --privileged --rm \
             -v ${{ github.workspace }}:/workspace \
+            -v "$HOME/.cache/buildstream:/root/.cache/buildstream" \
             -w /workspace \
             bst-runner \
-            bash -c "
-              echo 'Validating project dependency tree...'
-              bst --error-lines 200 --message-lines 20 show image/image.bst || { echo 'Project validation failed'; exit 1; }
-
-              echo 'Tracking element sources (fills missing refs; ABI-sensitive elements are pinned to stable branches/tags)'
-              bst --error-lines 200 --message-lines 20 source track --deps all image/image.bst || true
-
-              echo 'Building OS image with upstream artifact cache...'
-              bst --error-lines 200 --message-lines 20 build image/image.bst
-
-              echo 'Checking out compiled rootfs...'
-              bst artifact checkout image/image.bst --directory /workspace/rootfs
-            "
+            bash /workspace/.ci-build.sh
+          rm -f .ci-build.sh
 
       # R-IMG-1: the image IS the BuildStream rootfs. Nothing is merged into a
       # second distro. The previous design layered this rootfs over

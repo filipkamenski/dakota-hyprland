@@ -1,0 +1,30 @@
+# bootc install configuration for Dakota Hyprland (R-IMG-7).
+#
+# Read by `bootc install` from /usr/lib/bootc/install/*.toml, merged in
+# alphanumeric order (see bootc-install-config.5). Fields are kebab-case and
+# unknown keys are REJECTED (deny_unknown_fields), so keep this list to keys
+# that exist in the pinned bootc release's InstallConfiguration struct.
+#
+# The laptop this targets uses a LUKS-encrypted Btrfs root. Root setup is
+# handled by bootc itself, not by ostree-prepare-root: for a composefs
+# deployment bootc writes the `composefs=`/`composefs.digest` kargs and
+# 51bootc's bootc-root-setup.service (ConditionKernelCommandLine=|composefs)
+# assembles the root in the initramfs. /usr/lib/ostree/prepare-root.conf
+# additionally enables the ostree= path ([composefs] enabled = yes) so both
+# handoffs are covered. The default `direct` block backend plus systemd-boot
+# is what we want. Do NOT enable `discoverable-partitions` here: it omits the
+# `root=` karg and relies on systemd-gpt-auto-generator + BLI, and our
+# ESP/partition layout is not GPT-DPS-conformant.
+
+[install]
+# systemd-boot writes BLS entries onto the ESP. bootc's composefs backend
+# needs the Boot Loader Interface to report the deployed UKI, which
+# systemd-boot always provides.
+bootloader = "systemd"
+# Keep the stateroot name short and stable: it is part of the composefs
+# deployment path under /sysroot/state/deploy and of the ESP entry names.
+stateroot = "dakota"
+
+[install.filesystem.root]
+# Matches what the initramfs element loads (btrfs + dm_crypt + dm_mod).
+type = "btrfs"

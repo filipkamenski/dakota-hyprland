@@ -3,6 +3,11 @@ kind: compose
 depends:
   - filename: system/system-base.bst
     type: build
+  # R-IMG-4: dracut-generated initramfs for the single kernel tree. It must be
+  # part of the composed image before publish; the workflow gate refuses to
+  # ship an image without /usr/lib/modules/<kver>/initramfs.img.
+  - filename: system/initramfs.bst
+    type: build
   - filename: compositor/hyprland.bst
     type: build
   - filename: compositor/xdg-desktop-portal-hyprland.bst
