@@ -54,18 +54,34 @@ jobs:
       # ("State not set"), so a 4.5 h cold build cached nothing and the next run
       # was cold again. Only successfully-built elements enter the local cache,
       # so saving on failure is safe and saves the whole rebuild.
+      # R-CI-4: the primary key MUST carry github.run_id. actions/cache/save is
+      # immutable -- it refuses to overwrite an existing key. Without run_id,
+      # run 39284279800 has the SAME key as the 42 s run 39279994856 (neither
+      # project.conf nor elements/**/*.bst changed between them, only this
+      # workflow file, and hashFiles() does not read it), so its save would be
+      # rejected and hours of compiled artifacts silently dropped. restore-keys
+      # still walk the prefix chain, so the run_id suffix costs nothing on
+      # restore.
+      #
+      # Only artifacts/ and sources/ are cached. artifacts/ is content-addressed
+      # (a stale entry can never be used for a changed element, it is simply
+      # never referenced) and sources/ is the fetched tarball store; both are
+      # replay-safe. build/ is scratch and logs/ is noise -- caching them is what
+      # would push the archive toward actions/cache's 10 GB ceiling.
       - name: Restore BuildStream Artifact Store
         id: bst-cache
         uses: actions/cache/restore@v4
         with:
-          path: ~/.cache/buildstream
-          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}
-          # The artifact store is content-addressed: a stale entry can never be
-          # used for a changed element, it is simply never referenced. So a
-          # prefix restore is always safe and is what keeps a one-element edit
-          # from recompiling LLVM: without it, ANY change to elements/**/*.bst
-          # changes the key above and guarantees a full cold build.
+          path: |
+            ~/.cache/buildstream/artifacts
+            ~/.cache/buildstream/sources
+          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}
+          # Content-addressed store, so a prefix restore is always safe and is
+          # what keeps a one-element edit from recompiling LLVM: without it, ANY
+          # change to elements/**/*.bst changes the key hash and guarantees a
+          # full cold build. Longest prefix first.
           restore-keys: |
+            bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-
             bst2-${{ runner.os }}-
 
       - name: Build OS Rootfs via BuildStream
@@ -112,8 +128,31 @@ jobs:
             bst --error-lines 200 --message-lines 20 source track $OURS || true
           fi
 
-          echo 'Building OS image with upstream artifact cache...'
-          bst --error-lines 200 --message-lines 20 build image/image.bst
+          # R-CI-4: GitHub kills a job hard at 360 min, and a kill at that
+          # moment can cut actions/cache/save off mid-upload -- which is how a
+          # 6 h run saves nothing. Cap the build at 300 min so a full hour is
+          # left to compress and upload the store. timeout returns 124 and
+          # `set -eu` aborts the script here, so the compose/gate steps are
+          # skipped (they would only choke on a partial rootfs) while the
+          # always() save step still runs. Re-dispatch to resume: bst reuses
+          # every artifact already in the store.
+          echo 'Building OS image (300 min cap; artifacts persist between runs)...'
+          # `set +e` around the call on purpose: inside `if ! cmd; then ...`,
+          # $? is the status of the NEGATION (always 0), so `rc=$?` there would
+          # report success on a timeout. Capture it directly instead.
+          set +e
+          timeout --signal=TERM --kill-after=60 300m \
+            bst --error-lines 200 --message-lines 20 build image/image.bst
+          rc=$?
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+              echo '::warning::300 min build cap reached - partial artifacts are cached; re-dispatch this workflow to resume'
+            else
+              echo "bst build failed with exit code $rc"
+            fi
+            exit "$rc"
+          fi
 
           echo 'Checking out compiled rootfs...'
           bst artifact checkout image/image.bst --directory /workspace/rootfs
@@ -255,10 +294,20 @@ jobs:
       # Runs even when the build or the gate failed: only successfully built
       # elements sit in ~/.cache/buildstream, and re-using them is what keeps
       # follow-up runs at ~1 h instead of a 4.5 h cold rebuild.
+      # actions/cache/save hard-fails path validation when a declared path does
+      # not exist ("Path(s) specified in the action for caching do(es) not
+      # exist", total_count: 0 -- the 39168905786 symptom). A run that dies
+      # before bst ever writes a store must still save an empty-but-valid one.
+      - name: Ensure BuildStream cache dirs exist
+        if: always()
+        run: mkdir -p "$HOME/.cache/buildstream/artifacts" "$HOME/.cache/buildstream/sources"
+
       - name: Save BuildStream Artifact Store
         if: always()
         continue-on-error: true
         uses: actions/cache/save@v4
         with:
-          path: ~/.cache/buildstream
-          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}
+          path: |
+            ~/.cache/buildstream/artifacts
+            ~/.cache/buildstream/sources
+          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}
