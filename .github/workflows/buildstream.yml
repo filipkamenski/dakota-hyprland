@@ -106,6 +106,19 @@ jobs:
           # which is exactly the kind of quoting that silently mangles a build.
           cat > .ci-build.sh <<'BSTSCRIPT'
           set -eu
+          # R-CI-4 follow-up (run 39520007505 died at 3.2 min, before a single
+          # element was built): the RESTORED store is extracted by the runner
+          # user (uid 1001) while bst runs as root in this container, and git
+          # refuses any command inside a repository owned by another uid:
+          #   fatal: detected dubious ownership in repository at
+          #   /root/.cache/buildstream/sources/git/gitlab_freedesktop_sdk_...
+          # That killed `Loading elements` (the junction mirror is read at load
+          # time), so three fetch retries and exit 255. Caching sources/ is
+          # still right (256 source-cache hits last run) -- the container's own
+          # git config is what has to accept the mixed-ownership store. --system
+          # (/etc/gitconfig) because it must not depend on $HOME, and it lives
+          # only inside this ephemeral container.
+          git config --system --add safe.directory '*' || true
           echo 'Validating project dependency tree...'
           bst --error-lines 200 --message-lines 20 show image/image.bst
 
