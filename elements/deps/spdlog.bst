@@ -16,5 +16,8 @@ variables:
 sources:
   - kind: git
     url: https://github.com/gabime/spdlog.git
-    track: v1.x
+    # Real tag, not the glob `v1.x`: core bst git tracks a ref name, not a
+    # pattern (see elements/system/bootc.bst), and `assert_ref()` compares the
+    # track against `git tag --list`, so a glob there is `[ref-not-in-track]`.
+    track: v1.15.2
     ref: v1.15.2

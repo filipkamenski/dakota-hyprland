@@ -112,9 +112,11 @@ jobs:
           # R-CI-4: track OUR elements only. `--deps all` also re-tracked the
           # freedesktop-sdk junction's elements, moving every FDS source off the
           # ref the release artifacts were built from. That changes their cache
-          # keys; more importantly we cannot use the FDS cache at all (see the
-          # 11001/11004 note in project.conf), so the junction must simply stay
-          # pinned. Our own elements still get their missing refs filled.
+          # keys, and the pins are exactly what the :11001 remote hits are keyed
+          # on (measured on run 39294187312: 225 of 536 artifacts served), so
+          # the junction stays pinned. Our own elements still get their missing
+          # refs filled — but `track` there must be a real ref name, never a
+          # glob (see the bootc.bst comment for what `v*` costs).
           echo 'Tracking sources of our own elements only...'
           # `bst show --format` exists, but the option must come AFTER the
           # subcommand — `bst --format X show` is parsed as a top-level option

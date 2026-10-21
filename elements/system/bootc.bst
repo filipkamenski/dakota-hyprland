@@ -3,7 +3,14 @@ kind: make
 sources:
 - kind: git
   url: https://github.com/bootc-dev/bootc.git
-  track: v*
+  # `track` must be a real ref name (branch or tag): core bst's git source
+  # resolves it with `git rev-parse`, so the glob `v*` failed in run
+  # 39294187312 with "Unable to find revision v*". The "highest matching tag"
+  # behaviour does not exist in core `git` — it belongs to the `git_repo` plugin
+  # gnome-build-meta/FDS vendor. Tracking the EXACT tag matters: a working glob
+  # would have re-tracked this element onto release-1.17.2, a silent bump past
+  # the pin in versions.yaml.
+  track: v1.17.1
   ref: v1.17.1-0-gd01e723
 - kind: cargo2
   ref:
