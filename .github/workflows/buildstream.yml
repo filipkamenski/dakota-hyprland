@@ -144,26 +144,33 @@ jobs:
             bst --error-lines 200 --message-lines 20 source track $OURS || true
           fi
 
-          # R-CI-4: GitHub kills a job hard at 360 min, and a kill at that
-          # moment can cut actions/cache/save off mid-upload -- which is how a
-          # 6 h run saves nothing. Cap the build at 300 min so a full hour is
-          # left to compress and upload the store. timeout returns 124 and
-          # `set -eu` aborts the script here, so the compose/gate steps are
-          # skipped (they would only choke on a partial rootfs) while the
-          # always() save step still runs. Re-dispatch to resume: bst reuses
-          # every artifact already in the store.
-          echo 'Building OS image (300 min cap; artifacts persist between runs)...'
+          # R-CI-4: a pass is only worth what it SAVES at the end, so the build
+          # cap is really a loss window. Two ways a pass has been thrown away,
+          # both observed:
+          #   - the 300 min cap lands and actions/cache/save is cut off mid-run;
+          #   - the RUNNER IS LOST mid-step (run 43100647488: job killed at
+          #     163 min with the build step still in_progress, an EMPTY log
+          #     archive, and every later step left `pending` -- so the save steps
+          #     never ran and 163 min of compilation vanished).
+          # At a 300 min cap one preemption can therefore cost five hours. 150
+          # min bounds the loss to ~2.5 h and costs only ~10 min of fixed
+          # overhead per pass: the total work is unchanged because bst resumes
+          # from the store on the next dispatch, and it banks the store twice as
+          # often. timeout returns 124 and `set -eu` aborts the script here, so
+          # the compose/gate steps are skipped (they would only choke on a
+          # partial rootfs) while the always() save step still runs.
+          echo 'Building OS image (150 min cap; artifacts persist between runs)...'
           # `set +e` around the call on purpose: inside `if ! cmd; then ...`,
           # $? is the status of the NEGATION (always 0), so `rc=$?` there would
           # report success on a timeout. Capture it directly instead.
           set +e
-          timeout --signal=TERM --kill-after=60 300m \
+          timeout --signal=TERM --kill-after=60 150m \
             bst --error-lines 200 --message-lines 20 build image/image.bst
           rc=$?
           set -e
           if [ "$rc" -ne 0 ]; then
             if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
-              echo '::warning::300 min build cap reached - partial artifacts are cached; re-dispatch this workflow to resume'
+              echo '::warning::150 min build cap reached - partial artifacts are cached; re-dispatch this workflow to resume'
             else
               echo "bst build failed with exit code $rc"
             fi
@@ -369,7 +376,7 @@ jobs:
 
       # Step conclusions cannot tell you whether the store survived, so state it
       # explicitly: losing a warming pass's store is the difference between
-      # 'resume in ~1 h' and 'redo 300 min from zero'.
+      # 'resume in ~1 h' and 'redo the whole build cap from zero'.
       - name: Verify BuildStream Artifact Store Was Saved
         if: always()
         run: |
