@@ -192,8 +192,18 @@ jobs:
       - name: Compose Image from the FDS Rootfs (single userspace)
         run: |
           set -eu
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:latest"
+          # :latest is reserved for a push to main. Every other trigger that
+          # reaches this step (a workflow_dispatch on a branch) publishes to
+          # :test instead, so an unverified branch build can be pulled and
+          # booted without ever replacing the release tag.
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            PUBLISH_TAG=latest
+          else
+            PUBLISH_TAG=test
+          fi
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/dakota-hyprland:$PUBLISH_TAG"
           echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
+          echo "publish target: $IMAGE_NAME"
           # Build debris only — never another distro's files:
           sudo rm -rf rootfs/usr/lib/debug rootfs/usr/src
           sudo find rootfs -name "*.debug" -type f -delete 2>/dev/null || true
@@ -284,8 +294,11 @@ jobs:
           echo "boot-readiness gate: PASS"
 
       - name: Publish Image to GHCR
-        # Only a push to main may publish: never a PR, never a branch dispatch.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # :latest is only ever written by a push to main. A workflow_dispatch on
+        # a branch publishes the same image to :test so it can be pulled and
+        # booted without moving the release tag; PRs never publish (and never
+        # log in to GHCR, above).
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         run: |
           # A bootc image without bootc is not deployable, and an image without
           # an initramfs cannot assemble a LUKS+Btrfs root. Both are separate
