@@ -85,6 +85,7 @@ jobs:
             bst2-${{ runner.os }}-
 
       - name: Build OS Rootfs via BuildStream
+        id: bst-build
         run: |
           mkdir -p rootfs
           # R-CI-4: the artifact store MUST live on the host. Without this mount
@@ -331,6 +332,7 @@ jobs:
         run: mkdir -p "$HOME/.cache/buildstream/artifacts" "$HOME/.cache/buildstream/sources"
 
       - name: Save BuildStream Artifact Store
+        id: bst-save
         if: always()
         continue-on-error: true
         uses: actions/cache/save@v4
@@ -339,3 +341,48 @@ jobs:
             ~/.cache/buildstream/artifacts
             ~/.cache/buildstream/sources
           key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}
+
+      # The save above is the ONLY thing that carries hours of compilation into
+      # the next run, and it can fail while the step still reports GREEN. Run
+      # 43050817110 lost a whole 300-min pass that way: the reserve call hit a
+      # transient backend fault --
+      #   Attempt 1..4 of 5 failed: Unexpected token 'u', "upstream c"... is not
+      #   valid JSON  ->  Failed to save: Unable to reserve cache with key ...
+      #   ##[warning]Cache save failed.
+      # -- and `continue-on-error: true` turned it into a green step, so the run
+      # looked like an ordinary warming pass while the store was dropped
+      # entirely (the caches API showed total_count: 0).
+      # Retry with a FRESH key suffix: cache keys are immutable, so re-using the
+      # same key after a half-finished reservation can never succeed.
+      # (`steps.bst-save.outcome` is the result BEFORE continue-on-error, which
+      # is why it is the reliable signal here -- `conclusion` is not.)
+      - name: Retry BuildStream Artifact Store Save (fresh key)
+        id: bst-save-retry
+        if: always() && steps.bst-save.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/buildstream/artifacts
+            ~/.cache/buildstream/sources
+          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}-r1
+
+      # Step conclusions cannot tell you whether the store survived, so state it
+      # explicitly: losing a warming pass's store is the difference between
+      # 'resume in ~1 h' and 'redo 300 min from zero'.
+      - name: Verify BuildStream Artifact Store Was Saved
+        if: always()
+        run: |
+          echo "save outcome:        ${{ steps.bst-save.outcome }}"
+          echo "save retry outcome:  ${{ steps.bst-save-retry.outcome }}"
+          echo "build step outcome:  ${{ steps.bst-build.outcome }}"
+          if [ "${{ steps.bst-save.outcome }}" = "failure" ] \
+             && [ "${{ steps.bst-save-retry.outcome }}" = "failure" ]; then
+            echo "::warning::both artifact-store saves failed (R-CI-4)"
+            # A run that finished the build and published is not a failure even
+            # if the store did not save; a warming pass that dropped it is.
+            if [ "${{ steps.bst-build.outcome }}" != "success" ]; then
+              echo "::error::this run compiled for hours and the artifact store was dropped by the cache backend -- the next run restarts COLD (R-CI-4)"
+              exit 1
+            fi
+          fi
