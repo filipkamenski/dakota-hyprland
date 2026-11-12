@@ -63,16 +63,31 @@ jobs:
       # still walk the prefix chain, so the run_id suffix costs nothing on
       # restore.
       #
-      # Only artifacts/ and sources/ are cached. artifacts/ is content-addressed
-      # (a stale entry can never be used for a changed element, it is simply
-      # never referenced) and sources/ is the fetched tarball store; both are
-      # replay-safe. build/ is scratch and logs/ is noise -- caching them is what
-      # would push the archive toward actions/cache's 10 GB ceiling.
+      # Store paths are enumerated in the block below. Only replay-safe trees are
+      # cached: the CAS + artifact refs (content-addressed, so a stale entry can
+      # never be used for a changed element, it is simply never referenced) and
+      # the fetched sources. build/ is scratch and logs/ is noise -- caching them
+      # is what would push the archive toward actions/cache's 10 GB ceiling.
+      # THE STORE PATHS, from BuildStream 2.8.1's own _context.py:
+      #   casdir      = <cachedir>/cas             <- EVERY artifact's payload
+      #   artifactdir = <cachedir>/artifacts/refs  <- refs pointing into the CAS
+      #   sourcedir   = <cachedir>/sources         <- fetched tarballs
+      #   builddir    = <cachedir>/build           <- scratch, must NOT be cached
+      # `artifactdir: ${XDG_CACHE_HOME}/buildstream/artifacts` is the BuildStream
+      # 1.x layout; 2.x replaced it with `cachedir` + a CAS. Caching `artifacts`
+      # alone saved only refs: runs 43123944146/43142583233/43159907188 each
+      # archived ~1594 MB that was SOURCES ONLY -- pass 4's save (1671121316 B)
+      # and pass 5's (1671105831 B) landed within 15 KB of each other while 173
+      # more elements were "cached successfully" in between -- so every pass was
+      # a silent cold rebuild and the build could never converge. `cas` is the
+      # path that carries compiled elements between runs; the run log now prints
+      # the layout so this can never drift unnoticed again.
       - name: Restore BuildStream Artifact Store
         id: bst-cache
         uses: actions/cache/restore@v4
         with:
           path: |
+            ~/.cache/buildstream/cas
             ~/.cache/buildstream/artifacts
             ~/.cache/buildstream/sources
           key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}
@@ -336,7 +351,19 @@ jobs:
       # before bst ever writes a store must still save an empty-but-valid one.
       - name: Ensure BuildStream cache dirs exist
         if: always()
-        run: mkdir -p "$HOME/.cache/buildstream/artifacts" "$HOME/.cache/buildstream/sources"
+        run: |
+          mkdir -p "$HOME/.cache/buildstream/cas" \
+                   "$HOME/.cache/buildstream/artifacts" \
+                   "$HOME/.cache/buildstream/sources"
+
+      # Ground truth for the paths above: sizes and file counts, not conclusions.
+      - name: Show BuildStream store layout
+        if: always()
+        run: |
+          du -sh "$HOME/.cache/buildstream"/* 2>/dev/null || true
+          echo "cas blobs:      $(find "$HOME/.cache/buildstream/cas" -type f 2>/dev/null | wc -l)"
+          echo "artifact refs:  $(find "$HOME/.cache/buildstream/artifacts" -type f 2>/dev/null | wc -l)"
+          echo "cached sources: $(find "$HOME/.cache/buildstream/sources" -type f 2>/dev/null | wc -l)"
 
       - name: Save BuildStream Artifact Store
         id: bst-save
@@ -345,6 +372,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
+            ~/.cache/buildstream/cas
             ~/.cache/buildstream/artifacts
             ~/.cache/buildstream/sources
           key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}
@@ -370,6 +398,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
+            ~/.cache/buildstream/cas
             ~/.cache/buildstream/artifacts
             ~/.cache/buildstream/sources
           key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}-r1
