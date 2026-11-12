@@ -32,7 +32,7 @@ bootc:
   repo: https://github.com/bootc-dev/bootc
   tag: v1.17.1          # same version Dakota builds in-tree; NO element in this repo yet (see R-IMG-2)
 freedesktop-sdk:
-  tag: freedesktop-sdk-26.08.1
-  ref: b02b59ffe19a49a402f357fd5fcb1d552ebc50d7
+  tag: freedesktop-sdk-26.08.4
+  ref: 114ae909ec9881958bd507c8b4414aa33f758d2b
 scroll_layout:
   plan: native-only     # plugin path removed: upstream archived, incompatible with native scrolling
