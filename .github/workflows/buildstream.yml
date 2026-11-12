@@ -139,24 +139,8 @@ jobs:
           if [ -n "$OURS" ]; then
             bst --error-lines 200 --message-lines 20 source track $OURS || true
           fi
-          # ==== MEASUREMENT B (TEMPORARY, measurement-only dispatch) ============
-          # Our pin (FDS 26.08.1) is three weeks stale and every public cache has
-          # evicted its artifacts; the newest release is 26.08.4. Measure the SAME
-          # graph at 26.08.4 in an ISOLATED copy with its OWN store, so the repo's
-          # pin is untouched, nothing can build at that ref, and B's numbers are
-          # not inflated by artifacts A already pulled. If coverage follows the
-          # release cadence, this is the CI unblock -- but moving the pin is a
-          # BOM decision, so this dispatch deliberately never reaches the build.
-          rm -rf /tmp/probe-new && cp -a /workspace /tmp/probe-new
-          cd /tmp/probe-new
-          sed -i 's/ref: b02b59ffe19a49a402f357fd5fcb1d552ebc50d7/ref: 114ae909ec9881958bd507c8b4414aa33f758d2b/' elements/freedesktop-sdk.bst
-          echo 'junction B now pins:'; grep -E 'track:|ref:' elements/freedesktop-sdk.bst
-          echo '=== MEASUREMENT B: pull at FDS 26.08.4 (114ae909) ==='
-          XDG_CACHE_HOME=/tmp/cacheB bst artifact pull --deps all image/image.bst 2>&1 | tee /workspace/.probe-new.log || true
-          cd /workspace
-          # ==== MEASUREMENT A: baseline at our pinned 26.08.1 ====================
           bst show --format '%{name}' --deps all image/image.bst > /workspace/.probe-graph.txt
-          echo '=== MEASUREMENT A: pull at our pinned FDS 26.08.1 ==='
+          echo '=== pulling every artifact the configured remotes can serve ==='
           bst artifact pull --deps all image/image.bst 2>&1 | tee /workspace/.probe.log || true
           PROBESCRIPT
           docker run --privileged --rm \
@@ -176,19 +160,6 @@ jobs:
           grep -oE 'Pulled artifact [^ ]+ <- [^ ]+' .probe.log 2>/dev/null | awk '{print $NF}' | sort | uniq -c | sort -rn || true
           echo "misses per remote:"
           grep -oE 'Remote \([^)]+\) does not have artifact' .probe.log 2>/dev/null | sed -E 's/Remote \((.*)\) does not.*/\1/' | sort | uniq -c | sort -rn || true
-          echo
-          echo "=== MEASUREMENT B (FDS 26.08.4, isolated store) ==="
-          BHITS=$(grep -c 'Pulled artifact' .probe-new.log || true); BHITS=${BHITS:-0}
-          BMISS=$(grep -c 'does not have artifact' .probe-new.log || true); BMISS=${BMISS:-0}
-          echo "B remote hits:   $BHITS"
-          echo "B remote misses: $BMISS"
-          echo "B hits per remote:"
-          grep -oE 'Pulled artifact [^ ]+ <- [^ ]+' .probe-new.log 2>/dev/null | awk '{print $NF}' | sort | uniq -c | sort -rn | head -6 || true
-          echo "B pipeline summary:"
-          grep -A3 'Pipeline Summary' .probe-new.log 2>/dev/null | tail -4 || true
-          echo
-          echo "::warning::MEASUREMENT-ONLY dispatch (temporary commit): stopping before the build on purpose, so no image is built at an unapproved FDS ref"
-          exit 1
           # A probe that queried nothing is a DIAGNOSTIC failure, not a coverage
           # result -- never let one be reported as the other (run 43290865828
           # printed "hits: 0, misses: 0" because the pull aborted on an
