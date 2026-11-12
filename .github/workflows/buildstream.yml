@@ -124,6 +124,21 @@ jobs:
           cat > .ci-probe.sh <<'PROBESCRIPT'
           set -eu
           git config --system --add safe.directory '*' || true
+          # `bst artifact pull` RESOLVES THE WHOLE PIPELINE and refuses an
+          # inconsistent one, so the refs tracking block that normally runs
+          # inside the build step has to run here first: `shell/greetd.bst`
+          # carries a cargo source whose `ref` only exists after
+          # `bst source track` fills it (run 43290865828 died in 3 s on
+          # "Inconsistent pipeline ... cargo source ... is missing ref" having
+          # queried zero remotes). Same filter as the build step: our elements
+          # only, never the junction.
+          echo 'Tracking sources of our own elements (required before the pull)...'
+          OURS=$(bst show --format '%{name}' --deps all image/image.bst \
+                 | grep -v '\.bst:' \
+                 | grep -vxE 'freedesktop-sdk\.bst|plugins/buildstream-plugins-community\.bst' || true)
+          if [ -n "$OURS" ]; then
+            bst --error-lines 200 --message-lines 20 source track $OURS || true
+          fi
           bst show --format '%{name}' --deps all image/image.bst > /workspace/.probe-graph.txt
           echo '=== pulling every artifact the configured remotes can serve ==='
           bst artifact pull --deps all image/image.bst 2>&1 | tee /workspace/.probe.log || true
@@ -137,15 +152,25 @@ jobs:
           HITS=$(grep -c 'Pulled artifact' .probe.log || true)
           MISSES=$(grep -c 'does not have artifact' .probe.log || true)
           HITS=${HITS:-0}; MISSES=${MISSES:-0}
+          QUERIED=$((HITS + MISSES))
           echo "graph elements:  $GRAPH"
           echo "remote hits:     $HITS"
           echo "remote misses:   $MISSES"
           echo "served by:"; grep -oE 'https://[^ ]+' .probe.log 2>/dev/null | sed 's/:.*//' | sort | uniq -c | sort -rn | head -5 || true
+          # A probe that queried nothing is a DIAGNOSTIC failure, not a coverage
+          # result -- never let one be reported as the other (run 43290865828
+          # printed "hits: 0, misses: 0" because the pull aborted on an
+          # inconsistent pipeline, and 0/0 reads exactly like "cache is empty").
+          if [ "$QUERIED" -eq 0 ]; then
+            echo "::error::the pull queried no artifacts at all -- probe/diagnostic failure, not a coverage measurement"
+            grep -m3 -A3 'Inconsistent pipeline\|FAILURE' .probe.log 2>/dev/null || true
+            exit 1
+          fi
           # To finish inside one job the build may use ~300 min => <= ~400
           # elements at the measured ~1.35 elements/min. Require 200 hits so the
           # remainder has real headroom.
           if [ "$HITS" -lt 200 ]; then
-            echo "::error::only $HITS of $GRAPH graph elements are served by the configured remotes -- building the other $MISSES cannot finish in one job, so the pass is stopped before spending the build window"
+            echo "::error::only $HITS of $QUERIED queried elements are served by the configured remotes -- building the rest cannot finish in one job, so the pass is stopped before spending the build window"
             exit 1
           fi
           echo "coverage is good: $HITS served remotely, ~$MISSES left to build"
