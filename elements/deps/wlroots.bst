@@ -19,7 +19,6 @@ depends:
 sources:
   - kind: git
     url: https://gitlab.freedesktop.org/wlroots/wlroots.git
-    track: 0.20
     ref: d783533489e1f75d6886c2ab5c5960090ef268f8
 
 variables:

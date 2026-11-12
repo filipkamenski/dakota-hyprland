@@ -16,7 +16,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/Qalculate/libqalculate.git
-    track: master
     ref: v5.5.0
 
 variables:

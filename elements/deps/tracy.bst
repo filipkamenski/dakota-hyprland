@@ -9,5 +9,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/wolfpld/tracy.git
-    track: master
     ref: 05cceee0df3b8d7c6fa87e9638af311dbabc63cb

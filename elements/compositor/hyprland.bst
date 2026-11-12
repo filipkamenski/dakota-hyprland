@@ -53,17 +53,14 @@ sources:
     base-dir: Hyprland-0.56.2
   - kind: git
     url: https://github.com/hyprwm/hyprland-protocols.git
-    track: main
     ref: v0.7.1
     directory: subprojects/hyprland-protocols
   - kind: git
     url: https://github.com/canihavesomecoffee/udis86.git
-    track: master
     ref: 5336633af70f3917760a6d441ff02d93477b0c86
     directory: subprojects/udis86
   - kind: git
     url: https://github.com/wolfpld/tracy.git
-    track: master
     ref: 05cceee0df3b8d7c6fa87e9638af311dbabc63cb
     directory: subprojects/tracy
 

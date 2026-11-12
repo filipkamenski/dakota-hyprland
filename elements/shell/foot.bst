@@ -17,7 +17,6 @@ depends:
 sources:
   - kind: git
     url: https://codeberg.org/dnkl/foot.git
-    track: master
     ref: 1.9.2
 
 variables:

@@ -23,5 +23,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprpaper.git
-    track: main
     ref: v0.8.4

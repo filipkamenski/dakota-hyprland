@@ -9,7 +9,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/Kistler-Group/sdbus-cpp.git
-    track: master
     ref: v2.3.1
 
 variables:

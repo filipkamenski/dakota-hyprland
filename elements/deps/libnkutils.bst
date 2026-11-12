@@ -10,5 +10,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/sardemff7/libnkutils.git
-    track: master
     ref: 72bd7fb07f627a864e724639eea9fab6cccbd77c

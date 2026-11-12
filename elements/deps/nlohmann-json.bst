@@ -7,5 +7,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/nlohmann/json.git
-    track: master
     ref: v3.12.0

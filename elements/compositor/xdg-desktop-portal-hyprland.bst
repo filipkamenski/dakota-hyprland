@@ -26,7 +26,6 @@ variables:
 sources:
   - kind: git
     url: https://github.com/hyprwm/xdg-desktop-portal-hyprland.git
-    track: master
     ref: v1.4.1
     checkout-submodules: true
 config:

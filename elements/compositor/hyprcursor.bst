@@ -17,5 +17,4 @@ variables:
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprcursor.git
-    track: main
     ref: v0.1.13

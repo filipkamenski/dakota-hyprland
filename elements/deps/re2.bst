@@ -10,7 +10,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/google/re2.git
-    track: main
     ref: 2024-07-02
 
 variables:

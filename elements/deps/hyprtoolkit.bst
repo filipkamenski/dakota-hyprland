@@ -24,5 +24,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprtoolkit.git
-    track: main
     ref: v0.6.0

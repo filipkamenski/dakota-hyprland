@@ -48,7 +48,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/noctalia-dev/noctalia.git
-    track: main
     ref: v5.1.0
 
 variables:

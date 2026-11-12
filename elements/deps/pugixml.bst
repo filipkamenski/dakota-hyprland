@@ -7,7 +7,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/zeux/pugixml.git
-    track: master
     ref: v1.15
 
 variables:

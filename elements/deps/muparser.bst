@@ -8,7 +8,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/beltoforion/muparser.git
-    track: master
     ref: v2.3.4
 
 variables:

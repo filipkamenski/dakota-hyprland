@@ -7,7 +7,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/jemalloc/jemalloc.git
-    track: master
     ref: 5.3.0
 
 variables:

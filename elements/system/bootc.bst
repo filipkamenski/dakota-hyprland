@@ -10,7 +10,6 @@ sources:
   # gnome-build-meta/FDS vendor. Tracking the EXACT tag matters: a working glob
   # would have re-tracked this element onto release-1.17.2, a silent bump past
   # the pin in versions.yaml.
-  track: v1.17.1
   ref: v1.17.1-0-gd01e723
 - kind: cargo2
   ref:

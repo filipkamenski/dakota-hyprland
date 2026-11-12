@@ -13,7 +13,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/libsndfile/libsndfile.git
-    track: master
     ref: 1.2.2
 
 variables:

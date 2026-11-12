@@ -11,7 +11,6 @@ depends:
 sources:
   - kind: git
     url: https://gitlab.gnome.org/GNOME/mm-common.git
-    track: master
     ref: 1.0.8
   - kind: local
     path: elements/deps/files/mm-common-doctags

@@ -21,5 +21,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/Alexays/Waybar.git
-    track: master
     ref: 0.11.0

@@ -8,5 +8,4 @@ depends:
 sources:
   - kind: git
     url: https://codeberg.org/dnkl/tllist.git
-    track: master
     ref: 1.1.0

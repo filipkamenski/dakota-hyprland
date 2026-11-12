@@ -25,5 +25,4 @@ variables:
 sources:
   - kind: git
     url: https://github.com/hyprwm/aquamarine.git
-    track: main
     ref: v0.15.0

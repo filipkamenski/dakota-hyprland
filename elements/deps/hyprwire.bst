@@ -12,7 +12,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprwire.git
-    track: main
     ref: v0.3.1
 
 variables:

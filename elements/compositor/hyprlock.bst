@@ -26,5 +26,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprlock.git
-    track: main
     ref: v0.9.6

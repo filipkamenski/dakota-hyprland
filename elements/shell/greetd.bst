@@ -15,7 +15,6 @@ depends:
 sources:
   - kind: git
     url: https://git.sr.ht/~kennylevinsen/greetd
-    track: master
     ref: 0.9.0
   - kind: cargo
     cargo-lock: Cargo.lock

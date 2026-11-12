@@ -9,7 +9,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprwayland-scanner.git
-    track: main
     ref: v0.4.6
 
 environment:

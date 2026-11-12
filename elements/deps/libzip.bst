@@ -13,7 +13,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/nih-at/libzip.git
-    track: main
     ref: v1.11.4
 
 variables:

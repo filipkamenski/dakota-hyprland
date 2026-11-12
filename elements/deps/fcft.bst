@@ -19,5 +19,4 @@ variables:
 sources:
   - kind: git
     url: https://codeberg.org/dnkl/fcft.git
-    track: master
     ref: 3.3.3

@@ -246,11 +246,14 @@ jobs:
           #   - 2026-11-12: a 150 min cap made things WORSE, because a pass that
           #     cannot clear the FDS bootstrap chain banks nothing at all;
           #   - the job limit is 360 min and compose/gate/publish need ~30, so
-          #     330 min is the most build time a publishing pass can have.
+          #     300 min is the most build time a publishing pass can have and still
+          #     fit the publish inside the limit. A build with good cache coverage
+          #     is ~2 h (104 elements), so 300 is ample; a pass needing more is
+          #     failing anyway, and a job killed at 360 loses the publish outright.
           # timeout returns 124 and `set -eu` aborts the script here, so the
           # compose/gate steps are skipped (they would only choke on a partial
           # rootfs) while the always() save step still runs.
-          echo 'Building OS image (330 min cap; artifacts persist between runs)...'
+          echo 'Building OS image (300 min cap; artifacts persist between runs)...'
           # `set +e` around the call on purpose: inside `if ! cmd; then ...`,
           # $? is the status of the NEGATION (always 0), so `rc=$?` there would
           # report success on a timeout. Capture it directly instead.

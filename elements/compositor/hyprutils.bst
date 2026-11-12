@@ -9,5 +9,4 @@ depends:
 sources:
   - kind: git
     url: https://github.com/hyprwm/hyprutils.git
-    track: main
     ref: v0.14.2

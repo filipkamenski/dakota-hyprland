@@ -11,7 +11,6 @@ depends:
 sources:
   - kind: git
     url: https://github.com/stephenberry/glaze.git
-    track: main
     ref: v7.2.0
 
 config:
