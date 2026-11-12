@@ -156,7 +156,10 @@ jobs:
           echo "graph elements:  $GRAPH"
           echo "remote hits:     $HITS"
           echo "remote misses:   $MISSES"
-          echo "served by:"; grep -oE 'https://[^ ]+' .probe.log 2>/dev/null | sed 's/:.*//' | sort | uniq -c | sort -rn | head -5 || true
+          echo "served by (hits per remote):"
+          grep -oE 'Pulled artifact [^ ]+ <- [^ ]+' .probe.log 2>/dev/null | awk '{print $NF}' | sort | uniq -c | sort -rn || true
+          echo "misses per remote:"
+          grep -oE 'Remote \([^)]+\) does not have artifact' .probe.log 2>/dev/null | sed -E 's/Remote \((.*)\) does not.*/\1/' | sort | uniq -c | sort -rn || true
           # A probe that queried nothing is a DIAGNOSTIC failure, not a coverage
           # result -- never let one be reported as the other (run 43290865828
           # printed "hits: 0, misses: 0" because the pull aborted on an
