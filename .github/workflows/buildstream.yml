@@ -99,6 +99,57 @@ jobs:
             bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-
             bst2-${{ runner.os }}-
 
+      # A pass can only produce an image if it FINISHES the graph by itself. The
+      # CAS reaches 26-28 GB while GitHub allows 10 GB of cache per repository,
+      # so nothing accumulates across runs (2026-11-12: four passes, 61-107
+      # elements each, zero banked). One shape is left -- pull everything the
+      # remotes still hold, then build only the remainder inside a single job.
+      # This probe measures that coverage BEFORE spending the build window and
+      # fails the run fast when it is too low to finish, instead of burning five
+      # hours to learn the same thing. It also warms the local store, so the
+      # build that follows transfers nothing twice.
+      - name: Probe Remote Artifact-Cache Coverage
+        id: bst-probe
+        run: |
+          set -eu
+          mkdir -p "$HOME/.cache/buildstream"
+          docker build -t bst-runner -f- . <<'DOCKERFILE'
+          FROM python:3.11-slim
+          RUN apt-get update && apt-get install -y --no-install-recommends \
+              git build-essential bubblewrap lzip xz-utils unzip bzip2 && \
+              rm -rf /var/lib/apt/lists/*
+          RUN pip install --no-cache-dir "buildstream>=2.5" buildstream-plugins \
+              buildstream-plugins-community "dulwich" requests tomlkit
+          DOCKERFILE
+          cat > .ci-probe.sh <<'PROBESCRIPT'
+          set -eu
+          git config --system --add safe.directory '*' || true
+          bst show --format '%{name}' --deps all image/image.bst > /workspace/.probe-graph.txt
+          echo '=== pulling every artifact the configured remotes can serve ==='
+          bst artifact pull --deps all image/image.bst 2>&1 | tee /workspace/.probe.log || true
+          PROBESCRIPT
+          docker run --privileged --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "$HOME/.cache/buildstream:/root/.cache/buildstream" \
+            -w /workspace bst-runner bash /workspace/.ci-probe.sh
+          rm -f .ci-probe.sh
+          GRAPH=$(grep -v '\.bst:' .probe-graph.txt | grep -vcxE 'freedesktop-sdk\.bst|plugins/.*\.bst' || true)
+          HITS=$(grep -c 'Pulled artifact' .probe.log || true)
+          MISSES=$(grep -c 'does not have artifact' .probe.log || true)
+          HITS=${HITS:-0}; MISSES=${MISSES:-0}
+          echo "graph elements:  $GRAPH"
+          echo "remote hits:     $HITS"
+          echo "remote misses:   $MISSES"
+          echo "served by:"; grep -oE 'https://[^ ]+' .probe.log 2>/dev/null | sed 's/:.*//' | sort | uniq -c | sort -rn | head -5 || true
+          # To finish inside one job the build may use ~300 min => <= ~400
+          # elements at the measured ~1.35 elements/min. Require 200 hits so the
+          # remainder has real headroom.
+          if [ "$HITS" -lt 200 ]; then
+            echo "::error::only $HITS of $GRAPH graph elements are served by the configured remotes -- building the other $MISSES cannot finish in one job, so the pass is stopped before spending the build window"
+            exit 1
+          fi
+          echo "coverage is good: $HITS served remotely, ~$MISSES left to build"
+
       - name: Build OS Rootfs via BuildStream
         id: bst-build
         run: |
@@ -159,33 +210,30 @@ jobs:
             bst --error-lines 200 --message-lines 20 source track $OURS || true
           fi
 
-          # R-CI-4: a pass is only worth what it SAVES at the end, so the build
-          # cap is really a loss window. Two ways a pass has been thrown away,
-          # both observed:
-          #   - the 300 min cap lands and actions/cache/save is cut off mid-run;
-          #   - the RUNNER IS LOST mid-step (run 43100647488: job killed at
-          #     163 min with the build step still in_progress, an EMPTY log
-          #     archive, and every later step left `pending` -- so the save steps
-          #     never ran and 163 min of compilation vanished).
-          # At a 300 min cap one preemption can therefore cost five hours. 150
-          # min bounds the loss to ~2.5 h and costs only ~10 min of fixed
-          # overhead per pass: the total work is unchanged because bst resumes
-          # from the store on the next dispatch, and it banks the store twice as
-          # often. timeout returns 124 and `set -eu` aborts the script here, so
-          # the compose/gate steps are skipped (they would only choke on a
-          # partial rootfs) while the always() save step still runs.
-          echo 'Building OS image (150 min cap; artifacts persist between runs)...'
+          # R-CI-4: a pass is only worth what it can finish. Nothing survives a
+          # run (the CAS hits 26-28 GB against GitHub's 10 GB cache limit), so
+          # every pass that is going to produce an image must complete the whole
+          # remainder by itself inside this job. The probe step above guarantees
+          # the remainder is small enough to fit; this cap is the job budget.
+          #   - 2026-11-12: a 150 min cap made things WORSE, because a pass that
+          #     cannot clear the FDS bootstrap chain banks nothing at all;
+          #   - the job limit is 360 min and compose/gate/publish need ~30, so
+          #     330 min is the most build time a publishing pass can have.
+          # timeout returns 124 and `set -eu` aborts the script here, so the
+          # compose/gate steps are skipped (they would only choke on a partial
+          # rootfs) while the always() save step still runs.
+          echo 'Building OS image (330 min cap; artifacts persist between runs)...'
           # `set +e` around the call on purpose: inside `if ! cmd; then ...`,
           # $? is the status of the NEGATION (always 0), so `rc=$?` there would
           # report success on a timeout. Capture it directly instead.
           set +e
-          timeout --signal=TERM --kill-after=60 150m \
+          timeout --signal=TERM --kill-after=60 330m \
             bst --error-lines 200 --message-lines 20 build image/image.bst
           rc=$?
           set -e
           if [ "$rc" -ne 0 ]; then
             if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
-              echo '::warning::150 min build cap reached - partial artifacts are cached; re-dispatch this workflow to resume'
+              echo '::warning::330 min build cap reached - partial artifacts are cached; re-dispatch this workflow to resume'
             else
               echo "bst build failed with exit code $rc"
             fi
