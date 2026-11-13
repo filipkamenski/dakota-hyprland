@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Element to build. Empty = the whole image (image/image.bst). Set a single element (e.g. system/initramfs.bst) to iterate on one failure in ~3 min instead of after a full pass has compiled everything ahead of it.'
+        required: false
+        default: ''
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,6 +19,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # Every bst invocation below targets this. Empty dispatch input (or a push
+      # event, where `inputs` is empty) falls back to the whole image, so the
+      # compose/verify/publish steps only ever run for a full build.
+      BST_TARGET: ${{ inputs.target || 'image/image.bst' }}
     permissions:
       contents: read
       packages: write
@@ -133,25 +143,26 @@ jobs:
           # queried zero remotes). Same filter as the build step: our elements
           # only, never the junction.
           echo 'Tracking sources of our own elements (required before the pull)...'
-          OURS=$(bst show --format '%{name}' --deps all image/image.bst \
+          OURS=$(bst show --format '%{name}' --deps all "$BST_TARGET" \
                  | grep -v '\.bst:' \
                  | grep -vxE 'freedesktop-sdk\.bst|plugins/buildstream-plugins-community\.bst' || true)
           if [ -n "$OURS" ]; then
             bst --error-lines 200 --message-lines 20 source track $OURS || true
           fi
-          bst show --format '%{name}' --deps all image/image.bst > /workspace/.probe-graph.txt
+          bst show --format '%{name}' --deps all "$BST_TARGET" > /workspace/.probe-graph.txt
           echo '=== pulling every artifact the configured remotes can serve ==='
-          bst artifact pull --deps all image/image.bst 2>&1 | tee /workspace/.probe.log || true
+          bst artifact pull --deps all "$BST_TARGET" 2>&1 | tee /workspace/.probe.log || true
           # What still needs BUILDING (not what was pulled): artifacts restored
           # from actions/cache are already local, so counting remote pulls
           # mis-reads a healthy pass. No --format: bst's DEFAULT element format
           # already leads with the state column, so parsing column 1 does not
           # depend on getting a field name right. /workspace = host repo root.
-          bst show --deps all image/image.bst > /workspace/.probe-states.txt || true
+          bst show --deps all "$BST_TARGET" > /workspace/.probe-states.txt || true
           PROBESCRIPT
           docker run --privileged --rm \
             -v "${{ github.workspace }}:/workspace" \
             -v "$HOME/.cache/buildstream:/root/.cache/buildstream" \
+            -e BST_TARGET="$BST_TARGET" \
             -w /workspace bst-runner bash /workspace/.ci-probe.sh
           rm -f .ci-probe.sh
           GRAPH=$(grep -v '\.bst:' .probe-graph.txt | grep -vcxE 'freedesktop-sdk\.bst|plugins/.*\.bst' || true)
@@ -227,7 +238,7 @@ jobs:
           # only inside this ephemeral container.
           git config --system --add safe.directory '*' || true
           echo 'Validating project dependency tree...'
-          bst --error-lines 200 --message-lines 20 show image/image.bst
+          bst --error-lines 200 --message-lines 20 show "$BST_TARGET"
 
           # R-CI-4: track OUR elements only. `--deps all` also re-tracked the
           # freedesktop-sdk junction's elements, moving every FDS source off the
@@ -243,7 +254,7 @@ jobs:
           # and fails with "No such option '--format'", which is how run
           # 39279994856 died 42s in (fatal under `set -eu`). `|| true` keeps
           # tracking non-fatal either way.
-          OURS=$(bst show --format '%{name}' --deps all image/image.bst \
+          OURS=$(bst show --format '%{name}' --deps all "$BST_TARGET" \
                  | grep -v '\.bst:' \
                  | grep -vxE 'freedesktop-sdk\.bst|plugins/buildstream-plugins-community\.bst' || true)
           if [ -n "$OURS" ]; then
@@ -271,7 +282,7 @@ jobs:
           # report success on a timeout. Capture it directly instead.
           set +e
           timeout --signal=TERM --kill-after=60 330m \
-            bst --error-lines 200 --message-lines 20 build image/image.bst
+            bst --error-lines 200 --message-lines 20 build "$BST_TARGET"
           rc=$?
           set -e
           if [ "$rc" -ne 0 ]; then
@@ -284,11 +295,12 @@ jobs:
           fi
 
           echo 'Checking out compiled rootfs...'
-          bst artifact checkout image/image.bst --directory /workspace/rootfs
+          bst artifact checkout "$BST_TARGET" --directory /workspace/rootfs
           BSTSCRIPT
           docker run --privileged --rm \
             -v ${{ github.workspace }}:/workspace \
             -v "$HOME/.cache/buildstream:/root/.cache/buildstream" \
+            -e BST_TARGET="$BST_TARGET" \
             -w /workspace \
             bst-runner \
             bash /workspace/.ci-build.sh
@@ -304,6 +316,9 @@ jobs:
       # bash)"). Composing the rootfs alone removes the cause, not the symptom:
       # no base image is pulled, so no foreign userspace can ride along.
       - name: Compose Image from the FDS Rootfs (single userspace)
+        # A targeted dispatch builds one element to iterate on a failure; there is
+        # no image to compose in that case.
+        if: ${{ env.BST_TARGET == 'image/image.bst' }}
         run: |
           set -eu
           # :latest is reserved for a push to main. Every other trigger that
@@ -376,6 +391,7 @@ jobs:
       # gone this is a real exec again — inside the chimera it could not even
       # start bash, which is why the old gate had to read the tree from outside.
       - name: Verify Composed Image (boot-readiness gate)
+        if: ${{ env.BST_TARGET == 'image/image.bst' }}
         run: |
           set -x
           docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c '
@@ -412,7 +428,7 @@ jobs:
         # a branch publishes the same image to :test so it can be pulled and
         # booted without moving the release tag; PRs never publish (and never
         # log in to GHCR, above).
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+        if: ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch') && env.BST_TARGET == 'image/image.bst'
         run: |
           # A bootc image without bootc is not deployable, and an image without
           # an initramfs cannot assemble a LUKS+Btrfs root. Both are separate

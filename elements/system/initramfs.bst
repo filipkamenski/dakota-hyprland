@@ -52,13 +52,22 @@ build-depends:
 config:
   install-commands:
     - |
-      set -eu
+      set -eux
+      # `set -x` is deliberate: this block failed with NO stdout and NO stderr
+      # in run 43425111451 (exitcode 1 after ~7 s, 'Action output size 0 bytes'),
+      # which is not a shape any of the guards below can produce -- they all
+      # print. A trace makes the failing command explicit instead of inferred.
+      echo "initramfs: /usr/lib/modules contains:"
+      ls -la /usr/lib/modules 2>&1 || true
       install -d /tmp /var/tmp
 
       kver="$(ls -1 /usr/lib/modules)"
-      if [ "$(printf '%s\n' "$kver" | wc -l)" -ne 1 ]; then
+      # An empty kver is NOT caught by the line count: `printf '%s\n' ""` is one
+      # line, so wc -l would report 1 and the old guard would pass while every
+      # path below collapsed to /usr/lib/modules//...
+      if [ -z "$kver" ] || [ "$(printf '%s\n' "$kver" | wc -l)" -ne 1 ]; then
         echo "FATAL: expected exactly one kernel tree (bootc invariant), got:" >&2
-        printf '%s\n' "$kver" >&2
+        printf '[%s]\n' "$kver" >&2
         exit 1
       fi
       echo "initramfs: kernel ${kver}"
@@ -86,10 +95,13 @@ config:
         while IFS= read -r f; do
           ln -s "/usr/lib/modules/$kver/${f#./}" "$mroot/${f#./}"
         done )
-      "$depmod_bin" -b "$stage" -a "$kver"
+      "$depmod_bin" -b "$stage" -a "$kver" 2>&1 || { dep_rc=$?; \
+        echo "FATAL: depmod exited ${dep_rc} (see its output above)" >&2; exit 1; }
       if [ ! -s "$stage/lib/modules/$kver/modules.dep" ]; then
         echo "FATAL: depmod produced no modules.dep; dracut would silently" >&2
         echo "drop dm_crypt and every other module" >&2
+        echo "--- staged module tree was:" >&2
+        find "$mroot" -maxdepth 2 2>/dev/null | head -30 >&2 || true
         exit 1
       fi
       echo "initramfs: $(wc -l < "$stage/lib/modules/$kver/modules.dep") module dependency entries"
