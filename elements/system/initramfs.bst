@@ -19,7 +19,24 @@
 #
 # We cannot run depmod over /usr/lib/modules in place: those files come from
 # dependency artifacts and are read-only in the BuildStream sandbox. So we
-# mirror the tree with symlinks under /tmp and let depmod write there.
+# mirror the tree with symlinks under a staging dir and let depmod write there.
+#
+# TWO BUILD-SANDBOX FACTS — learned the hard way in runs 43425111451 and
+# 43430330226, do not re-learn them:
+#
+#   1. install-commands are NOT given build-depends. This element used to
+#      declare `build-depends:` only, so its install sandbox contained no
+#      dependency tree at all: /usr/lib/modules did not exist (`ls -la` of it
+#      printed nothing at all). It must use `depends:`. It has no
+#      build-commands, so a build-depends list was useless anyway.
+#
+#   2. The install sandbox root is READ-ONLY; only %{install-root} is writable.
+#      The previous version staged into /tmp/kmods and opened with
+#      `install -d /tmp /var/tmp`, which fails with NO output whatsoever — the
+#      silent death that made the first failure so hard to read. All staging now
+#      lives under %{install-root}/.kmods, dracut/lsinitrd get a TMPDIR there,
+#      and both dirs are deleted before the artifact is cached so no symlink
+#      into the read-only dependency tree ships in the image.
 
 kind: manual
 
@@ -28,13 +45,14 @@ description: |
   dracut modules plus dm_mod/dm_crypt/btrfs, and ships the depmod metadata
   the freedesktop-sdk kernel element does not produce.
 
-build-depends:
-  # The initramfs must be generated from the same tree that becomes the
-  # userspace: kernel, dracut, ostree (+ /etc/dracut.conf.d/ostree.conf),
-  # cryptsetup, libdevmapper, bootc (51bootc module) and the dracut drop-in
-  # from system-config.bst all arrive through system-base.bst. It is a build
-  # dependency, not a runtime one: only build dependencies are staged in the
-  # sandbox, and the image gets system-base through image.bst directly.
+depends:
+  # RUNTIME dependencies, deliberately not build-depends — install-commands only
+  # see these (sandbox fact 1). The initramfs must be generated from the same
+  # tree that becomes the userspace: kernel, dracut, ostree
+  # (+ /etc/dracut.conf.d/ostree.conf), cryptsetup, libdevmapper, bootc
+  # (51bootc module) and the dracut drop-in from system-config.bst all arrive
+  # through system-base.bst. The image receives system-base through image.bst as
+  # well, so this adds nothing to the image that was not already in it.
   - system/system-base.bst
   # bash + coreutils for dracut's module scripts and this element
   - freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
@@ -53,18 +71,18 @@ config:
   install-commands:
     - |
       set -eux
-      # `set -x` is deliberate: this block failed with NO stdout and NO stderr
-      # in run 43425111451 (exitcode 1 after ~7 s, 'Action output size 0 bytes'),
-      # which is not a shape any of the guards below can produce -- they all
-      # print. A trace makes the failing command explicit instead of inferred.
+      # %{install-root} is the only writable path in an install sandbox.
+      stage="%{install-root}/.kmods"
+      tmp="%{install-root}/.kmodtmp"
+      install -d "$stage" "$tmp"
+      export TMPDIR="$tmp"
+
       echo "initramfs: /usr/lib/modules contains:"
       ls -la /usr/lib/modules 2>&1 || true
-      install -d /tmp /var/tmp
-
       kver="$(ls -1 /usr/lib/modules)"
-      # An empty kver is NOT caught by the line count: `printf '%s\n' ""` is one
-      # line, so wc -l would report 1 and the old guard would pass while every
-      # path below collapsed to /usr/lib/modules//...
+      # An empty kver is NOT caught by a line count: `printf '%s\n' ""` is one
+      # line, so wc -l would report 1 while every path collapsed to
+      # /usr/lib/modules//...
       if [ -z "$kver" ] || [ "$(printf '%s\n' "$kver" | wc -l)" -ne 1 ]; then
         echo "FATAL: expected exactly one kernel tree (bootc invariant), got:" >&2
         printf '[%s]\n' "$kver" >&2
@@ -75,16 +93,15 @@ config:
       depmod_bin="$(command -v depmod || true)"
       [ -n "$depmod_bin" ] || depmod_bin=/usr/sbin/depmod
       if [ ! -x "$depmod_bin" ]; then
-        echo "FATAL: depmod not found (kmod is a build dependency)" >&2
+        echo "FATAL: depmod not found (kmod is a dependency)" >&2
         exit 1
       fi
 
-      # Mirror the module tree into a writable place. Directories are real,
-      # module inputs are symlinks: depmod/ libkmod resolve them by path
-      # while every byte of output lands outside the read-only dependency tree.
+      # Mirror the module tree into the writable stage. Directories are real,
+      # module inputs are symlinks: depmod/libkmod resolve them by path while
+      # every byte of output lands outside the read-only dependency tree.
       # Only the files depmod and dracut-install actually read are linked --
       # not vmlinuz, vmlinux, System.map or the build/source symlinks.
-      stage=/tmp/kmods
       mroot="$stage/lib/modules/$kver"
       install -d "$mroot"
       ( cd "/usr/lib/modules/$kver" &&
@@ -95,6 +112,7 @@ config:
         while IFS= read -r f; do
           ln -s "/usr/lib/modules/$kver/${f#./}" "$mroot/${f#./}"
         done )
+
       "$depmod_bin" -b "$stage" -a "$kver" 2>&1 || { dep_rc=$?; \
         echo "FATAL: depmod exited ${dep_rc} (see its output above)" >&2; exit 1; }
       if [ ! -s "$stage/lib/modules/$kver/modules.dep" ]; then
@@ -107,16 +125,20 @@ config:
       echo "initramfs: $(wc -l < "$stage/lib/modules/$kver/modules.dep") module dependency entries"
 
     - |
-      set -eu
+      set -eux
       kver="$(ls -1 /usr/lib/modules)"
-      stage=/tmp/kmods
+      stage="%{install-root}/.kmods"
+      tmp="%{install-root}/.kmodtmp"
+      export TMPDIR="$tmp"
       img="%{install-root}/usr/lib/modules/$kver/initramfs.img"
       install -d "%{install-root}/usr/lib/modules/$kver"
 
       # /etc/dracut.conf.d/10-bootc-base.conf (from system-config.bst) supplies
       # hostonly=no, the bootc module and the drivers; the flags are repeated
       # here so the module set cannot depend on a file being present.
+      # --tmpdir keeps dracut out of the read-only sandbox root.
       dracut --force --verbose --reproducible --no-machineid \
+             --tmpdir "$tmp" \
              --kmoddir "$stage/lib/modules/$kver" \
              --kver "$kver" \
              --add bootc \
@@ -127,9 +149,9 @@ config:
       test -s "$img" || { echo "FATAL: dracut produced no initramfs" >&2; exit 1; }
 
     - |
-      set -eu
+      set -eux
       kver="$(ls -1 /usr/lib/modules)"
-      stage=/tmp/kmods
+      stage="%{install-root}/.kmods"
       # Ship depmod's output with the image when the kernel artifact did not
       # already provide it, so on-device regeneration (bootc upgrades, kernel
       # updates) resolves modules exactly as this build did.
@@ -146,9 +168,10 @@ config:
       fi
 
     - |
-      set -eu
+      set -eux
       kver="$(ls -1 /usr/lib/modules)"
       img="%{install-root}/usr/lib/modules/$kver/initramfs.img"
+      export TMPDIR="%{install-root}/.kmodtmp"
 
       # Boot-readiness gate for the initramfs itself: the image is not
       # bootable unless the crypt stack, the ostree root handoff and bootc's
@@ -180,3 +203,7 @@ config:
       fi
 
       echo "initramfs: OK ($(printf '%s\n' "$listing" | wc -l) entries, $(du -h "$img" | cut -f1))"
+
+      # Staging must not ship: .kmods holds symlinks into the read-only
+      # dependency tree, which would dangle inside the finished image.
+      rm -rf "%{install-root}/.kmods" "%{install-root}/.kmodtmp"
