@@ -142,6 +142,12 @@ jobs:
           bst show --format '%{name}' --deps all image/image.bst > /workspace/.probe-graph.txt
           echo '=== pulling every artifact the configured remotes can serve ==='
           bst artifact pull --deps all image/image.bst 2>&1 | tee /workspace/.probe.log || true
+          # What still needs BUILDING (not what was pulled): artifacts restored
+          # from actions/cache are already local, so counting remote pulls
+          # mis-reads a healthy pass. No --format: bst's DEFAULT element format
+          # already leads with the state column, so parsing column 1 does not
+          # depend on getting a field name right. /workspace = host repo root.
+          bst show --deps all image/image.bst > /workspace/.probe-states.txt || true
           PROBESCRIPT
           docker run --privileged --rm \
             -v "${{ github.workspace }}:/workspace" \
@@ -166,10 +172,11 @@ jobs:
           # run 43332126454 failed with "0 of 252 queried" while ~505 of 589
           # elements were already present locally, because the previous pass's
           # store came back intact. That is the CAS fix (a0eafca) working.
-          bst show --format '%{state}' --deps all image/image.bst > /workspace/.probe-states.txt || true
-          echo '--- element states across the graph ---'
-          grep -v '^[[:space:]]*$' /workspace/.probe-states.txt | sort | uniq -c | sort -rn | head -8 || true
-          NEED=$(grep -v '^[[:space:]]*$' /workspace/.probe-states.txt | grep -civ 'cach' || true)
+          # The state query itself runs INSIDE the container (see .ci-probe.sh) --
+          # /workspace only exists there; the host sees this file as .probe-states.txt.
+          echo '--- element states across the graph (col 1 of bst default format) ---'
+          awk 'NF{print $1}' .probe-states.txt | sort | uniq -c | sort -rn | head -8 || true
+          NEED=$(awk 'NF{print $1}' .probe-states.txt | grep -civ 'cach' || true)
           NEED=${NEED:-9999}
           echo "elements still needing work: $NEED"
           # A pass may use 300 min of build time; at the measured ~1.35
