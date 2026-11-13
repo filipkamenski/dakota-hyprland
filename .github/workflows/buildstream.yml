@@ -132,6 +132,24 @@ jobs:
               buildstream-plugins-community "dulwich" requests tomlkit
           DOCKERFILE
           cat > .ci-probe.sh <<'PROBESCRIPT'
+          # --- keep the local CAS inside GitHub's actions/cache limit ---------------
+          # actions/cache caps a repository at 10 GB and evicts by LRU. This store reached
+          # 10.79 GB (the restore download in run 43496746021 says so), so restores became
+          # a coin flip: a "no-op" republish turned into an hour of rebuilding what had
+          # already been banked. The cause is bst's defaults -- quota: infinity, and
+          # cache-buildtrees: auto, which caches a full build tree for every FAILED build
+          # (we have had many, including a 68-minute kernel). quota makes bst prune its own
+          # CAS so the archive fits; cache-buildtrees stops the trees being written at all.
+          mkdir -p /root/.config
+          cat > /root/.config/buildstream.conf <<'EOFCONF'
+          cache:
+            quota: 8G
+            reserved-disk-space: 5%
+            low-watermark: 80%
+            pull-buildtrees: False
+            cache-buildtrees: never
+          EOFCONF
+
           set -eu
           git config --system --add safe.directory '*' || true
           # `bst artifact pull` RESOLVES THE WHOLE PIPELINE and refuses an
@@ -223,6 +241,24 @@ jobs:
           # inline inside `bash -c "..."` every $ and backslash needs escaping,
           # which is exactly the kind of quoting that silently mangles a build.
           cat > .ci-build.sh <<'BSTSCRIPT'
+          # --- keep the local CAS inside GitHub's actions/cache limit ---------------
+          # actions/cache caps a repository at 10 GB and evicts by LRU. This store reached
+          # 10.79 GB (the restore download in run 43496746021 says so), so restores became
+          # a coin flip: a "no-op" republish turned into an hour of rebuilding what had
+          # already been banked. The cause is bst's defaults -- quota: infinity, and
+          # cache-buildtrees: auto, which caches a full build tree for every FAILED build
+          # (we have had many, including a 68-minute kernel). quota makes bst prune its own
+          # CAS so the archive fits; cache-buildtrees stops the trees being written at all.
+          mkdir -p /root/.config
+          cat > /root/.config/buildstream.conf <<'EOFCONF'
+          cache:
+            quota: 8G
+            reserved-disk-space: 5%
+            low-watermark: 80%
+            pull-buildtrees: False
+            cache-buildtrees: never
+          EOFCONF
+
           set -eu
           # R-CI-4 follow-up (run 39520007505 died at 3.2 min, before a single
           # element was built): the RESTORED store is extracted by the runner
