@@ -340,6 +340,20 @@ jobs:
           sudo umount -f rootfs/dev rootfs/proc rootfs/sys 2>/dev/null || true
           sudo rm -rf rootfs/proc rootfs/sys rootfs/dev rootfs/run
           sudo mkdir -p rootfs/proc rootfs/sys rootfs/dev rootfs/run
+          # --- bootc/ostree deployment layout, REQUIRED to be switchable ---
+          # bootc's composefs upgrade builds an EROFS of this root and refuses an
+          # image without these entries. Reported verbatim by the owner's own
+          # `bootc switch` on the laptop (2026-11-13):
+          #   error: Switching: Composefs Switching: Performing Upgrade
+          #          Operation: Pulling composefs repository: Generating
+          #          bootable EROFS image: Directory entry "boot" does not exist
+          # /boot is the ESP mount point, /ostree the deployment store and
+          # /sysroot the physical-root mount point in a booted bootc system; all
+          # three are empty directories inside the image. The R-IMG-1 guard
+          # below used to assert /ostree and /sysroot were ABSENT, which is the
+          # opposite of what bootc needs — see the note there.
+          sudo mkdir -p rootfs/boot rootfs/ostree rootfs/sysroot
+          sudo chmod 0755 rootfs/boot rootfs/ostree rootfs/sysroot
           # ONE loader cache, generated from the FDS tree by FDS's own ldconfig.
           # A cache inherited from another distro is what sent every FDS binary
           # to el9's /lib64/libc.so.6 (criteria 3 and 4 below assert it is clean).
@@ -363,8 +377,15 @@ jobs:
           if sudo find rootfs -name '*el9*' -print | grep -q .; then
             echo "FATAL: el9 artefacts in the tree (R-IMG-1)"; sudo find rootfs -name '*el9*' | head; exit 1
           fi
-          [ ! -d rootfs/sysroot ] || { echo "FATAL: /sysroot present (R-IMG-1)"; exit 1; }
-          [ ! -d rootfs/ostree ] || { echo "FATAL: /ostree present (R-IMG-1)"; exit 1; }
+          # R-IMG-1's intent is "no foreign userspace rides along". It used to
+          # test that by asserting /sysroot and /ostree were ABSENT, because the
+          # el9-based chimera had them — but those directories are exactly what
+          # bootc requires, so the guard rejected the correct layout and had to
+          # go. What actually distinguishes the chimera is the el9 scan above,
+          # the loader checks below and the ld.so.cache check: those stay.
+          for d in boot ostree sysroot; do
+            [ -d "rootfs/$d" ] || { echo "FATAL: bootc requires /$d in the image (R-IMG-2)"; exit 1; }
+          done
           test -e rootfs/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 || { echo "FATAL: FDS loader missing"; exit 1; }
           if [ -e rootfs/usr/lib64/ld-linux-x86-64.so.2 ]; then
             [ "$(sudo readlink -f rootfs/usr/lib64/ld-linux-x86-64.so.2)" = "$(sudo readlink -f rootfs/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)" ] \
@@ -438,6 +459,15 @@ jobs:
             || { echo "FATAL: image has no /usr/lib/bootc payload — R-IMG-2 open, refusing to publish"; exit 1; }
           docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c "test -e /usr/lib/modules/$KVER/initramfs.img" \
             || { echo "FATAL: image has no initramfs.img — R-IMG-4 open, refusing to publish"; exit 1; }
+          # bootc's composefs upgrade refuses a root without these entries
+          # ("Generating bootable EROFS image: Directory entry \"boot\" does not
+          # exist"), which is how the owner's first `bootc switch` failed on
+          # 2026-11-13 — after the image had already been published. The compose
+          # step now creates them; this asserts it in the artifact itself.
+          for d in boot ostree sysroot; do
+            docker run --rm --entrypoint /usr/bin/bash "$IMAGE_NAME" -c "[ -d /$d ]" \
+              || { echo "FATAL: image has no /$d — bootc switch cannot use it; refusing to publish"; exit 1; }
+          done
           docker push "$IMAGE_NAME"
           # bootc's composefs backend can't read Docker schema2 config blobs on
           # switch (bootc-dev/bootc#1703, "blob unknown to registry"). Re-push the
