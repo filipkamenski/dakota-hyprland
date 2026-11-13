@@ -192,9 +192,14 @@ config:
       # ostree/prepare-root.conf is copied in by 50ostree's install() only when
       # the file exists in the real root, so its presence here also proves
       # /usr/lib/ostree/prepare-root.conf (composefs) made it into the tree.
+      #
+      # bootc's helper is usr/lib/bootc/initramfs-setup -- NOT
+      # "bootc-initramfs-setup", which this list asserted until run 43443916696
+      # failed the gate on it while lsinitrd showed the file present under its
+      # real path. Read the name off the generated image, not off memory.
       for want in dm-crypt.ko btrfs.ko cryptsetup ostree-prepare-root \
                   ostree/prepare-root.conf \
-                  bootc-initramfs-setup bootc-root-setup.service; do
+                  bootc/initramfs-setup bootc-root-setup.service; do
         printf '%s\n' "$listing" | grep -q -- "$want" || missing="$missing $want"
       done
       if [ -n "$missing" ]; then
