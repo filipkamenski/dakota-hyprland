@@ -15,3 +15,4 @@ sources:
 variables:
   cmake-local: >-
     -DRE2_BUILD_TESTING=OFF
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5

@@ -25,3 +25,7 @@ sources:
   - kind: git
     url: https://github.com/hyprwm/hyprtoolkit.git
     ref: v0.6.0
+
+
+variables:
+  cmake-local: -DCMAKE_POLICY_VERSION_MINIMUM=3.5

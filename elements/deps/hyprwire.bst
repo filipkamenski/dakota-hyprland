@@ -17,3 +17,4 @@ sources:
 variables:
   cmake-local: >-
     -DBUILD_TESTS=OFF
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5

@@ -12,3 +12,4 @@ sources:
 variables:
   cmake-local: >-
     -DBUILD_MD2HTML_EXECUTABLE=OFF
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5

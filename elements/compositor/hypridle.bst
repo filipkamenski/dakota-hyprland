@@ -17,3 +17,7 @@ sources:
   - kind: git
     url: https://github.com/hyprwm/hypridle.git
     ref: v0.1.8
+
+
+variables:
+  cmake-local: -DCMAKE_POLICY_VERSION_MINIMUM=3.5

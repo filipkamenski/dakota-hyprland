@@ -24,3 +24,7 @@ sources:
   - kind: git
     url: https://github.com/hyprwm/hyprpaper.git
     ref: v0.8.4
+
+
+variables:
+  cmake-local: -DCMAKE_POLICY_VERSION_MINIMUM=3.5

@@ -20,7 +20,7 @@ depends:
   - compositor/hyprutils.bst
 
 variables:
-  cmake-local: -DCMAKE_PREFIX_PATH=/usr
+  cmake-local: -DCMAKE_PREFIX_PATH=/usr -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 sources:
   - kind: git

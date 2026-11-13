@@ -8,3 +8,7 @@ sources:
   - kind: git
     url: https://github.com/ndevilla/iniparser.git
     ref: v4.3.0
+
+
+variables:
+  cmake-local: -DCMAKE_POLICY_VERSION_MINIMUM=3.5

@@ -13,6 +13,7 @@ variables:
   cmake-local: >-
     -DBUILD_TESTS=OFF
     -DPUGIXML_BUILD_TESTS=OFF
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 config:
   install-commands:

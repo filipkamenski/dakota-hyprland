@@ -13,3 +13,7 @@ sources:
 
 environment:
   PKG_CONFIG_PATH: /usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib64/pkgconfig
+
+
+variables:
+  cmake-local: -DCMAKE_POLICY_VERSION_MINIMUM=3.5
