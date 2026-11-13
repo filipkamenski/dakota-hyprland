@@ -22,6 +22,9 @@ depends:
   - freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
   - freedesktop-sdk.bst:components/gettext.bst
   - freedesktop-sdk.bst:components/perl.bst
+  # intltool's configure hard-requires the XML::Parser perl module, which FDS's
+  # perl does not ship (run 43404687121 failed on exactly that check).
+  - deps/perl-xml-parser.bst
 
 sources:
   - kind: tar
