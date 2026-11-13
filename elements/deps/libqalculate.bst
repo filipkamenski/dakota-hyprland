@@ -2,6 +2,9 @@ kind: autotools
 
 depends:
   - freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
+  # libqalculate builds from git, so its own autogen.sh runs and hard-requires
+  # intltool (configure.ac:47 IT_PROG_INTLTOOL); freedesktop-sdk does not ship it.
+  - deps/intltool.bst
   - freedesktop-sdk.bst:components/gettext.bst
   - freedesktop-sdk.bst:components/libtool.bst
   - freedesktop-sdk.bst:components/gcc.bst
