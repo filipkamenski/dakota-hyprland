@@ -160,23 +160,28 @@ jobs:
           grep -oE 'Pulled artifact [^ ]+ <- [^ ]+' .probe.log 2>/dev/null | awk '{print $NF}' | sort | uniq -c | sort -rn || true
           echo "misses per remote:"
           grep -oE 'Remote \([^)]+\) does not have artifact' .probe.log 2>/dev/null | sed -E 's/Remote \((.*)\) does not.*/\1/' | sort | uniq -c | sort -rn || true
-          # A probe that queried nothing is a DIAGNOSTIC failure, not a coverage
-          # result -- never let one be reported as the other (run 43290865828
-          # printed "hits: 0, misses: 0" because the pull aborted on an
-          # inconsistent pipeline, and 0/0 reads exactly like "cache is empty").
-          if [ "$QUERIED" -eq 0 ]; then
-            echo "::error::the pull queried no artifacts at all -- probe/diagnostic failure, not a coverage measurement"
-            grep -m3 -A3 'Inconsistent pipeline\|FAILURE' .probe.log 2>/dev/null || true
+          # THE GATE IS "HOW MANY ELEMENTS STILL NEED BUILDING", not how many were
+          # pulled remotely. Artifacts restored from actions/cache are already
+          # local, so a healthy pass can legitimately perform ZERO remote pulls:
+          # run 43332126454 failed with "0 of 252 queried" while ~505 of 589
+          # elements were already present locally, because the previous pass's
+          # store came back intact. That is the CAS fix (a0eafca) working.
+          bst show --format '%{state}' --deps all image/image.bst > /workspace/.probe-states.txt || true
+          echo '--- element states across the graph ---'
+          grep -v '^[[:space:]]*$' /workspace/.probe-states.txt | sort | uniq -c | sort -rn | head -8 || true
+          NEED=$(grep -v '^[[:space:]]*$' /workspace/.probe-states.txt | grep -civ 'cach' || true)
+          NEED=${NEED:-9999}
+          echo "elements still needing work: $NEED"
+          # A pass may use 300 min of build time; at the measured ~1.35
+          # elements/min that is ~405 elements, so 380 leaves headroom.
+          if [ "$NEED" -eq 0 ] || [ "$NEED" -gt 380 ]; then
+            echo "::error::$NEED of $GRAPH elements still need building -- cannot finish inside one job (or the state query returned nothing); stopping before the build window"
+            if [ "$NEED" -eq 0 ]; then
+              echo "::error::state query produced no rows -- treat as a diagnostic failure, not a coverage result"
+            fi
             exit 1
           fi
-          # To finish inside one job the build may use ~300 min => <= ~400
-          # elements at the measured ~1.35 elements/min. Require 200 hits so the
-          # remainder has real headroom.
-          if [ "$HITS" -lt 200 ]; then
-            echo "::error::only $HITS of $QUERIED queried elements are served by the configured remotes -- building the rest cannot finish in one job, so the pass is stopped before spending the build window"
-            exit 1
-          fi
-          echo "coverage is good: $HITS served remotely, ~$MISSES left to build"
+          echo "coverage is good: $HITS pulled remotely, only $NEED elements left to build"
 
       - name: Build OS Rootfs via BuildStream
         id: bst-build
