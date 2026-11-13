@@ -426,8 +426,10 @@ jobs:
             if [ -e /usr/lib64/ld-linux-x86-64.so.2 ] && [ "$(readlink -f /usr/lib64/ld-linux-x86-64.so.2)" != "$(readlink -f /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)" ]; then
               echo "FATAL: /usr/lib64 loader is not the FDS loader"; exit 1
             fi
-            [ ! -e /sysroot ] || { echo "FATAL: /sysroot present"; exit 1; }
-            [ ! -e /ostree ]  || { echo "FATAL: /ostree present"; exit 1; }
+            # bootc needs these to exist; asserting their ABSENCE is exactly what
+            # made the first bootc switch fail ('Directory entry "boot" does not exist').
+            [ -d /boot ] && [ -d /ostree ] && [ -d /sysroot ] || { echo "FATAL: bootc needs /boot, /ostree and /sysroot in the image"; exit 1; }
+            
             if ldconfig -p | grep -q "/lib64/"; then echo "FATAL: ld.so.cache still has /lib64 paths"; ldconfig -p | grep "/lib64/" | head; exit 1; fi
             for b in /usr/bin/bash /usr/bin/systemctl /usr/bin/hyprland; do
               [ -e "$b" ] || { echo "MISSING: $b"; exit 1; }
