@@ -133,14 +133,54 @@ config:
       img="%{install-root}/usr/lib/modules/$kver/initramfs.img"
       install -d "%{install-root}/usr/lib/modules/$kver"
 
+      # --- library visibility, learned from run 43500181177 -----------------
+      # That run published an initramfs containing systemd, systemd-executor,
+      # both systemd shared libs and the loader -- but NO libc.so.6. PID 1
+      # therefore exited 127 and the kernel panicked ("Attempted to kill init!
+      # exitcode=0x00007f00", decoded from the drm_panic QR on the laptop).
+      #
+      # The libraries were in the sandbox; dracut could not RESOLVE them.
+      # freedesktop-sdk keeps them in the multiarch dir /usr/lib/x86_64-linux-gnu,
+      # which is reachable only through the ldconfig cache -- and this project
+      # generates that cache in the compose step, which runs AFTER this element.
+      # The sandbox's /etc/ld.so.conf holds only `include ld.so.conf.d/*.conf`
+      # and /etc/ld.so.conf.d does not exist, so the loader has no path to that
+      # directory at all. Hand dracut the search path explicitly (--libdirs) and
+      # ship a real cache + conf in the initramfs so on-device regeneration
+      # (bootc upgrades, kernel updates) resolves exactly as this build does.
+      libdirs="/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/systemd /usr/lib64 /usr/lib"
+      install -d "$stage/etc/ld.so.conf.d"
+      printf '%s\n' $libdirs > "$stage/etc/ld.so.conf"
+      printf '%s\n' $libdirs > "$stage/etc/ld.so.conf.d/00-dakota-libs.conf"
+      if command -v ldconfig >/dev/null 2>&1; then
+        # -f: use this conf instead of the sandbox's; -C: write the cache here,
+        # because only %{install-root} is writable in an install sandbox.
+        ldconfig -f "$stage/etc/ld.so.conf" -C "$stage/etc/ld.so.cache" \
+          > "$stage/ldconfig.log" 2>&1 || true
+        head -5 "$stage/ldconfig.log" || true
+      fi
+      echo "initramfs: library resolution diagnostics"
+      echo "  /etc/ld.so.conf: $(cat /etc/ld.so.conf 2>&1)"
+      echo "  /etc/ld.so.conf.d: $(ls /etc/ld.so.conf.d 2>&1)"
+      echo "  ldconfig -p entries: $(ldconfig -p 2>/dev/null | wc -l)"
+      echo "  sandbox libc: $(ls /usr/lib/x86_64-linux-gnu/libc.so.6 2>&1)"
+      echo "  generated cache: $(ls -la "$stage/etc/ld.so.cache" 2>&1)"
+      echo "  multiarch dir: $(ls /usr/lib/x86_64-linux-gnu 2>/dev/null | wc -l) entries"
+
       # /etc/dracut.conf.d/10-bootc-base.conf (from system-config.bst) supplies
       # hostonly=no, the bootc module and the drivers; the flags are repeated
       # here so the module set cannot depend on a file being present.
       # --tmpdir keeps dracut out of the read-only sandbox root.
+      # --libdirs is the actual fix for the missing libc: it tells dracut-install
+      # where to look for sonames when the ldconfig cache cannot answer.
       dracut --force --verbose --reproducible --no-machineid \
              --tmpdir "$tmp" \
              --kmoddir "$stage/lib/modules/$kver" \
              --kver "$kver" \
+             --libdirs "$libdirs" \
+             --include "$stage/etc/ld.so.conf" /etc/ld.so.conf \
+             --include "$stage/etc/ld.so.conf.d" /etc/ld.so.conf.d \
+             --include "$stage/etc/ld.so.cache" /etc/ld.so.cache \
              --add bootc \
              --add-drivers "dm_mod dm_crypt btrfs" \
              --xz \
@@ -206,6 +246,65 @@ config:
         echo "FATAL: initramfs missing:$missing" >&2
         exit 1
       fi
+
+      # --- boot-faithful closure check, added after run 43500181177 ----------
+      # File presence proves nothing about RUNNABILITY. That run shipped an
+      # initramfs in which every name asserted above was present -- dm-crypt.ko,
+      # cryptsetup, ostree-prepare-root, bootc/initramfs-setup -- and which still
+      # panicked at PID 1 with exitcode 0x7f00, because libc.so.6 was not in it.
+      # So: extract the initramfs and let ITS OWN dynamic loader resolve the
+      # libraries of the binaries PID 1 will execute. This is the check that
+      # fails loudly the next time the base libs go missing.
+      unpack="%{install-root}/.initrdcheck"
+      rm -rf "$unpack"; install -d "$unpack"
+      if ! ( cd "$unpack" && xz -dc "$img" | cpio -idm --quiet ); then
+        echo "FATAL: cannot extract the initramfs for the closure check" >&2
+        exit 1
+      fi
+      loader="/lib64/ld-linux-x86-64.so.2"
+      if [ ! -e "$unpack$loader" ]; then
+        echo "FATAL: the initramfs has no dynamic loader at $loader" >&2
+        exit 1
+      fi
+      unresolved=""
+      for b in /init /usr/lib/systemd/systemd /usr/lib/systemd/systemd-executor; do
+        if [ ! -e "$unpack$b" ]; then
+          unresolved="$unresolved $b(absent)"
+          continue
+        fi
+        # The chroot makes the loader see exactly what it will see at boot: this
+        # initramfs's own /etc/ld.so.cache and /etc/ld.so.conf.d. It is faithful
+        # because this build runs on x86_64, like the target. If the sandbox
+        # forbids chroot, fall back to a weaker but still real argument check.
+        if out="$(chroot "$unpack" "$loader" --list "$b" 2>&1)"; then
+          if printf '%s\n' "$out" | grep -q "not found"; then
+            unresolved="$unresolved $b"
+            echo "initramfs: $b does not resolve:" >&2
+            printf '%s\n' "$out" | grep "not found" >&2 || true
+          fi
+        else
+          echo "initramfs: chroot unavailable in this sandbox; using the" >&2
+          echo "           weaker SONAME-presence fallback for $b" >&2
+          for so in libc.so.6 libgcc_s.so.1 libsystemd-shared-261.so \
+                    libsystemd-core-261.so; do
+            if ! find "$unpack" -name "$so" | grep -q .; then
+              unresolved="$unresolved $b($so absent)"
+            fi
+          done
+        fi
+      done
+      # The exact regression: the C library itself.
+      if ! find "$unpack" -name 'libc.so.6' | grep -q .; then
+        unresolved="$unresolved libc.so.6(absent)"
+      fi
+      if [ -n "$unresolved" ]; then
+        echo "FATAL: this initramfs cannot run PID 1; unresolved:$unresolved" >&2
+        echo "--- lib dirs in the initramfs:" >&2
+        ls "$unpack/usr/lib/x86_64-linux-gnu" >&2 || true
+        ls "$unpack/usr/lib/x86_64-linux-gnu/systemd" >&2 || true
+        exit 1
+      fi
+      rm -rf "$unpack"
 
       echo "initramfs: OK ($(printf '%s\n' "$listing" | wc -l) entries, $(du -h "$img" | cut -f1))"
 
