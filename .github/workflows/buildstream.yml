@@ -138,12 +138,25 @@ jobs:
           # a coin flip: a "no-op" republish turned into an hour of rebuilding what had
           # already been banked. The cause is bst's defaults -- quota: infinity, and
           # cache-buildtrees: auto, which caches a full build tree for every FAILED build
-          # (we have had many, including a 68-minute kernel). quota makes bst prune its own
-          # CAS so the archive fits; cache-buildtrees stops the trees being written at all.
+          # (we have had many, including a 68-minute kernel). cache-buildtrees stops
+          # those trees being written at all. A quota bounds the store -- but beware:
+          # bst cannot prune artifacts the CURRENT session still needs, so a quota at or
+          # below the restored archive size fails the build instead of growing the store.
           mkdir -p /root/.config
           cat > /root/.config/buildstream.conf <<'EOFCONF'
           cache:
-            quota: 8G
+            # 32G, NOT 8G. Setting the quota just under actions/cache's 10 GB
+            # ceiling (the original 8G) guarantees zero headroom: the restored CAS
+            # arrives already at quota, so the first artifact that has to be
+            # written fails with "Cache too full" and the whole build stops.
+            # That is exactly what killed targeted run 43535175281 -- elements
+            # freedesktop-sdk.bst:components/dracut.bst and
+            # freedesktop-sdk.bst:bootstrap/go.bst both failed that way while the
+            # store already held 286 of 528 elements and 134 artifacts still
+            # needed pulling. Headroom is the point. If the resulting archive
+            # exceeds the 10 GB ceiling the save step fails, which costs a colder
+            # restore on the next run but never corrupts a build.
+            quota: 32G
             reserved-disk-space: 5%
             low-watermark: 80%
             pull-buildtrees: False
@@ -247,12 +260,25 @@ jobs:
           # a coin flip: a "no-op" republish turned into an hour of rebuilding what had
           # already been banked. The cause is bst's defaults -- quota: infinity, and
           # cache-buildtrees: auto, which caches a full build tree for every FAILED build
-          # (we have had many, including a 68-minute kernel). quota makes bst prune its own
-          # CAS so the archive fits; cache-buildtrees stops the trees being written at all.
+          # (we have had many, including a 68-minute kernel). cache-buildtrees stops
+          # those trees being written at all. A quota bounds the store -- but beware:
+          # bst cannot prune artifacts the CURRENT session still needs, so a quota at or
+          # below the restored archive size fails the build instead of growing the store.
           mkdir -p /root/.config
           cat > /root/.config/buildstream.conf <<'EOFCONF'
           cache:
-            quota: 8G
+            # 32G, NOT 8G. Setting the quota just under actions/cache's 10 GB
+            # ceiling (the original 8G) guarantees zero headroom: the restored CAS
+            # arrives already at quota, so the first artifact that has to be
+            # written fails with "Cache too full" and the whole build stops.
+            # That is exactly what killed targeted run 43535175281 -- elements
+            # freedesktop-sdk.bst:components/dracut.bst and
+            # freedesktop-sdk.bst:bootstrap/go.bst both failed that way while the
+            # store already held 286 of 528 elements and 134 artifacts still
+            # needed pulling. Headroom is the point. If the resulting archive
+            # exceeds the 10 GB ceiling the save step fails, which costs a colder
+            # restore on the next run but never corrupts a build.
+            quota: 32G
             reserved-disk-space: 5%
             low-watermark: 80%
             pull-buildtrees: False
