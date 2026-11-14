@@ -66,6 +66,10 @@ depends:
   - freedesktop-sdk.bst:components/sed.bst
   - freedesktop-sdk.bst:components/util-linux.bst
   - freedesktop-sdk.bst:components/xz.bst
+  # readelf, for the closure gate: it reads the NEEDED sonames of every ELF in
+  # the generated initramfs. Build-only -- this element's artifact is the
+  # initramfs image itself, so nothing binutils installs reaches the OS.
+  - freedesktop-sdk.bst:components/binutils.bst
 
 config:
   install-commands:
@@ -133,22 +137,47 @@ config:
       img="%{install-root}/usr/lib/modules/$kver/initramfs.img"
       install -d "%{install-root}/usr/lib/modules/$kver"
 
-      # --- library visibility, learned from run 43500181177 -----------------
-      # That run published an initramfs containing systemd, systemd-executor,
-      # both systemd shared libs and the loader -- but NO libc.so.6. PID 1
-      # therefore exited 127 and the kernel panicked ("Attempted to kill init!
-      # exitcode=0x00007f00", decoded from the drm_panic QR on the laptop).
+      # --- install the base libraries EXPLICITLY --------------------------
+      # --libdirs alone is not enough, and the run that proved it is
+      # 43536982459: with --libdirs the initramfs gained libbpf, libkmod,
+      # libzstd, liblzma, libnss_* and libgcc_s (those arrive through
+      # inst_libdir_file, a glob over $libdirs) but still had NO libc.so.6.
+      # dracut-resolved NEEDED sonames go through a different path -- the
+      # `dracut-install -l <soname>` resolver, which searches $libdir
+      # (/usr/lib64) and `ldconfig -p`. The sandbox has no /etc/ld.so.cache at
+      # all (only `include ld.so.conf.d/*.conf` with no conf.d), so that
+      # resolver finds nothing and the library is silently omitted.
       #
-      # The libraries were in the sandbox; dracut could not RESOLVE them.
-      # freedesktop-sdk keeps them in the multiarch dir /usr/lib/x86_64-linux-gnu,
-      # which is reachable only through the ldconfig cache -- and this project
-      # generates that cache in the compose step, which runs AFTER this element.
-      # The sandbox's /etc/ld.so.conf holds only `include ld.so.conf.d/*.conf`
-      # and /etc/ld.so.conf.d does not exist, so the loader has no path to that
-      # directory at all. Hand dracut the search path explicitly (--libdirs) and
-      # ship a real cache + conf in the initramfs so on-device regeneration
-      # (bootc upgrades, kernel updates) resolves exactly as this build does.
+      # So install the set by path, which cannot fail to copy. The list is not
+      # guessed: it was derived from the published initramfs by running
+      # readelf -d over every ELF inside it and keeping the sonames that were
+      # needed but absent (32 of 36 were missing; their own dependencies are
+      # included too). Anything still missing is caught by the closure gate
+      # below, which now walks EVERY binary in the initramfs.
       libdirs="/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/systemd /usr/lib64 /usr/lib"
+      export LD_LIBRARY_PATH="$libdirs"
+      base_libs="libc.so.6 libm.so.6 libresolv.so.2 libpthread.so.0 libdl.so.2 librt.so.1
+                 libgcc_s.so.1 libacl.so.1 libattr.so.1 libblkid.so.1 libmount.so.1
+                 libuuid.so.1 libsmartcols.so.1 libselinux.so.1 libpcre2-8.so.0
+                 libsystemd.so.0 libudev.so.1 libcom_err.so.2 libe2p.so.2 libext2fs.so.2
+                 libcomposefs.so.1 libcrypt.so.2 libcrypto.so.3 libelf.so.1
+                 libglib-2.0.so.0 libgio-2.0.so.0 libgobject-2.0.so.0 libkeyutils.so.1
+                 liblzo2.so.2 libreadline.so.8 libtinfo.so.6 libtinfow.so.6 liburcu.so.8
+                 libz.so.1 libzstd.so.1 liblzma.so.5 liblz4.so.1 libbpf.so.1 libkmod.so.2
+                 libnss_files.so.2 libnss_dns.so.2 libnss_compat.so.2"
+      include_args=""
+      copied=0
+      for so in $base_libs; do
+        for d in /usr/lib/x86_64-linux-gnu/systemd /usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib; do
+          if [ -e "$d/$so" ]; then
+            include_args="$include_args --include $d/$so $d/$so"
+            copied=$((copied + 1))
+            break
+          fi
+        done
+      done
+      echo "initramfs: installing $copied of $(printf '%s\n' $base_libs | wc -l) base libraries by path"
+
       install -d "$stage/etc/ld.so.conf.d"
       printf '%s\n' $libdirs > "$stage/etc/ld.so.conf"
       printf '%s\n' $libdirs > "$stage/etc/ld.so.conf.d/00-dakota-libs.conf"
@@ -181,6 +210,7 @@ config:
              --include "$stage/etc/ld.so.conf" /etc/ld.so.conf \
              --include "$stage/etc/ld.so.conf.d" /etc/ld.so.conf.d \
              --include "$stage/etc/ld.so.cache" /etc/ld.so.cache \
+             $include_args \
              --add bootc \
              --add-drivers "dm_mod dm_crypt btrfs" \
              --xz \
@@ -247,14 +277,18 @@ config:
         exit 1
       fi
 
-      # --- boot-faithful closure check, added after run 43500181177 ----------
-      # File presence proves nothing about RUNNABILITY. That run shipped an
-      # initramfs in which every name asserted above was present -- dm-crypt.ko,
-      # cryptsetup, ostree-prepare-root, bootc/initramfs-setup -- and which still
+      # --- complete closure check, replacing the original file-presence gate --
+      # File presence proves nothing about RUNNABILITY. Run 43500181177 shipped an
+      # initramfs in which every name asserted above was present and which still
       # panicked at PID 1 with exitcode 0x7f00, because libc.so.6 was not in it.
-      # So: extract the initramfs and let ITS OWN dynamic loader resolve the
-      # libraries of the binaries PID 1 will execute. This is the check that
-      # fails loudly the next time the base libs go missing.
+      # An earlier revision of this gate then checked four sonames on three
+      # binaries, which would ALSO have passed a tree missing cryptsetup's and
+      # ostree's dependencies. So: extract the initramfs, read the NEEDED sonames
+      # of EVERY ELF inside it, and require each one to be present as a file.
+      #
+      # readelf does the reading -- hence binutils in depends. It is a build-only
+      # dependency: this element's artifact is the initramfs image alone, so
+      # nothing binutils installs reaches the OS.
       unpack="%{install-root}/.initrdcheck"
       rm -rf "$unpack"; install -d "$unpack"
       if ! ( cd "$unpack" && xz -dc "$img" | cpio -idm --quiet ); then
@@ -266,45 +300,33 @@ config:
         echo "FATAL: the initramfs has no dynamic loader at $loader" >&2
         exit 1
       fi
-      unresolved=""
-      for b in /init /usr/lib/systemd/systemd /usr/lib/systemd/systemd-executor; do
-        if [ ! -e "$unpack$b" ]; then
-          unresolved="$unresolved $b(absent)"
-          continue
-        fi
-        # The chroot makes the loader see exactly what it will see at boot: this
-        # initramfs's own /etc/ld.so.cache and /etc/ld.so.conf.d. It is faithful
-        # because this build runs on x86_64, like the target. If the sandbox
-        # forbids chroot, fall back to a weaker but still real argument check.
-        if out="$(chroot "$unpack" "$loader" --list "$b" 2>&1)"; then
-          if printf '%s\n' "$out" | grep -q "not found"; then
-            unresolved="$unresolved $b"
-            echo "initramfs: $b does not resolve:" >&2
-            printf '%s\n' "$out" | grep "not found" >&2 || true
-          fi
-        else
-          echo "initramfs: chroot unavailable in this sandbox; using the" >&2
-          echo "           weaker SONAME-presence fallback for $b" >&2
-          for so in libc.so.6 libgcc_s.so.1 libsystemd-shared-261.so \
-                    libsystemd-core-261.so; do
-            if ! find "$unpack" -name "$so" | grep -q .; then
-              unresolved="$unresolved $b($so absent)"
-            fi
-          done
-        fi
+
+      needed="$stage/needed.txt"
+      : > "$needed"
+      scanned=0
+      find "$unpack" -type f 2>/dev/null | while IFS= read -r f; do
+        head -c 4 "$f" 2>/dev/null | grep -q ELF || continue
+        readelf -d "$f" 2>/dev/null | grep NEEDED | grep -o '\[.*\]' | tr -d '[]' >> "$needed"
       done
-      # The exact regression: the C library itself.
-      if ! find "$unpack" -name 'libc.so.6' | grep -q .; then
-        unresolved="$unresolved libc.so.6(absent)"
-      fi
+      sort -u "$needed" -o "$needed"
+      scanned="$(wc -l < "$needed")"
+      echo "initramfs: $scanned distinct sonames required by the binaries inside"
+
+      unresolved=""
+      while IFS= read -r so; do
+        [ -n "$so" ] || continue
+        find "$unpack" -name "$so" 2>/dev/null | grep -q . || unresolved="$unresolved $so"
+      done < "$needed"
       if [ -n "$unresolved" ]; then
-        echo "FATAL: this initramfs cannot run PID 1; unresolved:$unresolved" >&2
-        echo "--- lib dirs in the initramfs:" >&2
+        echo "FATAL: this initramfs cannot run PID 1; absent sonames:$unresolved" >&2
+        echo "--- what it does ship in the lib dirs:" >&2
         ls "$unpack/usr/lib/x86_64-linux-gnu" >&2 || true
         ls "$unpack/usr/lib/x86_64-linux-gnu/systemd" >&2 || true
         exit 1
       fi
       rm -rf "$unpack"
+
+      echo "initramfs: closure OK ($scanned sonames, all present)"
 
       echo "initramfs: OK ($(printf '%s\n' "$listing" | wc -l) entries, $(du -h "$img" | cut -f1))"
 
