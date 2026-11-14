@@ -137,46 +137,65 @@ config:
       img="%{install-root}/usr/lib/modules/$kver/initramfs.img"
       install -d "%{install-root}/usr/lib/modules/$kver"
 
-      # --- install the base libraries EXPLICITLY --------------------------
-      # --libdirs alone is not enough, and the run that proved it is
-      # 43536982459: with --libdirs the initramfs gained libbpf, libkmod,
-      # libzstd, liblzma, libnss_* and libgcc_s (those arrive through
-      # inst_libdir_file, a glob over $libdirs) but still had NO libc.so.6.
-      # dracut-resolved NEEDED sonames go through a different path -- the
-      # `dracut-install -l <soname>` resolver, which searches $libdir
-      # (/usr/lib64) and `ldconfig -p`. The sandbox has no /etc/ld.so.cache at
-      # all (only `include ld.so.conf.d/*.conf` with no conf.d), so that
-      # resolver finds nothing and the library is silently omitted.
+      # --- install the base libraries through dracut's OWN glob ------------
+      # Run 43550529102 showed the exact mechanism, in dracut's own words:
+      #     dracut-install: ERROR: could not locate dependency libc.so.6
+      #                     requested by '/usr/lib/x86_64-linux-gnu/libgcc_s.so.1'
+      #     dracut[E]: FAILED: dracut-install -D ... -l /usr/lib/x86_64-linux-gnu/libbpf.so.1
+      # Two things follow. First, `--include` on a *.so is NOT a copy: dracut
+      # routes it through the library installer (-l), which resolves the file's
+      # own NEEDED entries, cannot find them (the sandbox has no /etc/ld.so.cache
+      # and no /etc/ld.so.conf.d, so `ldconfig -p` is empty), and installs
+      # nothing. Second, `inst_libdir_file` (dracut-functions.sh:1338) does NOT
+      # resolve anything: it globs every directory in $libdirs for a file named
+      # exactly <soname> and copies it -- which is why libbpf, libkmod, libzstd,
+      # liblzma, libnss_* and libgcc_s DID reach the initramfs under --libdirs.
+      # Nothing was simply asking for libc.
       #
-      # So install the set by path, which cannot fail to copy. The list is not
-      # guessed: it was derived from the published initramfs by running
-      # readelf -d over every ELF inside it and keeping the sonames that were
-      # needed but absent (32 of 36 were missing; their own dependencies are
-      # included too). Anything still missing is caught by the closure gate
-      # below, which now walks EVERY binary in the initramfs.
+      # So ask, from a module of our own. dracut_module_path() looks in
+      # ${dracutbasedir}/modules.d/??<name>, so stage a symlinked dracutbasedir
+      # (the install sandbox root is read-only, /usr/lib/dracut cannot be
+      # written) and point dracut at it, re-sourcing the project's real conf so
+      # hostonly=no and the bootc module are not lost.
       libdirs="/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/systemd /usr/lib64 /usr/lib"
       export LD_LIBRARY_PATH="$libdirs"
-      base_libs="libc.so.6 libm.so.6 libresolv.so.2 libpthread.so.0 libdl.so.2 librt.so.1
-                 libgcc_s.so.1 libacl.so.1 libattr.so.1 libblkid.so.1 libmount.so.1
-                 libuuid.so.1 libsmartcols.so.1 libselinux.so.1 libpcre2-8.so.0
-                 libsystemd.so.0 libudev.so.1 libcom_err.so.2 libe2p.so.2 libext2fs.so.2
-                 libcomposefs.so.1 libcrypt.so.2 libcrypto.so.3 libelf.so.1
-                 libglib-2.0.so.0 libgio-2.0.so.0 libgobject-2.0.so.0 libkeyutils.so.1
-                 liblzo2.so.2 libreadline.so.8 libtinfo.so.6 libtinfow.so.6 liburcu.so.8
-                 libz.so.1 libzstd.so.1 liblzma.so.5 liblz4.so.1 libbpf.so.1 libkmod.so.2
-                 libnss_files.so.2 libnss_dns.so.2 libnss_compat.so.2"
-      include_args=""
-      copied=0
-      for so in $base_libs; do
-        for d in /usr/lib/x86_64-linux-gnu/systemd /usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib; do
-          if [ -e "$d/$so" ]; then
-            include_args="$include_args --include $d/$so $d/$so"
-            copied=$((copied + 1))
-            break
-          fi
-        done
+      sysdracut="$stage/dracut"
+      install -d "$sysdracut/modules.d"
+      for f in /usr/lib/dracut/*; do
+        [ "$(basename "$f")" = modules.d ] && continue
+        ln -sfn "$f" "$sysdracut/$(basename "$f")"
       done
-      echo "initramfs: installing $copied of $(printf '%s\n' $base_libs | wc -l) base libraries by path"
+      for f in /usr/lib/dracut/modules.d/*; do
+        ln -sfn "$f" "$sysdracut/modules.d/$(basename "$f")"
+      done
+      install -d "$sysdracut/modules.d/99dakota-base-libs"
+      cat > "$sysdracut/modules.d/99dakota-base-libs/module-setup.sh" <<'EOM'
+#!/bin/bash
+check() { return 0; }
+depends() { return 0; }
+install() {
+    # Sonames taken from readelf -d over every binary in the initramfs this
+    # project previously published: 32 of 36 required sonames were absent,
+    # including cryptsetup's libblkid/libcrypto and ostree's libcomposefs/libglib.
+    inst_libdir_file \
+        libc.so.6 libm.so.6 libresolv.so.2 libpthread.so.0 libdl.so.2 librt.so.1 \
+        libgcc_s.so.1 libacl.so.1 libattr.so.1 libblkid.so.1 libmount.so.1 \
+        libuuid.so.1 libsmartcols.so.1 libselinux.so.1 libpcre2-8.so.0 \
+        libsystemd.so.0 libudev.so.1 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 \
+        libcomposefs.so.1 libcrypt.so.2 libcrypto.so.3 libelf.so.1 \
+        libglib-2.0.so.0 libgio-2.0.so.0 libgobject-2.0.so.0 libkeyutils.so.1 \
+        liblzo2.so.2 libreadline.so.8 libtinfo.so.6 libtinfow.so.6 liburcu.so.8 \
+        libz.so.1 libzstd.so.1 liblzma.so.5 liblz4.so.1 libbpf.so.1 libkmod.so.2 \
+        libnss_files.so.2 libnss_dns.so.2 libnss_compat.so.2
+}
+EOM
+      chmod +x "$sysdracut/modules.d/99dakota-base-libs/module-setup.sh"
+      printf 'dracutbasedir="%s"\n' "$sysdracut" > "$stage/dracut.conf"
+      for f in /etc/dracut.conf /etc/dracut.conf.d/*.conf; do
+        [ -f "$f" ] && printf '. %s\n' "$f" >> "$stage/dracut.conf"
+      done
+      printf 'dracutbasedir="%s"\n' "$sysdracut" >> "$stage/dracut.conf"
+      echo "initramfs: staged dracutbasedir at $sysdracut with a base-libs module"
 
       install -d "$stage/etc/ld.so.conf.d"
       printf '%s\n' $libdirs > "$stage/etc/ld.so.conf"
@@ -197,21 +216,22 @@ config:
       echo "  multiarch dir: $(ls /usr/lib/x86_64-linux-gnu 2>/dev/null | wc -l) entries"
 
       # /etc/dracut.conf.d/10-bootc-base.conf (from system-config.bst) supplies
-      # hostonly=no, the bootc module and the drivers; the flags are repeated
-      # here so the module set cannot depend on a file being present.
+      # hostonly=no, the bootc module and the drivers. --conf is passed because
+      # it REPLACES the default configuration chain, so the staged conf re-sources
+      # those files itself and then re-asserts dracutbasedir last, so the staged
+      # module tree wins.
       # --tmpdir keeps dracut out of the read-only sandbox root.
-      # --libdirs is the actual fix for the missing libc: it tells dracut-install
-      # where to look for sonames when the ldconfig cache cannot answer.
+      # --libdirs is load-bearing: inst_libdir_file in our module globs $libdirs.
       dracut --force --verbose --reproducible --no-machineid \
              --tmpdir "$tmp" \
              --kmoddir "$stage/lib/modules/$kver" \
              --kver "$kver" \
+             --conf "$stage/dracut.conf" \
              --libdirs "$libdirs" \
              --include "$stage/etc/ld.so.conf" /etc/ld.so.conf \
              --include "$stage/etc/ld.so.conf.d" /etc/ld.so.conf.d \
              --include "$stage/etc/ld.so.cache" /etc/ld.so.cache \
-             $include_args \
-             --add bootc \
+             --add "bootc dakota-base-libs" \
              --add-drivers "dm_mod dm_crypt btrfs" \
              --xz \
              "$img"
@@ -241,6 +261,10 @@ config:
       set -eux
       kver="$(ls -1 /usr/lib/modules)"
       img="%{install-root}/usr/lib/modules/$kver/initramfs.img"
+      # stage is set by the dracut block, but each `install-commands` entry runs
+      # as its own shell: without this line `set -u` aborts the gate with
+      # "stage: unbound variable" one step after the extraction (run 43550529102).
+      stage="%{install-root}/.kmods"
       export TMPDIR="%{install-root}/.kmodtmp"
 
       # Boot-readiness gate for the initramfs itself: the image is not
