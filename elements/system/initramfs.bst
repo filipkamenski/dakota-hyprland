@@ -178,19 +178,27 @@ config:
       check() { return 0; }
       depends() { return 0; }
       install() {
-          # Sonames taken from readelf -d over every binary in the initramfs this
-          # project previously published: 32 of 36 required sonames were absent,
-          # including cryptsetup's libblkid/libcrypto and ostree's libcomposefs.
+          # TRANSITIVE closure of every ELF in the generated initramfs, resolved
+          # against the image's /usr/lib/x86_64-linux-gnu. Computed by running
+          # readelf -d over all 403 ELF seeds in a built initramfs and recursing
+          # through each resolved library: 40 sonames, none unresolvable.
+          #
+          # The previous hand-written list was one level deep and missed four
+          # dependencies of the libraries it added -- libeconf (systemd/pam),
+          # libffi and libgmodule (glib), libncursesw (readline/tinfo) -- which
+          # the closure gate caught in run 43553097474. Regenerate with the same
+          # readelf recursion if the initramfs ever gains a binary; the gate below
+          # is the net that will tell you.
           inst_libdir_file \
-              libc.so.6 libm.so.6 libresolv.so.2 libpthread.so.0 libdl.so.2 librt.so.1 \
-              libgcc_s.so.1 libacl.so.1 libattr.so.1 libblkid.so.1 libmount.so.1 \
-              libuuid.so.1 libsmartcols.so.1 libselinux.so.1 libpcre2-8.so.0 \
-              libsystemd.so.0 libudev.so.1 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 \
-              libcomposefs.so.1 libcrypt.so.2 libcrypto.so.3 libelf.so.1 \
-              libglib-2.0.so.0 libgio-2.0.so.0 libgobject-2.0.so.0 libkeyutils.so.1 \
-              liblzo2.so.2 libreadline.so.8 libtinfo.so.6 libtinfow.so.6 liburcu.so.8 \
-              libz.so.1 libzstd.so.1 liblzma.so.5 liblz4.so.1 libbpf.so.1 libkmod.so.2 \
-              libnss_files.so.2 libnss_dns.so.2 libnss_compat.so.2
+              libacl.so.1 libattr.so.1 libblkid.so.1 libc.so.6 libcom_err.so.2 \
+              libcomposefs.so.1 libcrypt.so.2 libcrypto.so.3 libe2p.so.2 libeconf.so.0 \
+              libelf.so.1 libext2fs.so.2 libffi.so.8 libgcc_s.so.1 libgio-2.0.so.0 \
+              libglib-2.0.so.0 libgmodule-2.0.so.0 libgobject-2.0.so.0 libkeyutils.so.1 \
+              liblzma.so.5 liblzo2.so.2 libm.so.6 libmount.so.1 libncursesw.so.6 \
+              libpcre2-8.so.0 libreadline.so.8 libresolv.so.2 libselinux.so.1 \
+              libsmartcols.so.1 libsystemd.so.0 libtinfo.so.6 libtinfow.so.6 \
+              libudev.so.1 liburcu.so.8 libuuid.so.1 libz.so.1 libzstd.so.1 \
+              ld-linux-x86-64.so.2 libsystemd-core-261.so libsystemd-shared-261.so
       }
       EOM
       chmod +x "$sysdracut/modules.d/99dakota-base-libs/module-setup.sh"
