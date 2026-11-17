@@ -150,6 +150,21 @@ redistribute may ship in the image.
   b. If a display is available: launch Hyprland headless, open 3 windows,
      assert scrolling geometry, assert Noctalia process alive after 10s.
   c. Image boots (if QEMU infra exists) to greetd within timeout.
+- Artifact cache: the build's CAS does not fit GitHub's 10 GB per-repo cache
+  ceiling (measured working set 26–28 GB, and it is evicted after ~21 days idle).
+  CI joins the tailnet with an ephemeral auth key from the `TS_AUTHKEY` secret and
+  banks the store on the Pi instead, at `http://100.99.220.10:11001`, published on
+  the Pi's tailnet address only — no LAN, no public hostname.
+  Protocol note (verified, not assumed): BuildStream 2 remote `artifacts:` caches
+  are REAPI over gRPC — `cache.freedesktop-sdk.io:11001` answers HTTP/2 — and
+  `bst-artifact-server` is a 1.x tool absent from 2.8.1 (`bst --version` → 2.8.1;
+  the command does not exist), with no REAPI CAS packaged for arm64 in debian
+  trixie or ubuntu 24.04/26.04. So this store speaks plain HTTP/1.1 and mirrors the
+  tar-based save/restore the pipeline already performs. A REAPI CAS stays a future
+  upgrade, not a prerequisite.
+  Reachability is proven by `.github/workflows/tailnet-smoke.yml`: run
+  `44109081071` logs `OK: pi5:2283 accepted a TCP connection over the tailnet`,
+  with the runner appearing as an ephemeral node and pi5 present in its peer list.
 - Version lockfile: `versions.yaml` pins Hyprland, Noctalia, noctalia-greeter
   (commit, never a branch), Quickshell, bootc and freedesktop-sdk. CI fails on
   unpinned drift.

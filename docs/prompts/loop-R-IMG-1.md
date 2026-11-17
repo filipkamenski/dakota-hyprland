@@ -23,7 +23,7 @@ repo or running a command.
 
 ## Target fix — R-IMG-1: the image must contain only FDS userspace
 
-Rule: the OCI image contains exactly one userland — freedesktop-sdk 26.08.1. No second
+Rule: the OCI image contains exactly one userland — freedesktop-sdk 26.08.4. No second
 distro, no second glibc, no second kernel tree.
 
 Observed violation (evidence from the published image, digest `sha256:2bfa2a6b…`):
