@@ -1,0 +1,61 @@
+name: Tailnet Smoke Test
+# Manual only: no push or PR trigger, so parking this on a branch starts nothing.
+# (In this repo a feature-branch push runs no workflow at all.)
+#
+# Purpose: prove that the repository secret TS_AUTHKEY can put a GitHub-hosted
+# runner on the tailnet, and that the runner can then reach pi5 (100.99.220.10)
+# over it, BEFORE any build pipeline depends on that path.
+#
+# Measured prerequisite (from the Pi, 2026-11-17): pi5's tailnet address serves
+# TCP to published docker ports -- 100.99.220.10:2283 -> HTTP 200, :8096 -> 302.
+# So a tailnet node reaching a published port is a valid end-to-end signal.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tailnet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Join the tailnet using the repo secret
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+      - name: Report who joined and whether pi5 is reachable
+        run: |
+          set -uo pipefail
+          # The action installs tailscale, but do not assume its PATH: resolve it
+          # so a PATH quirk is distinguishable from a failed join.
+          TS="$(command -v tailscale || true)"
+          if [ -z "$TS" ]; then
+            echo "tailscale not on PATH ($PATH); searching common locations"
+            TS="$(find /usr /opt /home -maxdepth 6 -name tailscale -type f -perm -u+x 2>/dev/null | head -1)"
+          fi
+          if [ -z "$TS" ]; then
+            echo "FATAL: the action step reported success but no tailscale binary was found."
+            echo "That means the join is not the problem; the binary just is not where we looked."
+            exit 1
+          fi
+          echo "using: $TS"
+          "$TS" version || true
+          echo "=== self ==="
+          "$TS" ip -4 || true
+          "$TS" status --json > /tmp/ts.json || echo "WARN: status --json failed"
+          python3 -c 'import json; d=json.load(open("/tmp/ts.json")); s=d.get("Self") or {}; print("node name :", (s.get("DNSName") or "").rstrip(".")); print("tailnet ip:", ", ".join(s.get("TailscaleIPs") or []) or "NONE"); print("tags      :", s.get("Tags") or "none"); print("peers     :", len(d.get("Peer") or {}))' || echo "WARN: could not parse status json"
+          echo "=== peers ==="
+          "$TS" status || true
+          echo "=== TCP reach to pi5 (100.99.220.10:2283, published docker port) ==="
+          if timeout 8 bash -c 'cat < /dev/null > /dev/tcp/100.99.220.10/2283'; then
+            echo "OK: pi5:2283 accepted a TCP connection over the tailnet"
+          else
+            echo "FATAL: could not TCP-connect to pi5 100.99.220.10:2283 over the tailnet"
+            echo "How to read this:"
+            echo "  - no tailnet ip above  -> the stored key is wrong, expired or revoked;"
+            echo "    regenerate an auth key and update the TS_AUTHKEY secret."
+            echo "  - joined, pi5 absent from the peer list -> device approval is pending;"
+            echo "    approve the node, or add an autoApprovers entry to the ACL policy."
+            echo "  - pi5 listed and reachable but TCP refused -> the host is not forwarding"
+            echo "    tailnet traffic to published docker ports."
+            exit 1
+          fi
