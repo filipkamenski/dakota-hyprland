@@ -97,7 +97,11 @@ jobs:
         id: bst-cache
         continue-on-error: true
         run: |
-          set -uo pipefail
+          # -e matters: without it a failed sync still ends on a later echo and
+          # reports GREEN, which is exactly the silent-drop failure R-CI-4 records
+          # for the old save. continue-on-error keeps a store outage from killing
+          # the build (a cold build is acceptable); this makes it VISIBLE.
+          set -euo pipefail
           echo "--- before restore ---"
           du -sh "$HOME/.cache/buildstream"/* 2>/dev/null || true
           python3 scripts/bst-store-sync.py pull \
