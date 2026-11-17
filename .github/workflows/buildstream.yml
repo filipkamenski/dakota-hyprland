@@ -56,58 +56,58 @@ jobs:
       - name: Lint Shipped Configs (layout messages, IPC names)
         run: python3 scripts/lint-config.py
 
-      # BuildStream artifact cache: keyed on the full project definition so it
-      # invalidates cleanly as ONE unit. No loose restore-keys (that caused the
-      # stale-artifact whack-a-mole).
-      # Restore and save are SEPARATE steps on purpose: the combined
-      # actions/cache@v4 post-step refused to save on the 2026-10-12 run
-      # ("State not set"), so a 4.5 h cold build cached nothing and the next run
-      # was cold again. Only successfully-built elements enter the local cache,
-      # so saving on failure is safe and saves the whole rebuild.
-      # R-CI-4: the primary key MUST carry github.run_id. actions/cache/save is
-      # immutable -- it refuses to overwrite an existing key. Without run_id,
-      # run 39284279800 has the SAME key as the 42 s run 39279994856 (neither
-      # project.conf nor elements/**/*.bst changed between them, only this
-      # workflow file, and hashFiles() does not read it), so its save would be
-      # rejected and hours of compiled artifacts silently dropped. restore-keys
-      # still walk the prefix chain, so the run_id suffix costs nothing on
-      # restore.
+      # The BuildStream store lives on the Pi and is reached over the tailnet
+      # (R-CI-6). GitHub's actions/cache caps a repo at 10 GB and evicts on idle;
+      # this store reaches 26-28 GB, so nothing ever accumulated across runs
+      # (R-CI-4: four passes, 61-107 elements each, zero banked).
       #
-      # Store paths are enumerated in the block below. Only replay-safe trees are
-      # cached: the CAS + artifact refs (content-addressed, so a stale entry can
-      # never be used for a changed element, it is simply never referenced) and
-      # the fetched sources. build/ is scratch and logs/ is noise -- caching them
-      # is what would push the archive toward actions/cache's 10 GB ceiling.
+      # The Pi store is keyed by PATH and the CAS is content-addressed, so a
+      # file's path is a function of its content: unchanged content keeps its
+      # path. Sync therefore sends only what is missing -- which is why there is
+      # no cache key, no run_id, and no immutability trap. The store overwrites
+      # in place, so there is nothing to invalidate and a failed save can simply
+      # be retried with the same path.
+      #
+      # Reachability is proven by .github/workflows/tailnet-smoke.yml: run
+      # 44109081071 logged "OK: pi5:2283 accepted a TCP connection over the
+      # tailnet", with the runner appearing as an ephemeral node.
+      - name: Join the tailnet (BuildStream store on the Pi)
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+
+      # Only replay-safe trees are synced: the CAS + artifact refs
+      # (content-addressed, so a stale entry can never be used for a changed
+      # element, it is simply never referenced) and the fetched sources. build/
+      # is scratch and logs/ is noise.
       # THE STORE PATHS, from BuildStream 2.8.1's own _context.py:
       #   casdir      = <cachedir>/cas             <- EVERY artifact's payload
       #   artifactdir = <cachedir>/artifacts/refs  <- refs pointing into the CAS
       #   sourcedir   = <cachedir>/sources         <- fetched tarballs
-      #   builddir    = <cachedir>/build           <- scratch, must NOT be cached
+      #   builddir    = <cachedir>/build           <- scratch, must NOT be synced
       # `artifactdir: ${XDG_CACHE_HOME}/buildstream/artifacts` is the BuildStream
-      # 1.x layout; 2.x replaced it with `cachedir` + a CAS. Caching `artifacts`
+      # 1.x layout; 2.x replaced it with `cachedir` + a CAS. Syncing `artifacts`
       # alone saved only refs: runs 43123944146/43142583233/43159907188 each
-      # archived ~1594 MB that was SOURCES ONLY -- pass 4's save (1671121316 B)
-      # and pass 5's (1671105831 B) landed within 15 KB of each other while 173
-      # more elements were "cached successfully" in between -- so every pass was
-      # a silent cold rebuild and the build could never converge. `cas` is the
-      # path that carries compiled elements between runs; the run log now prints
-      # the layout so this can never drift unnoticed again.
-      - name: Restore BuildStream Artifact Store
+      # archived ~1594 MB that was SOURCES ONLY while 173 more elements were
+      # "cached successfully" in between -- every pass was a silent cold rebuild
+      # and the build could never converge. `cas` is the path that carries
+      # compiled elements between runs; the log below prints the layout so this
+      # can never drift unnoticed again.
+      - name: Restore BuildStream Artifact Store (from the Pi)
         id: bst-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            ~/.cache/buildstream/cas
-            ~/.cache/buildstream/artifacts
-            ~/.cache/buildstream/sources
-          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}
-          # Content-addressed store, so a prefix restore is always safe and is
-          # what keeps a one-element edit from recompiling LLVM: without it, ANY
-          # change to elements/**/*.bst changes the key hash and guarantees a
-          # full cold build. Longest prefix first.
-          restore-keys: |
-            bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-
-            bst2-${{ runner.os }}-
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          echo "--- before restore ---"
+          du -sh "$HOME/.cache/buildstream"/* 2>/dev/null || true
+          python3 scripts/bst-store-sync.py pull \
+            --store "http://100.99.220.10:11001" \
+            --dir "$HOME/.cache/buildstream"
+          echo "--- after restore ---"
+          du -sh "$HOME/.cache/buildstream"/* 2>/dev/null || true
+          echo "cas blobs:      $(find "$HOME/.cache/buildstream/cas" -type f 2>/dev/null | wc -l)"
+          echo "artifact refs:  $(find "$HOME/.cache/buildstream/artifacts" -type f 2>/dev/null | wc -l)"
+          echo "cached sources: $(find "$HOME/.cache/buildstream/sources" -type f 2>/dev/null | wc -l)"
 
       # A pass can only produce an image if it FINISHES the graph by itself. The
       # CAS reaches 26-28 GB while GitHub allows 10 GB of cache per repository,
@@ -566,43 +566,38 @@ jobs:
           echo "artifact refs:  $(find "$HOME/.cache/buildstream/artifacts" -type f 2>/dev/null | wc -l)"
           echo "cached sources: $(find "$HOME/.cache/buildstream/sources" -type f 2>/dev/null | wc -l)"
 
-      - name: Save BuildStream Artifact Store
+      - name: Save BuildStream Artifact Store (to the Pi)
         id: bst-save
         if: always()
         continue-on-error: true
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/.cache/buildstream/cas
-            ~/.cache/buildstream/artifacts
-            ~/.cache/buildstream/sources
-          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}
+        run: |
+          set -uo pipefail
+          python3 scripts/bst-store-sync.py push \
+            --store "http://100.99.220.10:11001" \
+            --dir "$HOME/.cache/buildstream"
 
       # The save above is the ONLY thing that carries hours of compilation into
       # the next run, and it can fail while the step still reports GREEN. Run
-      # 43050817110 lost a whole 300-min pass that way: the reserve call hit a
-      # transient backend fault --
-      #   Attempt 1..4 of 5 failed: Unexpected token 'u', "upstream c"... is not
-      #   valid JSON  ->  Failed to save: Unable to reserve cache with key ...
-      #   ##[warning]Cache save failed.
-      # -- and `continue-on-error: true` turned it into a green step, so the run
-      # looked like an ordinary warming pass while the store was dropped
-      # entirely (the caches API showed total_count: 0).
-      # Retry with a FRESH key suffix: cache keys are immutable, so re-using the
-      # same key after a half-finished reservation can never succeed.
+      # 43050817110 lost a whole 300-min pass that way: a transient backend fault
+      # during the reserve call, swallowed by `continue-on-error: true`, left the
+      # run looking like an ordinary warming pass while the store was dropped
+      # entirely (the caches API showed total_count: 0). The sync script exits
+      # non-zero on any failed file and prints which ones, so that silence is not
+      # possible here.
+      # The retry is a plain re-run, not a fresh key: the Pi store is keyed by
+      # path and overwrites in place, so there is no immutable-key trap to work
+      # around -- it just sends whatever is still missing.
       # (`steps.bst-save.outcome` is the result BEFORE continue-on-error, which
       # is why it is the reliable signal here -- `conclusion` is not.)
-      - name: Retry BuildStream Artifact Store Save (fresh key)
+      - name: Retry BuildStream Artifact Store Save (same paths)
         id: bst-save-retry
         if: always() && steps.bst-save.outcome == 'failure'
         continue-on-error: true
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/.cache/buildstream/cas
-            ~/.cache/buildstream/artifacts
-            ~/.cache/buildstream/sources
-          key: bst2-${{ runner.os }}-${{ hashFiles('project.conf', 'elements/**/*.bst', 'versions.yaml') }}-${{ github.run_id }}-r1
+        run: |
+          set -uo pipefail
+          python3 scripts/bst-store-sync.py push \
+            --store "http://100.99.220.10:11001" \
+            --dir "$HOME/.cache/buildstream"
 
       # Step conclusions cannot tell you whether the store survived, so state it
       # explicitly: losing a warming pass's store is the difference between
