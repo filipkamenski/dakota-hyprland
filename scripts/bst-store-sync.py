@@ -33,6 +33,7 @@ import http.client
 import json
 import os
 import sys
+import threading
 import urllib.parse
 
 DEFAULT_PARTS = ("cas", "artifacts", "sources")
@@ -73,17 +74,47 @@ def local_manifest(root, parts):
     return found
 
 
+_LOCAL = threading.local()
+
+
+def connection(host, port, timeout):
+    """Per-thread keep-alive connection.
+
+    The store speaks HTTP/1.1 (server.py sets protocol_version) and sets
+    Content-Length on every response, so a connection can serve many objects.
+    Opening one per object cost the pipeline hours: a 113-minute restore and a
+    save that never finished inside the job's 6-hour cap, which is what left
+    the Pi holding cas/ blobs but zero artifacts/refs.
+    """
+    conn = getattr(_LOCAL, "conn", None)
+    if conn is None:
+        conn = http.client.HTTPConnection(host, port, timeout=timeout)
+        _LOCAL.conn = conn
+    return conn
+
+
+def drop_connection():
+    conn = getattr(_LOCAL, "conn", None)
+    if conn is not None:
+        try:
+            conn.close()
+        except Exception:  # noqa: BLE001
+            pass
+        _LOCAL.conn = None
+
+
 def fetch(host, port, root, rel, expected, retries=2):
     dest = os.path.join(root, rel)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     tmp = dest + ".part"
     for attempt in range(retries + 1):
         try:
-            conn = http.client.HTTPConnection(host, port, timeout=900)
+            conn = connection(host, port, 900)
             conn.request("GET", "/tree/" + urllib.parse.quote(rel))
             response = conn.getresponse()
             if response.status != 200:
-                conn.close()
+                response.read()
+                drop_connection()
                 raise RuntimeError(f"HTTP {response.status}")
             written = 0
             with open(tmp, "wb") as handle:
@@ -93,12 +124,12 @@ def fetch(host, port, root, rel, expected, retries=2):
                         break
                     handle.write(chunk)
                     written += len(chunk)
-            conn.close()
             if expected is not None and written != expected:
                 raise RuntimeError(f"size mismatch: got {written}, store says {expected}")
             os.replace(tmp, dest)
             return rel, written, None
         except Exception as exc:  # noqa: BLE001 - reported, not swallowed
+            drop_connection()
             if os.path.exists(tmp):
                 os.unlink(tmp)
             if attempt == retries:
@@ -110,7 +141,7 @@ def send(host, port, root, rel, size, retries=2):
     src = os.path.join(root, rel)
     for attempt in range(retries + 1):
         try:
-            conn = http.client.HTTPConnection(host, port, timeout=1800)
+            conn = connection(host, port, 1800)
             conn.putrequest("PUT", "/tree/" + urllib.parse.quote(rel))
             conn.putheader("Content-Length", str(size))
             conn.putheader("Content-Type", "application/octet-stream")
@@ -125,11 +156,12 @@ def send(host, port, root, rel, size, retries=2):
                     remaining -= len(chunk)
             response = conn.getresponse()
             body = response.read()
-            conn.close()
             if response.status != 201:
+                drop_connection()
                 raise RuntimeError(f"HTTP {response.status} {body[:120]!r}")
             return rel, size, None
         except Exception as exc:  # noqa: BLE001
+            drop_connection()
             if attempt == retries:
                 return rel, 0, f"{type(exc).__name__}: {exc}"
     return rel, 0, "unreachable"
@@ -174,7 +206,12 @@ def main():
     ap.add_argument("--store", required=True, help="e.g. http://100.99.220.10:11001")
     ap.add_argument("--dir", required=True, help="BuildStream cachedir, e.g. ~/.cache/buildstream")
     ap.add_argument("--parts", default=",".join(DEFAULT_PARTS))
-    ap.add_argument("--jobs", type=int, default=8)
+    # 32, not 8: the store is ~137k small objects, so throughput is dominated by
+    # round-trips, not bandwidth. At 8 threads with a fresh connection per object
+    # a restore took 113 minutes and a save could not finish inside the job's
+    # 6-hour cap. Connections are now reused per thread (connection()), which is
+    # what makes the extra workers useful.
+    ap.add_argument("--jobs", type=int, default=32)
     args = ap.parse_args()
 
     root = os.path.expanduser(args.dir)

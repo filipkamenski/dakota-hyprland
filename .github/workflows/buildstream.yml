@@ -233,15 +233,38 @@ jobs:
           awk 'NF{print $1}' .probe-states.txt | sort | uniq -c | sort -rn | head -8 || true
           NEED=$(awk 'NF{print $1}' .probe-states.txt | grep -civ 'cach' || true)
           NEED=${NEED:-9999}
-          echo "elements still needing work: $NEED"
+          ROWS=$(wc -l < .probe-states.txt 2>/dev/null || echo 0)
+          REFS=$(find "${HOME}/.cache/buildstream/artifacts" -type f 2>/dev/null | wc -l)
+          echo "elements still needing work: $NEED (state rows: $ROWS, local artifact refs: $REFS)"
           # A pass may use 300 min of build time; at the measured ~1.35
           # elements/min that is ~405 elements, so 380 leaves headroom.
-          if [ "$NEED" -eq 0 ] || [ "$NEED" -gt 380 ]; then
-            echo "::error::$NEED of $GRAPH elements still need building -- cannot finish inside one job (or the state query returned nothing); stopping before the build window"
-            if [ "$NEED" -eq 0 ]; then
-              echo "::error::state query produced no rows -- treat as a diagnostic failure, not a coverage result"
-            fi
+          #
+          # ZERO ROWS is a diagnostic failure: `bst show` died (inconsistent
+          # pipeline, load error) and the empty file would otherwise read as
+          # "nothing left to build".
+          if [ "$ROWS" -eq 0 ]; then
+            echo "::error::state query produced no rows -- bst show failed; see its output above. This is a diagnostic failure, not a coverage result"
             exit 1
+          fi
+          # A store that holds cas blobs but no refs cannot be used at all: bst
+          # resolves cached artifacts THROUGH artifacts/refs, so with zero refs
+          # every element looks uncached and the whole graph lands in NEED. That
+          # is not a "too big to finish" result -- it is a store with no index,
+          # and refusing here WEDGES the pipeline: no refs means no build, and no
+          # build means no refs. Observed on 2026-11-18 (run 44308087408): the
+          # Pi held 5.74 GB of cas/ (136,803 objects) and 0 artifacts/ and 0
+          # sources/, because the previous save was cut by the 6-hour cap while
+          # still pushing cas -- `bst-store-sync.py` pushes parts in cas,
+          # artifacts, sources order, so the small index lands LAST.
+          # In that state a cold build is the only way to repopulate the store,
+          # so warn and proceed instead of failing.
+          if [ "$NEED" -gt 380 ]; then
+            if [ "$REFS" -eq 0 ]; then
+              echo "::warning::the local store has no artifact refs (cas-only), so nothing can count as cached; proceeding with a cold build to repopulate it"
+            else
+              echo "::error::$NEED of $GRAPH elements still need building -- cannot finish inside one job; stopping before the build window"
+              exit 1
+            fi
           fi
           echo "coverage is good: $HITS pulled remotely, only $NEED elements left to build"
 
