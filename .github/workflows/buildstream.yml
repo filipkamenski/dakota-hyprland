@@ -113,9 +113,22 @@ jobs:
           set -euo pipefail
           echo "--- before restore ---"
           du -sh "$HOME/.cache/buildstream"/* 2>/dev/null || true
-          python3 scripts/bst-store-sync.py pull \
-            --store "http://100.99.220.10:11001" \
-            --dir "$HOME/.cache/buildstream"
+          STORE=http://100.99.220.10:11001
+          # A store with cas blobs but no artifacts/refs is unusable: bst resolves
+          # cached artifacts through the refs, so pulling 6 GB of cas costs 24
+          # minutes and changes nothing. Ask before paying. (The 2026-11-18 runs
+          # restored 129,708 objects into a ref-less store for exactly this
+          # reason: the save pushes cas first and the 6-hour cap cut it before it
+          # reached the small index.)
+          REMOTE_REFS=$(curl -s --max-time 120 "$STORE/tree?prefix=artifacts" \
+            | python3 -c 'import sys,json;print(len(json.load(sys.stdin)))' 2>/dev/null || echo 0)
+          if [ "$REMOTE_REFS" -eq 0 ]; then
+            echo "::warning::the store holds no artifact refs (cas-only), so a restore cannot help; skipping it and building cold"
+          else
+            python3 scripts/bst-store-sync.py pull \
+              --store "$STORE" \
+              --dir "$HOME/.cache/buildstream"
+          fi
           echo "--- after restore ---"
           du -sh "$HOME/.cache/buildstream"/* 2>/dev/null || true
           echo "cas blobs:      $(find "$HOME/.cache/buildstream/cas" -type f 2>/dev/null | wc -l)"
@@ -133,6 +146,16 @@ jobs:
       # build that follows transfers nothing twice.
       - name: Probe Remote Artifact-Cache Coverage
         id: bst-probe
+        # ADVISORY, not a gate. It exists to fail fast when the graph is too big
+        # to finish in one job — but on 2026-11-18 it failed twice for reasons
+        # that had nothing to do with coverage (run 44308087408: a store with cas
+        # blobs and no refs; run 44331385330: 5.7 min, cause unknown because the
+        # job was still running and its log is unreadable until it ends), and
+        # each failure silently skipped the build, compose, gate and publish
+        # steps. The cost of a wrong "go" is a cold build that the build step
+        # does anyway (it pulls from the remote caches as it goes); the cost of a
+        # wrong "stop" is the whole cycle. So it warns; the build decides.
+        continue-on-error: true
         run: |
           set -eu
           mkdir -p "$HOME/.cache/buildstream"
