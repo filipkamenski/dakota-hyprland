@@ -191,7 +191,8 @@ config:
           # is the net that will tell you.
           inst_libdir_file \
               libacl.so.1 libattr.so.1 libblkid.so.1 libc.so.6 libcom_err.so.2 \
-              libcomposefs.so.1 libcrypt.so.2 libcrypto.so.3 libe2p.so.2 libeconf.so.0 \
+              libcomposefs.so.1 libcrypt.so.2 libcryptsetup.so.12 libcrypto.so.3 \
+              libe2p.so.2 libeconf.so.0 libdevmapper.so.1.02 libjson-c.so.5 \
               libelf.so.1 libext2fs.so.2 libffi.so.8 libgcc_s.so.1 libgio-2.0.so.0 \
               libglib-2.0.so.0 libgmodule-2.0.so.0 libgobject-2.0.so.0 libkeyutils.so.1 \
               liblzma.so.5 liblzo2.so.2 libm.so.6 libmount.so.1 libncursesw.so.6 \
@@ -234,6 +235,19 @@ config:
       # module tree wins.
       # --tmpdir keeps dracut out of the read-only sandbox root.
       # --libdirs is load-bearing: inst_libdir_file in our module globs $libdirs.
+      #
+      # --force-add, NOT --add: dracut-ng 112 (the FDS pin) split the crypt stack
+      # out of 70crypt into its own 71systemd-cryptsetup module, and BOTH gate
+      # their check() on a binary dracut could not resolve in this sandbox, so
+      # both were silently skipped. The published image proved the damage:
+      # :test sha256:a65d704a… carries dm_crypt.ko and nothing that can unlock a
+      # LUKS volume -- no cryptsetup, no systemd-cryptsetup, no libcryptsetup, no
+      # dracut-crypt-generator -- while the OS tree it was built from has all of
+      # them. --force-add skips check() entirely (dracut.sh:1787, 1812), which is
+      # what a cross-built hostonly=no initramfs needs. The gate below now
+      # asserts the REAL paths, so a silent `inst_multiple -o` skip -- which is
+      # how 71systemd-cryptsetup's install() swallows a missing binary -- cannot
+      # pass it again.
       dracut --force --verbose --reproducible --no-machineid \
              --tmpdir "$tmp" \
              --kmoddir "$stage/lib/modules/$kver" \
@@ -243,7 +257,7 @@ config:
              --include "$stage/etc/ld.so.conf" /etc/ld.so.conf \
              --include "$stage/etc/ld.so.conf.d" /etc/ld.so.conf.d \
              --include "$stage/etc/ld.so.cache" /etc/ld.so.cache \
-             --add "bootc dakota-base-libs" \
+             --force-add "crypt systemd-cryptsetup bootc dakota-base-libs" \
              --add-drivers "dm_mod dm_crypt btrfs" \
              --xz \
              "$img"
@@ -303,7 +317,20 @@ config:
       # "bootc-initramfs-setup", which this list asserted until run 43443916696
       # failed the gate on it while lsinitrd showed the file present under its
       # real path. Read the name off the generated image, not off memory.
-      for want in dm-crypt.ko btrfs.ko cryptsetup ostree-prepare-root \
+      #
+      # The crypt stack is asserted by DISTINCTIVE TOKEN, not by the bare word
+      # "cryptsetup". That word was the hole: lsinitrd lists usr/lib/systemd/
+      # system/cryptsetup.target and usr/lib/nvpcr/cryptsetup.nvpcr, so `grep -q
+      # cryptsetup` passed on an initramfs with no unlock agent at all -- the
+      # same loose-substring failure the .ko assertions above were written to
+      # avoid for btrfs. "systemd-cryptsetup" and "dracut-crypt-generator" can
+      # only come from the modules themselves.
+      for want in dm-crypt.ko btrfs.ko \
+                  systemd-cryptsetup \
+                  systemd-cryptsetup-generator \
+                  dracut-crypt-generator \
+                  libcryptsetup.so.12 \
+                  ostree-prepare-root \
                   ostree/prepare-root.conf \
                   bootc/initramfs-setup bootc-root-setup.service; do
         printf '%s\n' "$listing" | grep -q -- "$want" || missing="$missing $want"
