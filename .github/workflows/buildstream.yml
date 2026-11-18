@@ -2,7 +2,16 @@ name: BuildStream OS Pipeline
 
 on:
   push:
-    branches: [ main ]
+    # main publishes :latest; the feature branch is scoped in so a push starts
+    # the pipeline without a workflow_dispatch token. The fine-grained PAT in
+    # use has contents:write but NOT the Workflow permission, so
+    # POST /actions/workflows/<id>/dispatches answers 403 — and a push runs the
+    # workflow file carried by the commit itself, which is the documented
+    # bootstrap for a workflow that is not yet dispatchable (GitHub only
+    # dispatches workflows present on the default branch). Keep the branch list
+    # here rather than committing anything to main to make it dispatchable:
+    # a push to main publishes :latest from whatever main holds.
+    branches: [ main, fix/ci-compose-order-and-verify ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
