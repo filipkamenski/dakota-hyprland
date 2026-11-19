@@ -403,8 +403,9 @@ jobs:
           # report success on a timeout. Capture it directly instead.
           set +e
           timeout --signal=TERM --kill-after=60 330m \
-            bst --error-lines 200 --message-lines 20 build "$BST_TARGET"
-          rc=$?
+            bst --error-lines 200 --message-lines 20 build "$BST_TARGET" 2>&1 \
+            | tee /workspace/.bst-build.log
+          rc=${PIPESTATUS[0]}
           set -e
           if [ "$rc" -ne 0 ]; then
             if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
@@ -412,6 +413,21 @@ jobs:
             else
               echo "bst build failed with exit code $rc"
             fi
+            # The failing element must survive the run. On run 44340402498 the
+            # whole job's log archive came back as a 22-byte empty zip (cancelled
+            # by the 6 h cap), so "which element failed" was unanswerable and cost
+            # a full rebuild cycle. Annotations are returned by the API even for
+            # those runs, and the log itself is uploaded as an artifact.
+            echo '--- failing elements (annotations) ---'
+            grep -E 'FAILURE |Pipeline Summary|^  .* FAILURE|failed to build' /workspace/.bst-build.log \
+              | tail -20 | sed 's/^/::error::/' || true
+            {
+              echo '## BuildStream build failed'
+              echo ''
+              echo '```'
+              grep -E 'FAILURE |Pipeline Summary|failed to build' /workspace/.bst-build.log | tail -40 || true
+              echo '```'
+            } >> "${GITHUB_STEP_SUMMARY:-/dev/null}" 2>/dev/null || true
             exit "$rc"
           fi
 
@@ -426,6 +442,21 @@ jobs:
             bst-runner \
             bash /workspace/.ci-build.sh
           rm -f .ci-build.sh
+
+      # GitHub returned an EMPTY log archive (22-byte zip) for run 44340402498
+      # once it was cancelled at the 6-hour cap, so the failure evidence was lost
+      # with the runner. Artifacts outlive that.
+      - name: Upload BuildStream log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bst-build-log
+          path: |
+            .bst-build.log
+            .probe.log
+            .probe-states.txt
+            .probe-graph.txt
+          if-no-files-found: ignore
 
       # R-IMG-1: the image IS the BuildStream rootfs. Nothing is merged into a
       # second distro. The previous design layered this rootfs over
@@ -631,7 +662,13 @@ jobs:
         continue-on-error: true
         run: |
           set -uo pipefail
-          python3 scripts/bst-store-sync.py push \
+          # Bounded on purpose. On run 44340402498 this step ran from 18:46 to the
+          # 22:01 six-hour kill while pushing nothing measurable, and the job died
+          # with steps 16 and 17 (retry + verify) still unstarted -- so the store
+          # was never confirmed and the run produced no evidence either. A 45-min
+          # cap leaves room for the retry to still happen.
+          timeout --signal=TERM --kill-after=60 45m \
+            python3 scripts/bst-store-sync.py push \
             --store "http://100.99.220.10:11001" \
             --dir "$HOME/.cache/buildstream"
 
