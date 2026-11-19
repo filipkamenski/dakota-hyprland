@@ -168,6 +168,32 @@ config:
       for f in /usr/lib/dracut/modules.d/*; do
         ln -sfn "$f" "$sysdracut/modules.d/$(basename "$f")"
       done
+
+      # --- cut 70crypt's dependency on the 'dm' module --------------------
+      # dracut-ng 112's 70crypt declares `depends() { echo crypt-lib dm
+      # initqueue; }`, and 70dm's check() requires the `dmsetup` binary -- which
+      # freedesktop-sdk does NOT build (lvm2 tools are not packaged). dracut then
+      # fails the whole chain, verbatim from run 44498369602:
+      #   dracut[E]: Module 'crypt' depends on module 'dm', which can't be installed
+      #   dracut[E]: Module 'systemd-cryptsetup' depends on module 'crypt', which can't be installed
+      #   dracut[E]: Module 'crypt' cannot be installed.
+      # That is why the previous build died 148 minutes in, and it is also the
+      # other half of the original bug: without the crypt module there is nothing
+      # to unlock a LUKS root with.
+      # cryptsetup talks to device-mapper directly; dmsetup is not needed at
+      # initramfs time. The module tree here is a symlink farm into a read-only
+      # dependency, so 70crypt is materialised as a real copy before editing.
+      rm -f "$sysdracut/modules.d/70crypt"
+      cp -a /usr/lib/dracut/modules.d/70crypt "$sysdracut/modules.d/70crypt"
+      sed -i 's/^\([[:space:]]*echo[[:space:]]\+\)crypt-lib dm initqueue/\1crypt-lib initqueue/' \
+        "$sysdracut/modules.d/70crypt/module-setup.sh"
+      if grep -q 'crypt-lib dm initqueue' "$sysdracut/modules.d/70crypt/module-setup.sh"; then
+        echo "FATAL: could not drop the 'dm' dependency from 70crypt" >&2
+        grep -n -A3 '^depends()' "$sysdracut/modules.d/70crypt/module-setup.sh" >&2
+        exit 1
+      fi
+      echo "initramfs: 70crypt depends on: $(sed -n '/^depends()/,/^}/p' "$sysdracut/modules.d/70crypt/module-setup.sh" | tr '\n' ' ')"
+
       install -d "$sysdracut/modules.d/99dakota-base-libs"
       cat > "$sysdracut/modules.d/99dakota-base-libs/module-setup.sh" <<'EOM'
       #!/bin/bash
