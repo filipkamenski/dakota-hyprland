@@ -38,10 +38,15 @@ import urllib.parse
 
 DEFAULT_PARTS = ("cas", "artifacts", "sources")
 
-# Push order. `artifacts/refs` is an index INTO the cas, so it goes last and only
-# after main() has verified the cas is complete remotely. sources sit between the
-# two because they are independent of the index and much smaller than the cas.
-PUSH_ORDER = ("cas", "sources", "artifacts")
+# Push order, decided by what a truncated save must not lose.
+#   cas        - the bulk; nothing can be cached without it
+#   artifacts  - the INDEX. Published right after the cas is verified complete,
+#                because a save that ends early must still leave bst able to see
+#                what it has. (Missing sources are recoverable -- bst re-fetches
+#                them from upstream; a missing index is not, it makes the whole
+#                store invisible, which is the state that wasted a day.)
+#   sources    - last, and the only part that may be cut without harm.
+PUSH_ORDER = ("cas", "artifacts", "sources")
 
 
 def endpoint(store):

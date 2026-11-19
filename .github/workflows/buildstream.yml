@@ -678,12 +678,16 @@ jobs:
         continue-on-error: true
         run: |
           set -uo pipefail
-          # Bounded on purpose. On run 44340402498 this step ran from 18:46 to the
-          # 22:01 six-hour kill while pushing nothing measurable, and the job died
-          # with steps 16 and 17 (retry + verify) still unstarted -- so the store
-          # was never confirmed and the run produced no evidence either. A 45-min
-          # cap leaves room for the retry to still happen.
-          timeout --signal=TERM --kill-after=60 45m \
+          # Bounded, but generously. Run 44340402498 reached the 6-hour kill in
+          # this step with the retry and verify still unstarted; 45 min then
+          # proved too little to push a full CAS (~10 GB at the measured ~4 MB/s),
+          # so the index never landed. 120 min fits after a ~2.5 h build while
+          # still leaving room for the retry and the verify step.
+          #
+          # The index goes out right after the cas is verified (see PUSH_ORDER in
+          # scripts/bst-store-sync.py): a save cut during `sources` is harmless,
+          # a save cut before `artifacts` leaves a store bst cannot see.
+          timeout --signal=TERM --kill-after=60 120m \
             python3 scripts/bst-store-sync.py push \
             --store "http://100.99.220.10:11001" \
             --dir "$HOME/.cache/buildstream"
