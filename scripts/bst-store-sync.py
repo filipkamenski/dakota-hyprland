@@ -38,6 +38,11 @@ import urllib.parse
 
 DEFAULT_PARTS = ("cas", "artifacts", "sources")
 
+# Push order. `artifacts/refs` is an index INTO the cas, so it goes last and only
+# after main() has verified the cas is complete remotely. sources sit between the
+# two because they are independent of the index and much smaller than the cas.
+PUSH_ORDER = ("cas", "sources", "artifacts")
+
 
 def endpoint(store):
     parts = urllib.parse.urlsplit(store)
@@ -220,41 +225,75 @@ def main():
     for part in parts:
         os.makedirs(os.path.join(root, part), exist_ok=True)
 
-    stored = {}
-    for part in parts:
+    if args.direction == "push":
+        # ORDER IS LOAD-BEARING. `artifacts/refs` is the INDEX: bst resolves a
+        # cached artifact through it, so a ref that lands before its cas blob
+        # makes bst report an artifact it then cannot read. Pushing cas first and
+        # the index last is what makes a truncated save merely useless instead of
+        # actively misleading -- the failure mode that left the Pi holding 6 GB
+        # of cas and zero refs for a whole day.
+        ordered = tuple(p for p in PUSH_ORDER if p in parts) + tuple(
+            p for p in parts if p not in PUSH_ORDER
+        )
+    else:
+        ordered = parts
+
+    rc = 0
+    for part in ordered:
         try:
-            stored.update(inventory(host, port, part))
+            stored = inventory(host, port, part)
         except Exception as exc:  # noqa: BLE001
             print(f"WARNING: inventory for {part!r} failed ({exc}); treating it as empty")
+            stored = {}
+        local = local_manifest(root, (part,))
 
-    local = local_manifest(root, parts)
+        if args.direction == "pull":
+            todo = {rel: size for rel, size in stored.items() if local.get(rel) != size}
+            work = {rel: (fetch, (host, port, root, rel, size)) for rel, size in todo.items()}
+            label = "fetched"
+            print(f"pull[{part}]: store holds {len(stored)}, local has {len(local)}; {len(todo)} to fetch")
+        else:
+            # Publish the index only once everything it references is really there.
+            if part == "artifacts":
+                try:
+                    remote_cas = inventory(host, port, "cas")
+                except Exception as exc:  # noqa: BLE001
+                    print(f"::error::cannot read the remote cas index ({exc}); NOT publishing artifacts/refs")
+                    return 1
+                local_cas = local_manifest(root, ("cas",))
+                missing = [rel for rel in local_cas if rel not in remote_cas]
+                if missing:
+                    print(
+                        f"::error::refusing to publish artifacts/refs: {len(missing)} of "
+                        f"{len(local_cas)} local cas objects are absent from the store "
+                        f"(e.g. {missing[0]}); a ref without its blob is worse than no ref"
+                    )
+                    return 1
+                print(f"push: cas verified complete against the store ({len(remote_cas)} objects) - publishing the index")
+            todo = {rel: size for rel, size in local.items() if stored.get(rel) != size}
+            work = {rel: (send, (host, port, root, rel, size)) for rel, size in todo.items()}
+            label = "sent"
+            print(f"push[{part}]: local has {len(local)}, store holds {len(stored)}; {len(todo)} to send")
 
-    if args.direction == "pull":
-        todo = {rel: size for rel, size in stored.items() if local.get(rel) != size}
-        print(f"pull: store holds {len(stored)} files, local has {len(local)}; {len(todo)} to fetch")
-        work = {rel: (fetch, (host, port, root, rel, size)) for rel, size in todo.items()}
-        label = "fetched"
-    else:
-        todo = {rel: size for rel, size in local.items() if stored.get(rel) != size}
-        print(f"push: local has {len(local)} files, store holds {len(stored)}; {len(todo)} to send")
-        work = {rel: (send, (host, port, root, rel, size)) for rel, size in todo.items()}
-        label = "sent"
+        if not work:
+            print(f"{args.direction}[{part}]: nothing to transfer - already in sync")
+            continue
 
-    if not work:
-        print(f"{args.direction}: nothing to transfer - the store is already in sync")
-        return 0
-
-    done, moved, failures = transfer(work, args.jobs, label)
-    print(
-        f"{args.direction}: {done} files considered, {human(moved)} transferred, "
-        f"{len(failures)} failed"
-    )
-    for rel, error in failures[:20]:
-        print(f"  FAILED {rel}: {error}")
-    if failures:
-        print(f"::warning::{len(failures)} file(s) failed to {args.direction}")
-        return 1
-    return 0
+        done, moved, failures = transfer(work, args.jobs, label)
+        print(
+            f"{args.direction}[{part}]: {done} files considered, {human(moved)} transferred, "
+            f"{len(failures)} failed"
+        )
+        for rel, error in failures[:20]:
+            print(f"  FAILED {rel}: {error}")
+        if failures:
+            print(f"::warning::{len(failures)} file(s) failed to {args.direction} in {part}")
+            # Never publish the index on top of a failed cas push: return before
+            # the artifacts part can run.
+            if part == "cas":
+                return 1
+            rc = 1
+    return rc
 
 
 if __name__ == "__main__":

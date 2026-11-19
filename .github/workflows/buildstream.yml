@@ -404,7 +404,7 @@ jobs:
           set +e
           timeout --signal=TERM --kill-after=60 330m \
             bst --error-lines 200 --message-lines 20 build "$BST_TARGET" 2>&1 \
-            | tee /workspace/.bst-build.log
+            | tee /workspace/bst-build.log
           rc=${PIPESTATUS[0]}
           set -e
           if [ "$rc" -ne 0 ]; then
@@ -413,27 +413,24 @@ jobs:
             else
               echo "bst build failed with exit code $rc"
             fi
-            # The failing element must survive the run. On run 44340402498 the
-            # whole job's log archive came back as a 22-byte empty zip (cancelled
-            # by the 6 h cap), so "which element failed" was unanswerable and cost
-            # a full rebuild cycle. Annotations are returned by the API even for
-            # those runs, and the log itself is uploaded as an artifact.
-            echo '--- failing elements (annotations) ---'
-            grep -E 'FAILURE |Pipeline Summary|^  .* FAILURE|failed to build' /workspace/.bst-build.log \
-              | tail -20 | sed 's/^/::error::/' || true
-            {
-              echo '## BuildStream build failed'
-              echo ''
-              echo '```'
-              grep -E 'FAILURE |Pipeline Summary|failed to build' /workspace/.bst-build.log | tail -40 || true
-              echo '```'
-            } >> "${GITHUB_STEP_SUMMARY:-/dev/null}" 2>/dev/null || true
+            # The log is tee'd to /workspace/bst-build.log (NON-hidden: v4 of
+            # upload-artifact skips dotfiles by default, which is how the previous
+            # attempt "succeeded" while uploading nothing). The HOST step lifts the
+            # tail out of that file into annotations and the job summary -- doing it
+            # inside this container did not become annotations, and the container
+            # cannot write $GITHUB_STEP_SUMMARY (the path does not exist there).
             exit "$rc"
           fi
 
           echo 'Checking out compiled rootfs...'
           bst artifact checkout "$BST_TARGET" --directory /workspace/rootfs
           BSTSCRIPT
+          # Capture the container's status instead of letting `bash -e` abort on
+          # it: the failing element has to be lifted OUT of bst-build.log on the
+          # HOST. The container cannot write $GITHUB_STEP_SUMMARY (that path does
+          # not exist inside it), and lines it prints internally have already
+          # proved unreliable as annotations.
+          set +e
           docker run --privileged --rm \
             -v ${{ github.workspace }}:/workspace \
             -v "$HOME/.cache/buildstream:/root/.cache/buildstream" \
@@ -441,7 +438,25 @@ jobs:
             -w /workspace \
             bst-runner \
             bash /workspace/.ci-build.sh
+          build_rc=$?
+          set -e
           rm -f .ci-build.sh
+          if [ "$build_rc" -ne 0 ]; then
+            if [ -f bst-build.log ]; then
+              echo "--- last 50 lines of the bst log (annotations) ---"
+              tail -n 50 bst-build.log | sed 's/^/::error::/' || true
+              {
+                echo '## BuildStream build failed'
+                echo ''
+                echo '```'
+                tail -n 60 bst-build.log
+                echo '```'
+              } >> "$GITHUB_STEP_SUMMARY" || true
+            else
+              echo "::error::bst-build.log was not produced at all - the build never started (docker/bst bootstrap failure)"
+            fi
+            exit "$build_rc"
+          fi
 
       # GitHub returned an EMPTY log archive (22-byte zip) for run 44340402498
       # once it was cancelled at the 6-hour cap, so the failure evidence was lost
@@ -452,10 +467,11 @@ jobs:
         with:
           name: bst-build-log
           path: |
-            .bst-build.log
+            bst-build.log
             .probe.log
             .probe-states.txt
             .probe-graph.txt
+          include-hidden-files: true
           if-no-files-found: ignore
 
       # R-IMG-1: the image IS the BuildStream rootfs. Nothing is merged into a
