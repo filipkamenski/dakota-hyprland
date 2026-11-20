@@ -615,11 +615,18 @@ jobs:
           echo "boot-readiness gate: PASS"
 
       - name: Publish Image to GHCR
-        # :latest is only ever written by a push to main. A workflow_dispatch on
-        # a branch publishes the same image to :test so it can be pulled and
-        # booted without moving the release tag; PRs never publish (and never
+        # :latest is only ever written by a push to main. A branch push or a
+        # workflow_dispatch publishes the same image to :test so it can be pulled
+        # and booted without moving the release tag; PRs never publish (and never
         # log in to GHCR, above).
-        if: ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch') && env.BST_TARGET == 'image/image.bst'
+        #
+        # The branch must be NAMED here: run 44556398935 built, composed and
+        # passed the boot-readiness gate, then skipped publishing purely because
+        # this condition only knew about main and workflow_dispatch -- and the
+        # workflow_dispatch route is closed to this PAT (403, no Workflow
+        # permission). PUBLISH_TAG already resolves to :test for anything that is
+        # not main, so naming the branch cannot write :latest.
+        if: ((github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/ci-compose-order-and-verify')) || github.event_name == 'workflow_dispatch') && env.BST_TARGET == 'image/image.bst'
         run: |
           # A bootc image without bootc is not deployable, and an image without
           # an initramfs cannot assemble a LUKS+Btrfs root. Both are separate
@@ -690,7 +697,15 @@ jobs:
           timeout --signal=TERM --kill-after=60 120m \
             python3 scripts/bst-store-sync.py push \
             --store "http://100.99.220.10:11001" \
-            --dir "$HOME/.cache/buildstream"
+            --dir "$HOME/.cache/buildstream" 2>&1 | tee bst-save.log
+
+      - name: Upload store-save log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bst-save-log
+          path: bst-save.log
+          if-no-files-found: ignore
 
       # The save above is the ONLY thing that carries hours of compilation into
       # the next run, and it can fail while the step still reports GREEN. Run
